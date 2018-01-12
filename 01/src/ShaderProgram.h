@@ -33,7 +33,7 @@ public:
             return;
         }
         // Create input layout
-        hr = device->CreateInputLayout(layout.data(), layout.size(), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &inputLayout_);
+        hr = device->CreateInputLayout(layout.data(), static_cast<UINT>(layout.size()), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &inputLayout_);
         pVSBlob->Release();
         if (FAILED(hr)) {
             MessageBox(nullptr, L"Failed to create input layout", L"Error", MB_OK);
