@@ -34,21 +34,38 @@ using namespace DirectX;
 //--------------------------------------------------------------------------------------
 // Structures
 //--------------------------------------------------------------------------------------
-struct SimpleVertex
-{
+struct SimpleVertex {
     XMFLOAT3 Pos;
     XMFLOAT3 Normal;
+    XMFLOAT3 Color;
 };
 
+struct PointLight {
+    XMFLOAT4 Position;
+    XMFLOAT4 Color;
+};
 
-struct ConstantBuffer
-{
+struct DirLight {
+    XMFLOAT4 Direction;
+    XMFLOAT4 Color;
+};
+
+struct ConstantBuffer {
 	XMMATRIX mWorld;
 	XMMATRIX mView;
 	XMMATRIX mProjection;
-	XMFLOAT4 vLightDir[2];
-	XMFLOAT4 vLightColor[2];
-	XMFLOAT4 vOutputColor;
+    PointLight PointLights[2];
+    DirLight DirLights[2];
+    XMFLOAT3 vViewPos;
+    int PointLightCount;
+    int DirLightCount;
+};
+
+struct SolidConstBuffer {
+    XMMATRIX mWorld;
+    XMMATRIX mView;
+    XMMATRIX mProjection;
+    XMFLOAT4 vOutputColor;
 };
 
 
@@ -63,24 +80,19 @@ XMMATRIX                g_World;
 XMMATRIX                g_Projection;
 Camera                  camera(XMFLOAT3(0.0f, 4.0f, -10.0f));
 
-bool isFirstMouse = true;
-POINT lastCursorPos;
+bool shouldExit = false;
 
 std::unique_ptr<Mouse> g_mouse;
 
-RECT wRect;
-int mouseWindowX;
-int mouseWindowY;
-
 std::unique_ptr<ShaderProgram<ConstantBuffer>> g_cubeShader;
-std::unique_ptr<ShaderProgram<ConstantBuffer>> g_solidShader;
+std::unique_ptr<ShaderProgram<SolidConstBuffer>> g_solidShader;
 
 ContextWrapper g_context;
 
 //--------------------------------------------------------------------------------------
 // Forward declarations
 //--------------------------------------------------------------------------------------
-HRESULT InitDevice();
+HRESULT Setup();
 void cleanupDevice();
 void render();
 
@@ -105,7 +117,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         MessageBox(nullptr, L"Failed to init context wrapper", L"Error", MB_OK);
         return 0;
     }
-    hr = InitDevice();
+    
+    hr = Setup();
     if (FAILED(hr)) {
         MessageBox(nullptr, L"Failed to init device", L"Error", MB_OK);
         return 0;
@@ -117,7 +130,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     // Main message loop
     MSG msg = { 0 };
-    while (WM_QUIT != msg.message) {
+    while (WM_QUIT != msg.message && !shouldExit) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE | PM_NOYIELD)) {
             switch (msg.message) {
                 case WM_INPUT:
@@ -156,50 +169,49 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 //--------------------------------------------------------------------------------------
 // Create Direct3D device and swap chain
 //--------------------------------------------------------------------------------------
-HRESULT InitDevice()
+HRESULT Setup()
 {
     // Define the input layout
-    std::vector<D3D11_INPUT_ELEMENT_DESC> layout =
-    {
+    std::vector<D3D11_INPUT_ELEMENT_DESC> layout = {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
-    g_cubeShader = std::make_unique<ShaderProgram<ConstantBuffer>>(g_context.g_pd3dDevice, L"shaders/Tutorial06.fx", "VS", L"shaders/tutorial06.fx", "PS", layout);
-    g_solidShader = std::make_unique<ShaderProgram<ConstantBuffer>>(g_context.g_pd3dDevice, L"shaders/Tutorial06.fx", "VS", L"shaders/tutorial06.fx", "PSSolid", layout);
+    g_cubeShader = std::make_unique<ShaderProgram<ConstantBuffer>>(g_context.g_pd3dDevice, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
+    g_solidShader = std::make_unique<ShaderProgram<SolidConstBuffer>>(g_context.g_pd3dDevice, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
 
     // Create vertex buffer
-    SimpleVertex vertices[] =
-    {
-        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
-        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
-        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
-        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
+    SimpleVertex vertices[] = {
+        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.2f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.2f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.2f, 1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(1.0f, 0.2f, 0.0f) },
 
-        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
-        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
-        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
-        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
 
-        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT3(1.0f, 0.2f, 0.0f) },
 
-        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
 
-        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
-        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
-        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
-        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
 
-        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
-        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
-        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
-        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(1.0f, 0.2f, 0.0f) },
     };
 
     D3D11_BUFFER_DESC bd;
@@ -269,7 +281,7 @@ HRESULT InitDevice()
     g_World = XMMatrixIdentity();
 
     // Initialize the projection matrix
-    g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, g_context.WIDTH / (FLOAT)g_context.HEIGHT, 0.01f, 100.0f);
+    g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, g_context.WIDTH / static_cast<FLOAT>(g_context.HEIGHT), 0.01f, 100.0f);
 
     return S_OK;
 }
@@ -284,6 +296,9 @@ void handleInput(float deltaTime) {
     if (GetActiveWindow() != g_context.g_hWnd)
         return;
 
+    if (GetAsyncKeyState(VK_ESCAPE)) {
+        shouldExit = true;
+    }
     if (GetAsyncKeyState(0x57)) {
         camera.ProcessKeyboard(CameraMovement::FORWARD, deltaTime);
     }
@@ -295,6 +310,12 @@ void handleInput(float deltaTime) {
     }
     if (GetAsyncKeyState(0x44)) {
         camera.ProcessKeyboard(CameraMovement::RIGHT, deltaTime);
+    }
+    if (GetAsyncKeyState(0x20)) {
+        camera.ProcessKeyboard(CameraMovement::UP, deltaTime);
+    }
+    if (GetAsyncKeyState(0x11)) {
+        camera.ProcessKeyboard(CameraMovement::DOWN, deltaTime);
     }
 
     auto mouse = g_mouse->GetState();
@@ -322,22 +343,24 @@ void render()
 
     // Rotate cube around the origin
     g_World = XMMatrixRotationY(timeFromStart);
+    g_World = XMMatrixIdentity();
 
     // Setup our lighting parameters
-    XMFLOAT4 vLightDirs[2] = {
-        XMFLOAT4(-0.577f, 0.577f, -0.577f, 1.0f),
-        XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f),
+    XMFLOAT4 sunPosition = XMFLOAT4(-3.0f, 3.0f, -3.0f, 1.0f);
+    const XMFLOAT4 sunColor = XMFLOAT4(0.992f, 0.772f, 0.075f, 1.0f);
+    
+    XMFLOAT4 vLightPositions[1] = {
+        XMFLOAT4(0.0f, 0.0f, -5.0f, 1.0f),
     };
-    XMFLOAT4 vLightColors[2] = {
-        XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
-        XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f)
+    XMFLOAT4 vLightColors[1] = {
+        XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f)
     };
 
     // Rotate the second light around the origin
-    const XMMATRIX mRotate = XMMatrixRotationY(-2.0f * timeFromStart);
-    XMVECTOR vLightDir = XMLoadFloat4(&vLightDirs[1]);
-    vLightDir = XMVector3Transform(vLightDir, mRotate);
-    XMStoreFloat4(&vLightDirs[1], vLightDir);
+    const XMMATRIX mRotate = XMMatrixRotationY(-XM_PIDIV2 * timeFromStart);
+    XMVECTOR vLightPos = XMLoadFloat4(&vLightPositions[0]);
+    vLightPos = XMVector3Transform(vLightPos, mRotate);
+    XMStoreFloat4(&vLightPositions[0], vLightPos);
 
     g_context.g_pImmediateContext->ClearRenderTargetView(g_context.g_pRenderTargetView, Colors::MidnightBlue);
     g_context.g_pImmediateContext->ClearDepthStencilView(g_context.g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -345,16 +368,18 @@ void render()
     //
     // Update matrix variables and lighting variables
     //
-    ConstantBuffer cb1;
-    cb1.mWorld = XMMatrixTranspose(g_World);
-    cb1.mView = XMMatrixTranspose(camera.GetViewMatrix());
-    cb1.mProjection = XMMatrixTranspose(g_Projection);
-    cb1.vLightDir[0] = vLightDirs[0];
-    cb1.vLightDir[1] = vLightDirs[1];
-    cb1.vLightColor[0] = vLightColors[0];
-    cb1.vLightColor[1] = vLightColors[1];
-    cb1.vOutputColor = XMFLOAT4(0, 0, 0, 0);
-    g_cubeShader->updateConstantBuffer(g_context.g_pImmediateContext, cb1);
+    ConstantBuffer cb;
+    cb.mWorld = XMMatrixTranspose(g_World);
+    cb.mView = XMMatrixTranspose(camera.GetViewMatrix());
+    cb.mProjection = XMMatrixTranspose(g_Projection);
+    cb.PointLightCount = 1;
+    cb.PointLights[0].Position = vLightPositions[0];
+    cb.PointLights[0].Color = vLightColors[0];
+    cb.DirLightCount = 1;
+    cb.DirLights[0].Color = sunColor;
+    cb.DirLights[0].Direction = XMFLOAT4(-sunPosition.x, -sunPosition.y, -sunPosition.z, 1.0);
+    cb.vViewPos = camera.Position;
+    g_cubeShader->updateConstantBuffer(g_context.g_pImmediateContext, cb);
 
     //
     // Render the cube
@@ -365,15 +390,33 @@ void render()
     //
     // Render each light
     //
-    for (int m = 0; m < 2; m++) {
-        XMMATRIX mLight = XMMatrixTranslationFromVector(5.0f * XMLoadFloat4(&vLightDirs[m]));
+    {
+        SolidConstBuffer solidCb;
+        solidCb.mView = XMMatrixTranspose(camera.GetViewMatrix());
+        solidCb.mProjection = XMMatrixTranspose(g_Projection);
+        for (int m = 0; m < 1; m++) {
+            XMMATRIX mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&vLightPositions[m]));
+            XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+            mLight = mLightScale * mLight;
+
+            // Update the world variable to reflect the current light
+            solidCb.mWorld = XMMatrixTranspose(mLight);
+            solidCb.vOutputColor = vLightColors[m];
+            g_solidShader->updateConstantBuffer(g_context.g_pImmediateContext, solidCb);
+
+            g_solidShader->use(g_context.g_pImmediateContext);
+            g_context.g_pImmediateContext->DrawIndexed(36, 0, 0);
+        }
+
+        // Render "sun"
+        XMMATRIX mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&sunPosition));
         XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
         mLight = mLightScale * mLight;
 
         // Update the world variable to reflect the current light
-        cb1.mWorld = XMMatrixTranspose(mLight);
-        cb1.vOutputColor = vLightColors[m];
-        g_solidShader->updateConstantBuffer(g_context.g_pImmediateContext, cb1);
+        solidCb.mWorld = XMMatrixTranspose(mLight);
+        solidCb.vOutputColor = sunColor;
+        g_solidShader->updateConstantBuffer(g_context.g_pImmediateContext, solidCb);
 
         g_solidShader->use(g_context.g_pImmediateContext);
         g_context.g_pImmediateContext->DrawIndexed(36, 0, 0);

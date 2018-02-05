@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11_1.h>
 #include <d3dcompiler.h>
+#include <iostream>
 #include <vector>
 
 template <typename TConstBuffer>
@@ -110,6 +111,8 @@ private:
         hr = D3DCompileFromFile(szFileName, nullptr, nullptr, szEntryPoint, szShaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
         if (FAILED(hr)) {
             if (pErrorBlob) {
+                std::cout << "Shader compile errors: " << std::endl;
+                std::cout << reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()) << std::endl;
                 OutputDebugStringA(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
                 pErrorBlob->Release();
             }

@@ -8,12 +8,14 @@ enum class CameraMovement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN
 };
 
 constexpr float YAW = -90.0f;
 constexpr float PITCH = 0.0f;
-constexpr float SPEED = 2.5f;
+constexpr float SPEED = 5.0f;
 constexpr float SENSITIVTY = 0.1f;
 constexpr float ZOOM = 45.0f;
 
@@ -84,6 +86,10 @@ public:
             XMStoreFloat3(&Position, XMLoadFloat3(&Position) - XMLoadFloat3(&Right) * velocity);
         if (direction == CameraMovement::RIGHT)
             XMStoreFloat3(&Position, XMLoadFloat3(&Position) + XMLoadFloat3(&Right) * velocity);
+        if (direction == CameraMovement::UP)
+            XMStoreFloat3(&Position, XMLoadFloat3(&Position) + XMLoadFloat3(&Up) * velocity);
+        if (direction == CameraMovement::DOWN)
+            XMStoreFloat3(&Position, XMLoadFloat3(&Position) - XMLoadFloat3(&Up) * velocity);
     }
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
