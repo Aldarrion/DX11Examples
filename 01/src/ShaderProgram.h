@@ -79,6 +79,9 @@ public:
         constantBuffer_->Release();
     }
 
+    ShaderProgram(const ShaderProgram&) = delete;
+    ShaderProgram operator=(const ShaderProgram&) = delete;
+
     void use(ID3D11DeviceContext* context) const {
         context->IASetInputLayout(inputLayout_);
         context->VSSetShader(vertexShader_, nullptr, 0);

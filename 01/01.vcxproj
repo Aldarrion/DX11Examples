@@ -148,11 +148,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\ColorCube.h" />
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\Mouse.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\PlatformHelpers.h" />
     <ClInclude Include="src\ShaderProgram.h" />
+    <ClInclude Include="src\Util.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">

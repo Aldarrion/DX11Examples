@@ -40,6 +40,12 @@
     <ClInclude Include="src\ContextWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ColorCube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">
