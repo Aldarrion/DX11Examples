@@ -143,15 +143,21 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\BasicExample.cpp" />
+    <ClCompile Include="src\Example.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mouse.cpp" />
+    <ClCompile Include="src\PhongShadingExample.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\BasicExample.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\ColorCube.h" />
     <ClInclude Include="src\ContextWrapper.h" />
+    <ClInclude Include="src\Example.h" />
     <ClInclude Include="src\Mouse.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\PhongShadingExample.h" />
     <ClInclude Include="src\PlatformHelpers.h" />
     <ClInclude Include="src\ShaderProgram.h" />
     <ClInclude Include="src\Util.h" />
