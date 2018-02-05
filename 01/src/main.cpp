@@ -262,9 +262,8 @@ void render()
     g_cubeShader->updateConstantBuffer(g_context.g_pImmediateContext, cb);
 
     // Render the cube
-    g_colorCube->use(g_context.g_pImmediateContext);
     g_cubeShader->use(g_context.g_pImmediateContext);
-    g_context.g_pImmediateContext->DrawIndexed(36, 0, 0);
+    g_colorCube->draw(g_context.g_pImmediateContext);
 
     // Render each light
     {
@@ -273,7 +272,7 @@ void render()
         solidCb.mProjection = XMMatrixTranspose(g_Projection);
         for (int m = 0; m < 1; m++) {
             XMMATRIX mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&pointLightPositions[m]));
-            XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+            const XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
             mLight = mLightScale * mLight;
 
             // Update the world variable to reflect the current light
@@ -282,7 +281,7 @@ void render()
             g_solidShader->updateConstantBuffer(g_context.g_pImmediateContext, solidCb);
 
             g_solidShader->use(g_context.g_pImmediateContext);
-            g_context.g_pImmediateContext->DrawIndexed(36, 0, 0);
+            g_colorCube->draw(g_context.g_pImmediateContext);
         }
 
         // Render "sun"
@@ -296,7 +295,7 @@ void render()
         g_solidShader->updateConstantBuffer(g_context.g_pImmediateContext, solidCb);
 
         g_solidShader->use(g_context.g_pImmediateContext);
-        g_context.g_pImmediateContext->DrawIndexed(36, 0, 0);
+        g_colorCube->draw(g_context.g_pImmediateContext);
     }
 
     g_context.g_pSwapChain->Present(0, 0);

@@ -103,11 +103,12 @@ public:
     ColorCube(const ColorCube&) = delete;
     ColorCube operator=(const ColorCube&) = delete;
 
-    void use(ID3D11DeviceContext* context) const {
+    void draw(ID3D11DeviceContext* context) const {
         UINT stride = sizeof(SimpleVertex);
         UINT offset = 0;
         context->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
         context->IASetIndexBuffer(indexBuffer_, DXGI_FORMAT_R16_UINT, 0);
         context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        context->DrawIndexed(36, 0, 0);
     }
 };
