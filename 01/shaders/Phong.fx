@@ -13,15 +13,25 @@ struct DirLight {
     float4 Color;
 };
 
+struct SpotLight {
+    float4 Position;
+    float4 Direction;
+    float4 Color;
+    float4 InnerCone;
+    float4 OuterCone;
+};
+
 cbuffer ConstantBuffer : register(b0) {
     matrix World;
     matrix View;
     matrix Projection;
     PointLight PointLights[2];
     DirLight DirLights[2];
+    SpotLight SpotLights[2];
     float3 ViewPos;
     int PointLightCount;
     int DirLightCount;
+    int SpotLightCount;
 }
 
 
@@ -51,7 +61,6 @@ PS_INPUT VS(VS_INPUT input) {
     output.Norm = mul(float4(input.Norm, 1), World).xyz;
     output.Color = input.Color;
     output.FragPos = mul(input.Pos, World);
-    //output.FragPos = input.Pos;
 
     return output;
 }
@@ -106,6 +115,37 @@ float4 CalcPointLight(PointLight light, float3 normal, float3 fragPos, float4 fr
     return finalColor;
 }
 
+float4 CalcSpotLight(SpotLight light, float3 normal, float3 fragPos, float4 fragColor) {
+    // ambient
+    float ambientStrength = 0.1;
+    float3 ambient = mul(ambientStrength, light.Color);
+
+    // diffuse
+    float3 lightDir = normalize(light.Position - fragPos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    float3 diffuse = diff * light.Color;
+
+    // specular
+    float specularStrength = 0.5;
+    float3 viewDir = normalize(ViewPos - fragPos);
+    float3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), SHININESS);
+    float3 specular = specularStrength * spec * light.Color;
+
+    float theta = dot(lightDir, normalize(light.Direction));
+    float epsilon = light.InnerCone.x - light.OuterCone.x;
+    float intensity = clamp((theta - light.OuterCone.x) / epsilon, 0.0, 1.0);
+
+    ambient *= intensity;
+    diffuse *= intensity;
+    specular *= intensity;
+
+    float4 finalColor = saturate(float4((ambient + diffuse + specular), 1) * fragColor);
+    finalColor.a = 1;
+
+    return finalColor;
+}
+
 float4 PS(PS_INPUT input) : SV_Target {
     float3 normal = normalize(input.Norm);
     
@@ -115,6 +155,9 @@ float4 PS(PS_INPUT input) : SV_Target {
     }
     for (int i = 0; i < PointLightCount; ++i) {
         finalColor += CalcPointLight(PointLights[i], normal, input.FragPos, input.Color);
+    }
+    for (int i = 0; i < SpotLightCount; ++i) {
+        finalColor += CalcSpotLight(SpotLights[i], normal, input.FragPos, input.Color);
     }
 
     finalColor = saturate(finalColor);

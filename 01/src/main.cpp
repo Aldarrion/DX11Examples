@@ -50,15 +50,25 @@ struct DirLight {
     XMFLOAT4 Color;
 };
 
+struct SpotLight {
+    XMFLOAT4 Position;
+    XMFLOAT4 Direction;
+    XMFLOAT4 Color;
+    XMFLOAT4 InnerCone;
+    XMFLOAT4 OuterCone;
+};
+
 struct ConstantBuffer {
 	XMMATRIX mWorld;
 	XMMATRIX mView;
 	XMMATRIX mProjection;
     PointLight PointLights[2];
     DirLight DirLights[2];
+    SpotLight SpotLights[2];
     XMFLOAT3 vViewPos;
     int PointLightCount;
     int DirLightCount;
+    int SpotLightCount;
 };
 
 struct SolidConstBuffer {
@@ -203,10 +213,10 @@ HRESULT Setup()
         { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
         { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
 
-        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
-        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
-        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
-        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.5f, 0.7f, 0.5f) },
+        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.5f, 0.7f, 0.5f) },
+        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.5f, 0.7f, 0.5f) },
+        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.1f, 0.7f, 0.5f) },
 
         { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
         { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(0.1f, 1.0f, 0.0f) },
@@ -317,7 +327,6 @@ void handleInput(float deltaTime) {
     if (GetAsyncKeyState(0x11)) {
         camera.ProcessKeyboard(CameraMovement::DOWN, deltaTime);
     }
-
     auto mouse = g_mouse->GetState();
     if (mouse.positionMode == Mouse::MODE_RELATIVE) {
         camera.ProcessMouseMovement(static_cast<float>(-mouse.x), static_cast<float>(mouse.y));
@@ -349,18 +358,18 @@ void render()
     XMFLOAT4 sunPosition = XMFLOAT4(-3.0f, 3.0f, -3.0f, 1.0f);
     const XMFLOAT4 sunColor = XMFLOAT4(0.992f, 0.772f, 0.075f, 1.0f);
     
-    XMFLOAT4 vLightPositions[1] = {
+    XMFLOAT4 pointLightPositions[1] = {
         XMFLOAT4(0.0f, 0.0f, -5.0f, 1.0f),
     };
-    XMFLOAT4 vLightColors[1] = {
+    XMFLOAT4 pointLightColors[1] = {
         XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f)
     };
 
     // Rotate the second light around the origin
     const XMMATRIX mRotate = XMMatrixRotationY(-XM_PIDIV2 * timeFromStart);
-    XMVECTOR vLightPos = XMLoadFloat4(&vLightPositions[0]);
+    XMVECTOR vLightPos = XMLoadFloat4(&pointLightPositions[0]);
     vLightPos = XMVector3Transform(vLightPos, mRotate);
-    XMStoreFloat4(&vLightPositions[0], vLightPos);
+    XMStoreFloat4(&pointLightPositions[0], vLightPos);
 
     g_context.g_pImmediateContext->ClearRenderTargetView(g_context.g_pRenderTargetView, Colors::MidnightBlue);
     g_context.g_pImmediateContext->ClearDepthStencilView(g_context.g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -373,11 +382,17 @@ void render()
     cb.mView = XMMatrixTranspose(camera.GetViewMatrix());
     cb.mProjection = XMMatrixTranspose(g_Projection);
     cb.PointLightCount = 1;
-    cb.PointLights[0].Position = vLightPositions[0];
-    cb.PointLights[0].Color = vLightColors[0];
+    cb.PointLights[0].Position = pointLightPositions[0];
+    cb.PointLights[0].Color = pointLightColors[0];
     cb.DirLightCount = 1;
     cb.DirLights[0].Color = sunColor;
     cb.DirLights[0].Direction = XMFLOAT4(-sunPosition.x, -sunPosition.y, -sunPosition.z, 1.0);
+    cb.SpotLightCount = 1;
+    cb.SpotLights[0].Position = XMFLOAT4(0.0f, 0.0f, -5.0f, 1.0f);
+    cb.SpotLights[0].Direction = XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f);
+    cb.SpotLights[0].Color = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+    cb.SpotLights[0].InnerCone = XMFLOAT4(cos(XMConvertToRadians(43.0f)), 0.0f, 0.0f, 0.0f);
+    cb.SpotLights[0].OuterCone = XMFLOAT4(cos(XMConvertToRadians(47.0f)), 0.0f, 0.0f, 0.0f);
     cb.vViewPos = camera.Position;
     g_cubeShader->updateConstantBuffer(g_context.g_pImmediateContext, cb);
 
@@ -395,13 +410,13 @@ void render()
         solidCb.mView = XMMatrixTranspose(camera.GetViewMatrix());
         solidCb.mProjection = XMMatrixTranspose(g_Projection);
         for (int m = 0; m < 1; m++) {
-            XMMATRIX mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&vLightPositions[m]));
+            XMMATRIX mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&pointLightPositions[m]));
             XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
             mLight = mLightScale * mLight;
 
             // Update the world variable to reflect the current light
             solidCb.mWorld = XMMatrixTranspose(mLight);
-            solidCb.vOutputColor = vLightColors[m];
+            solidCb.vOutputColor = pointLightColors[m];
             g_solidShader->updateConstantBuffer(g_context.g_pImmediateContext, solidCb);
 
             g_solidShader->use(g_context.g_pImmediateContext);
