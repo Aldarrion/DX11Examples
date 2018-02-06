@@ -26,7 +26,7 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
     }
 
     mouse_ = std::make_unique<Mouse>();
-    mouse_->SetWindow(context_.g_hWnd);
+    mouse_->SetWindow(context_.hWnd_);
     mouse_->SetMode(Mouse::MODE_RELATIVE);
 
     // Main message loop

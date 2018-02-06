@@ -12,6 +12,15 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{bd99d47f-3a11-41d0-82a4-f0b8dd21a760}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Objects">
+      <UniqueIdentifier>{aafe5f26-74e2-4bf8-b9a7-174b8b954d4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Examples">
+      <UniqueIdentifier>{0b044928-a0be-4029-b9b8-420cf5cc34d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Examples">
+      <UniqueIdentifier>{937e98d4-13e3-42dd-84e3-22a6495b9cf2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -20,13 +29,19 @@
     <ClCompile Include="src\Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Example.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\BasicExample.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Example.cpp">
+      <Filter>Source Files\Examples</Filter>
     </ClCompile>
     <ClCompile Include="src\PhongShadingExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TexturingExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DDSTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -52,16 +67,28 @@
     <ClInclude Include="src\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ColorCube.h">
+    <ClInclude Include="src\PhongLights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Example.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\BasicExample.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Examples</Filter>
     </ClInclude>
     <ClInclude Include="src\PhongShadingExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TexturingExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BasicExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ColorCube.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TexturedCube.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DDSTextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -69,19 +96,13 @@
     <FxCompile Include="shaders\Phong.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\Phong_PS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\Phong_VS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\Solid.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\Solid_PS.hlsl">
+    <FxCompile Include="shaders\PhongLights.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\Solid_VS.hlsl">
+    <FxCompile Include="shaders\Textured.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

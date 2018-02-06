@@ -4,6 +4,8 @@
 using namespace DirectX;
 
 HRESULT PhongShadingExample::setup() {
+    BasicExample::setup();
+
     // Define the input layout
     std::vector<D3D11_INPUT_ELEMENT_DESC> layout = {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -11,16 +13,10 @@ HRESULT PhongShadingExample::setup() {
         { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
-    cubeShader_ = std::make_unique<ShaderProgram<ConstantBuffer>>(context_.g_pd3dDevice, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
-    solidShader_ = std::make_unique<ShaderProgram<SolidConstBuffer>>(context_.g_pd3dDevice, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
+    cubeShader_ = std::make_unique<ShaderProgram<ConstantBuffer>>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
+    solidShader_ = std::make_unique<ShaderProgram<SolidConstBuffer>>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
 
-    colorCube_ = std::make_unique<ColorCube>(context_.g_pd3dDevice);
-
-    // Initialize the world matrices
-    world_ = XMMatrixIdentity();
-
-    // Initialize the projection matrix
-    projection_ = XMMatrixPerspectiveFovLH(XM_PIDIV4, context_.WIDTH / static_cast<FLOAT>(context_.HEIGHT), 0.01f, 100.0f);
+    colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     return S_OK;
 }
@@ -28,13 +24,9 @@ HRESULT PhongShadingExample::setup() {
 void PhongShadingExample::render() {
     BasicExample::render();
 
-    // Rotate cube around the origin
-    world_ = XMMatrixRotationY(timeFromStart);
-    world_ = XMMatrixIdentity();
-
     // Setup our lighting parameters
     XMFLOAT4 sunPosition = XMFLOAT4(-3.0f, 3.0f, -3.0f, 1.0f);
-    const XMFLOAT4 sunColor = XMFLOAT4(0.992f, 0.772f, 0.075f, 1.0f);
+    const XMFLOAT4 sunColor = SUN_YELLOW;
 
     XMFLOAT4 pointLightPositions[1] = {
         XMFLOAT4(0.0f, 0.0f, -5.0f, 1.0f),
@@ -43,20 +35,24 @@ void PhongShadingExample::render() {
         XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f)
     };
 
+    XMFLOAT4 spotLightPos = XMFLOAT4(0.0f, 0.0f, -5.0f, 1.0f);
+    XMFLOAT4 spotLightColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+
     // Rotate the second light around the origin
     const XMMATRIX mRotate = XMMatrixRotationY(-XM_PIDIV2 * timeFromStart);
     XMVECTOR vLightPos = XMLoadFloat4(&pointLightPositions[0]);
     vLightPos = XMVector3Transform(vLightPos, mRotate);
     XMStoreFloat4(&pointLightPositions[0], vLightPos);
 
-    context_.g_pImmediateContext->ClearRenderTargetView(context_.g_pRenderTargetView, Colors::MidnightBlue);
-    context_.g_pImmediateContext->ClearDepthStencilView(context_.g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+    context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     // Update matrix variables and lighting variables
     ConstantBuffer cb;
-    cb.mWorld = XMMatrixTranspose(world_);
-    cb.mView = XMMatrixTranspose(camera_.GetViewMatrix());
-    cb.mProjection = XMMatrixTranspose(projection_);
+    cb.World = XMMatrixIdentity();
+    cb.NormalMatrix = computeNormalMatrix(cb.World);
+    cb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+    cb.Projection = XMMatrixTranspose(projection_);
     cb.PointLightCount = 1;
     cb.PointLights[0].Position = pointLightPositions[0];
     cb.PointLights[0].Color = pointLightColors[0];
@@ -64,50 +60,70 @@ void PhongShadingExample::render() {
     cb.DirLights[0].Color = sunColor;
     cb.DirLights[0].Direction = XMFLOAT4(-sunPosition.x, -sunPosition.y, -sunPosition.z, 1.0);
     cb.SpotLightCount = 1;
-    cb.SpotLights[0].Position = XMFLOAT4(0.0f, 0.0f, -5.0f, 1.0f);
+    cb.SpotLights[0].Position = spotLightPos;
     cb.SpotLights[0].Direction = XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f);
-    cb.SpotLights[0].Color = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+    cb.SpotLights[0].Color = spotLightColor;
     cb.SpotLights[0].InnerCone = XMFLOAT4(cos(XMConvertToRadians(43.0f)), 0.0f, 0.0f, 0.0f);
     cb.SpotLights[0].OuterCone = XMFLOAT4(cos(XMConvertToRadians(47.0f)), 0.0f, 0.0f, 0.0f);
-    cb.vViewPos = camera_.Position;
-    cubeShader_->updateConstantBuffer(context_.g_pImmediateContext, cb);
+    cb.ViewPos = camera_.Position;
+    cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
 
     // Render the cube
-    cubeShader_->use(context_.g_pImmediateContext);
-    colorCube_->draw(context_.g_pImmediateContext);
+    cubeShader_->use(context_.immediateContext_);
+    colorCube_->draw(context_.immediateContext_);
+
+    // Render plane
+    XMFLOAT4 planePos = XMFLOAT4(0.0, -2.0f, 0.0f, 1.0f);
+    const XMMATRIX planeScale = XMMatrixScaling(20.0f, 0.2f, 20.0f);
+    cb.World = XMMatrixTranspose(planeScale * XMMatrixTranslationFromVector(XMLoadFloat4(&planePos)));
+    cb.NormalMatrix = computeNormalMatrix(cb.World);
+    
+    cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
+    colorCube_->draw(context_.immediateContext_);
 
     // Render each light
     {
         SolidConstBuffer solidCb;
-        solidCb.mView = XMMatrixTranspose(camera_.GetViewMatrix());
-        solidCb.mProjection = XMMatrixTranspose(projection_);
+        solidCb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+        solidCb.Projection = XMMatrixTranspose(projection_);
+        const XMMATRIX lightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
         for (int m = 0; m < 1; m++) {
-            XMMATRIX mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&pointLightPositions[m]));
-            const XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-            mLight = mLightScale * mLight;
+            XMMATRIX lightModelMatrix = XMMatrixTranslationFromVector(XMLoadFloat4(&pointLightPositions[m]));
+            
+            lightModelMatrix = lightScale * lightModelMatrix;
 
             // Update the world variable to reflect the current light
-            solidCb.mWorld = XMMatrixTranspose(mLight);
-            solidCb.vOutputColor = pointLightColors[m];
-            solidShader_->updateConstantBuffer(context_.g_pImmediateContext, solidCb);
+            solidCb.World = XMMatrixTranspose(lightModelMatrix);
+            solidCb.OutputColor = pointLightColors[m];
+            solidShader_->updateConstantBuffer(context_.immediateContext_, solidCb);
 
-            solidShader_->use(context_.g_pImmediateContext);
-            colorCube_->draw(context_.g_pImmediateContext);
+            solidShader_->use(context_.immediateContext_);
+            colorCube_->draw(context_.immediateContext_);
         }
 
         // Render "sun"
         XMMATRIX mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&sunPosition));
-        XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-        mLight = mLightScale * mLight;
+        mLight = lightScale * mLight;
 
         // Update the world variable to reflect the current light
-        solidCb.mWorld = XMMatrixTranspose(mLight);
-        solidCb.vOutputColor = sunColor;
-        solidShader_->updateConstantBuffer(context_.g_pImmediateContext, solidCb);
+        solidCb.World = XMMatrixTranspose(mLight);
+        solidCb.OutputColor = sunColor;
+        solidShader_->updateConstantBuffer(context_.immediateContext_, solidCb);
 
-        solidShader_->use(context_.g_pImmediateContext);
-        colorCube_->draw(context_.g_pImmediateContext);
+        solidShader_->use(context_.immediateContext_);
+        colorCube_->draw(context_.immediateContext_);
+
+        // Render spotlight
+        mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&spotLightPos));
+        mLight = lightScale * mLight;
+
+        // Update the world variable to reflect the current light
+        solidCb.World = XMMatrixTranspose(mLight);
+        solidCb.OutputColor = spotLightColor;
+        solidShader_->updateConstantBuffer(context_.immediateContext_, solidCb);
+
+        colorCube_->draw(context_.immediateContext_);
     }
 
-    context_.g_pSwapChain->Present(0, 0);
+    context_.swapChain_->Present(0, 0);
 }

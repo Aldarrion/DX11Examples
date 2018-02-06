@@ -44,8 +44,7 @@ public:
         // Compile pixel shader
         ID3DBlob* pPSBlob = nullptr;
         hr = CompileShaderFromFile(pixelPath, pixelStart, "ps_4_0", &pPSBlob);
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
             MessageBox(nullptr, L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
             return;
         }
@@ -111,7 +110,7 @@ private:
 #endif
 
         ID3DBlob* pErrorBlob = nullptr;
-        hr = D3DCompileFromFile(szFileName, nullptr, nullptr, szEntryPoint, szShaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+        hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
         if (FAILED(hr)) {
             if (pErrorBlob) {
                 std::cout << "Shader compile errors: " << std::endl;

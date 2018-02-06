@@ -5,7 +5,7 @@
 using namespace DirectX;
 
 void BasicExample::handleInput(float deltaTime) {
-    if (GetActiveWindow() != context_.g_hWnd)
+    if (GetActiveWindow() != context_.hWnd_)
         return;
 
     if (GetAsyncKeyState(VK_ESCAPE)) {
