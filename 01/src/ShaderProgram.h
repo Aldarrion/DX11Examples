@@ -23,7 +23,7 @@ public:
         ID3DBlob* pVSBlob = nullptr;
         auto hr = CompileShaderFromFile(vertexPath, vertexStart, "vs_4_0", &pVSBlob);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+            MessageBox(nullptr, L"The FX file cannot be compiled. See errors in console.", L"Error", MB_OK);
             return;
         }
         // Create vertex shader
@@ -45,7 +45,7 @@ public:
         ID3DBlob* pPSBlob = nullptr;
         hr = CompileShaderFromFile(pixelPath, pixelStart, "ps_4_0", &pPSBlob);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+            MessageBox(nullptr, L"The FX file cannot be compiled. See errors in console.", L"Error", MB_OK);
             return;
         }
 
@@ -72,10 +72,10 @@ public:
     }
 
     ~ShaderProgram() {
-        vertexShader_->Release();
-        pixelShader_->Release();
-        inputLayout_->Release();
-        constantBuffer_->Release();
+        if (vertexShader_) vertexShader_->Release();
+        if (pixelShader_) pixelShader_->Release();
+        if (inputLayout_) inputLayout_->Release();
+        if (constantBuffer_) constantBuffer_->Release();
     }
 
     ShaderProgram(const ShaderProgram&) = delete;

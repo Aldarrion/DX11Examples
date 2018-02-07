@@ -19,7 +19,7 @@ struct ContextWrapper {
     ID3D11DepthStencilView* depthStencilView_ = nullptr;
 
     int WIDTH = 800;
-    int HEIGHT = 600;
+    int HEIGHT = 800;
 
     HRESULT Init(_In_ HINSTANCE hInstance, _In_ int nCmdShow) {
         if (FAILED(InitWindow(hInstance, nCmdShow))) {

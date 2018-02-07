@@ -18,7 +18,7 @@ struct SpotLight {
     float4 OuterCone;
 };
 
-float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 viewDir) {
+float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 viewDir, float shadow = 0.0) {
     // ambient
     float ambientStrength = 0.1;
     float3 ambient = mul(ambientStrength, light.Color);
@@ -34,7 +34,7 @@ float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 view
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), SHININESS);
     float3 specular = specularStrength * spec * light.Color;
 
-    float4 finalColor = saturate(float4((ambient + diffuse + specular), 1) * fragColor);
+    float4 finalColor = saturate(float4((ambient + (1.0 - shadow) * (diffuse + specular)), 1) * fragColor);
     finalColor.a = 1;
 
     return finalColor;

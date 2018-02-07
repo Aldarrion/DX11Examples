@@ -21,6 +21,9 @@
     <Filter Include="Source Files\Examples">
       <UniqueIdentifier>{937e98d4-13e3-42dd-84e3-22a6495b9cf2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\TextureSamplers">
+      <UniqueIdentifier>{15d15866-315c-45c7-94dc-4636352d1b82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -43,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="src\DDSTextureLoader.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShadowsExample.cpp">
+      <Filter>Source Files\Examples</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +97,18 @@
     <ClInclude Include="src\DDSTextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ShadowsExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextureSampler.h">
+      <Filter>Header Files\TextureSamplers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ShadowSampler.h">
+      <Filter>Header Files\TextureSamplers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LinearSampler.h">
+      <Filter>Header Files\TextureSamplers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">
@@ -103,6 +121,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\Textured.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\Shadows.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PhongShadows.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

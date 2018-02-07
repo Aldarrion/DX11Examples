@@ -149,6 +149,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mouse.cpp" />
     <ClCompile Include="src\PhongShadingExample.cpp" />
+    <ClCompile Include="src\ShadowsExample.cpp" />
     <ClCompile Include="src\TexturingExample.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,13 +159,17 @@
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\DDSTextureLoader.h" />
     <ClInclude Include="src\Example.h" />
+    <ClInclude Include="src\LinearSampler.h" />
     <ClInclude Include="src\Mouse.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\PhongLights.h" />
     <ClInclude Include="src\PhongShadingExample.h" />
     <ClInclude Include="src\PlatformHelpers.h" />
     <ClInclude Include="src\ShaderProgram.h" />
+    <ClInclude Include="src\ShadowSampler.h" />
+    <ClInclude Include="src\ShadowsExample.h" />
     <ClInclude Include="src\TexturedCube.h" />
+    <ClInclude Include="src\TextureSampler.h" />
     <ClInclude Include="src\TexturingExample.h" />
     <ClInclude Include="src\Util.h" />
   </ItemGroup>
@@ -176,6 +181,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\PhongLights.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\PhongShadows.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\Shadows.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
