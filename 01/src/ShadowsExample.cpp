@@ -20,10 +20,10 @@ HRESULT ShadowsExample::setup() {
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     // Textures
-    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, L"textures/seafloor.dds");
+    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds");
 
     // Samplers
-    linearSampler_ = std::make_unique<LinearSampler>(context_.d3dDevice_);
+    anisoSampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
     // Shadows need point sampler, filtering needs to be done afterwards.
     // Averaging depths would do no good
     shadowSampler_ = std::make_unique<ShadowSampler>(context_.d3dDevice_);
@@ -159,7 +159,7 @@ void ShadowsExample::render() {
         texturedPhong_->use(context_.immediateContext_);
         seaFloorTexture_->use(context_.immediateContext_, 0);
         context_.immediateContext_->PSSetShaderResources(1, 1, &shadowShaderResourceView_);
-        linearSampler_->use(context_.immediateContext_, 0);
+        anisoSampler_->use(context_.immediateContext_, 0);
         shadowSampler_->use(context_.immediateContext_, 1);
 
         for (const auto& transform : cubes) {

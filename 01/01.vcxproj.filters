@@ -121,6 +121,9 @@
     <ClInclude Include="src\Transform.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="src\AnisotropicSampler.h">
+      <Filter>Header Files\TextureSamplers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">

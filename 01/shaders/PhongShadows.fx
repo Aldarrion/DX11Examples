@@ -3,7 +3,7 @@
 Texture2D txDiffuse : register(t0);
 Texture2D ShadowMap : register(t1);
 
-SamplerState samLinear : register(s0);
+SamplerState diffuseSampler : register(s0);
 SamplerState samPoint : register(s1);
 
 cbuffer ConstantBuffer : register(b0) {
@@ -94,7 +94,7 @@ float ShadowCalc(float4 fragPosLS, DirLight light, float3 normal, float3 fragPos
 float4 PS(PS_INPUT input) : SV_Target {
     float3 normal = normalize(input.Norm);
     float3 viewDir = normalize(ViewPos - input.FragPos);
-    float4 fragColor = txDiffuse.Sample(samLinear, input.UV);
+    float4 fragColor = txDiffuse.Sample(diffuseSampler, input.UV);
 
     float shadow = ShadowCalc(input.FragPosLightSpace, SunLight, normal, input.FragPos, true);
 

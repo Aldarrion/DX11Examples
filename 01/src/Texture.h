@@ -7,8 +7,8 @@ private:
     ID3D11ShaderResourceView * texture_;
 
 public:
-    Texture(ID3D11Device* device, const WCHAR* pathToDDS) {
-        auto hr = DirectX::CreateDDSTextureFromFile(device, pathToDDS, nullptr, &texture_);
+    Texture(ID3D11Device* device, ID3D11DeviceContext* context, const WCHAR* pathToDDS) {
+        auto hr = DirectX::CreateDDSTextureFromFile(device, context, pathToDDS, nullptr, &texture_);
         if (FAILED(hr)) {
             MessageBox(nullptr, L"Texture could not have been loaded", L"Error", MB_OK);
         }

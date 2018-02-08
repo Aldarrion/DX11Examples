@@ -5,8 +5,8 @@
 #include "ShaderProgram.h"
 #include "PhongLights.h"
 #include "ShadowSampler.h"
-#include "LinearSampler.h"
 #include "Texture.h"
+#include "AnisotropicSampler.h"
 
 namespace Shadows {
 
@@ -43,7 +43,7 @@ protected:
 
     std::unique_ptr<Texture> seaFloorTexture_;
     std::unique_ptr<ShadowSampler> shadowSampler_;
-    std::unique_ptr<LinearSampler> linearSampler_;
+    std::unique_ptr<AnisotropicSampler> anisoSampler_;
     std::unique_ptr<ShadowShader> shadowShader_;
     std::unique_ptr<TextureShader> texturedPhong_;
     std::unique_ptr<TexturedCube> texturedCube_;

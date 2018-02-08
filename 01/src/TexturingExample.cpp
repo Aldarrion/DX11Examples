@@ -21,12 +21,24 @@ HRESULT TexturingExample::setup() {
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
 
     auto hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
+    
+    /* Uncomment following to allow mipmap generation */
+    //hr = CreateDDSTextureFromFile(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
+    
     if (FAILED(hr))
         return hr;
 
     D3D11_SAMPLER_DESC sampDesc;
     ZeroMemory(&sampDesc, sizeof(sampDesc));
     sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    
+    /* Uncomment following to enable point filtering */
+    //sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    
+    /* Uncomment following to eable anisotropic filtering */
+    //sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+    //sampDesc.MaxAnisotropy = 16;
+    
     sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
     sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
