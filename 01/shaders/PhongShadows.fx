@@ -60,7 +60,7 @@ float ShadowCalc(float4 fragPosLS, DirLight light, float3 normal, float3 fragPos
     float currentDepth = projCoords.z;
     float3 lightDir = normalize(-light.Direction);
     // Bias is fine tuned to this particular case
-    float bias = max(0.0015 * (1.0 - dot(normal, lightDir)), 0.0005);
+    float bias = max(0.003 * (1.0 - dot(normal, lightDir)), 0.0005);
     //bias = 0.0; // Uncomment this to see why we need bias
 
     if (projCoords.z > 1.0)

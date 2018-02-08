@@ -32,10 +32,19 @@ HRESULT ShadowsExample::setup() {
     // =======
     // Shadows
     // =======
+    // If we want the shadowmap to be different size than our standard viewport
+    // we need to create new one and bind it when we generate the shadowmap
+    shadowViewPort_.Width = static_cast<FLOAT>(SHADOW_MAP_WIDTH);
+    shadowViewPort_.Height = static_cast<FLOAT>(SHADOW_MAP_HEIGHT);
+    shadowViewPort_.MinDepth = 0.0f;
+    shadowViewPort_.MaxDepth = 1.0f;
+    shadowViewPort_.TopLeftX = 0;
+    shadowViewPort_.TopLeftY = 0;
+
     D3D11_TEXTURE2D_DESC texDesc;
     ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
-    texDesc.Width = context_.WIDTH;
-    texDesc.Height = context_.HEIGHT;
+    texDesc.Width = SHADOW_MAP_WIDTH;
+    texDesc.Height = SHADOW_MAP_HEIGHT;
     texDesc.MipLevels = 1;
     texDesc.ArraySize = 1;
     // We will look at this texture with 2 different views -> typeless
@@ -81,7 +90,7 @@ void ShadowsExample::render() {
     BasicExample::render();
 
     const XMFLOAT4 sunPos = XMFLOAT4(-30.0f, 30.0f, -30.0f, 1.0f);
-    const XMMATRIX lightProjection = XMMatrixOrthographicLH(20.0f, 20.0f, 1.0f, 100.0f);
+    const XMMATRIX lightProjection = XMMatrixOrthographicLH(40.0f, 40.0f, 1.0f, 100.0f);
     const auto focus = XMFLOAT3(0, 0, 0);
     const auto up = XMFLOAT3(0, 1, 0);
     const XMMATRIX lightView = XMMatrixLookAtLH(XMLoadFloat4(&sunPos), XMLoadFloat3(&focus), XMLoadFloat3(&up));
@@ -98,6 +107,7 @@ void ShadowsExample::render() {
     {
         context_.immediateContext_->OMSetRenderTargets(0, nullptr, shadowMapDepthView_);
         context_.immediateContext_->ClearDepthStencilView(shadowMapDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+        context_.immediateContext_->RSSetViewports(1, &shadowViewPort_);
 
         // Draw cube
         ShadowConstBuffer cb;
@@ -127,6 +137,7 @@ void ShadowsExample::render() {
         context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
         context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
         context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+        context_.immediateContext_->RSSetViewports(1, &context_.viewPort_);
 
         // Draw cube
         ConstantBuffer cb;

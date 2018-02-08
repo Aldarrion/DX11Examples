@@ -50,10 +50,19 @@ protected:
     std::unique_ptr<SolidShader> solidShader_;
     std::unique_ptr<ColorCube> colorCube_;
 
+    // =======
     // Shadows
+    // =======
+    
+    // Resolution of the shadowmap
+    static constexpr UINT SHADOW_MAP_WIDTH = 1024;
+    static constexpr UINT SHADOW_MAP_HEIGHT = 1024;
+
     ID3D11Texture2D* shadowMap_ = nullptr;
     ID3D11DepthStencilView* shadowMapDepthView_ = nullptr;
     ID3D11ShaderResourceView* shadowShaderResourceView_ = nullptr;
+    D3D11_VIEWPORT shadowViewPort_;
+
 
     HRESULT setup() override;
     

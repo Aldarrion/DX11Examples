@@ -17,9 +17,10 @@ struct ContextWrapper {
     ID3D11RenderTargetView* renderTargetView_ = nullptr;
     ID3D11Texture2D*        depthStencil_ = nullptr;
     ID3D11DepthStencilView* depthStencilView_ = nullptr;
+    D3D11_VIEWPORT viewPort_;
 
-    int WIDTH = 800;
-    int HEIGHT = 800;
+    int WIDTH = 1024;
+    int HEIGHT = 768;
 
     HRESULT Init(_In_ HINSTANCE hInstance, _In_ int nCmdShow) {
         if (FAILED(InitWindow(hInstance, nCmdShow))) {
@@ -103,8 +104,8 @@ private:
 
         RECT rc;
         GetClientRect(hWnd_, &rc);
-        UINT width = rc.right - rc.left;
-        UINT height = rc.bottom - rc.top;
+        const UINT width = rc.right - rc.left;
+        const UINT height = rc.bottom - rc.top;
 
         UINT createDeviceFlags = 0;
 #ifdef _DEBUG
@@ -117,7 +118,7 @@ private:
             D3D_DRIVER_TYPE_WARP,
             D3D_DRIVER_TYPE_REFERENCE,
         };
-        UINT numDriverTypes = ARRAYSIZE(driverTypes);
+        const UINT numDriverTypes = ARRAYSIZE(driverTypes);
 
         D3D_FEATURE_LEVEL featureLevels[] =
         {
@@ -126,7 +127,7 @@ private:
             D3D_FEATURE_LEVEL_10_1,
             D3D_FEATURE_LEVEL_10_0,
         };
-        UINT numFeatureLevels = ARRAYSIZE(featureLevels);
+        const UINT numFeatureLevels = ARRAYSIZE(featureLevels);
 
         for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
         {
@@ -265,14 +266,13 @@ private:
         immediateContext_->OMSetRenderTargets(1, &renderTargetView_, depthStencilView_);
 
         // Setup the viewport
-        D3D11_VIEWPORT vp;
-        vp.Width = (FLOAT)width;
-        vp.Height = (FLOAT)height;
-        vp.MinDepth = 0.0f;
-        vp.MaxDepth = 1.0f;
-        vp.TopLeftX = 0;
-        vp.TopLeftY = 0;
-        immediateContext_->RSSetViewports(1, &vp);
+        viewPort_.Width = static_cast<FLOAT>(width);
+        viewPort_.Height = static_cast<FLOAT>(height);
+        viewPort_.MinDepth = 0.0f;
+        viewPort_.MaxDepth = 1.0f;
+        viewPort_.TopLeftX = 0;
+        viewPort_.TopLeftY = 0;
+        immediateContext_->RSSetViewports(1, &viewPort_);
 
         return S_OK;
     }
