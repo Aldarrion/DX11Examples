@@ -6,6 +6,7 @@
 #include "PhongLights.h"
 #include "ShadowSampler.h"
 #include "LinearSampler.h"
+#include "Texture.h"
 
 namespace Shadows {
 
@@ -40,8 +41,7 @@ protected:
     using SolidShader = ShaderProgram<SolidConstBuffer>;
     using ShadowShader = ShaderProgram<ShadowConstBuffer>;
 
-    ID3D11ShaderResourceView* seaFloorTexture_ = nullptr;
-    
+    std::unique_ptr<Texture> seaFloorTexture_;
     std::unique_ptr<ShadowSampler> shadowSampler_;
     std::unique_ptr<LinearSampler> linearSampler_;
     std::unique_ptr<ShadowShader> shadowShader_;
@@ -56,7 +56,7 @@ protected:
     ID3D11ShaderResourceView* shadowShaderResourceView_ = nullptr;
 
     HRESULT setup() override;
-    void renderScene(const DirectX::XMMATRIX& projection, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMFLOAT3& viewPos) const;
+    
     void render() override;
 
 public:

@@ -1,6 +1,7 @@
 #include "TexturingExample.h"
 #include "DDSTextureLoader.h"
 #include <directxcolors.h>
+#include "Layouts.h"
 
 namespace Texturing {
 
@@ -9,14 +10,14 @@ using namespace DirectX;
 HRESULT TexturingExample::setup() {
     BasicExample::setup();
 
-    std::vector<D3D11_INPUT_ELEMENT_DESC> layout = {
+    std::vector<D3D11_INPUT_ELEMENT_DESC> texturedLayout = {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    texturedPhong_ = std::make_unique<ShaderProgram<ConstantBuffer>>(context_.d3dDevice_, L"shaders/Textured.fx", "VS", L"shaders/Textured.fx", "PS", layout);
+    texturedPhong_ = std::make_unique<ShaderProgram<ConstantBuffer>>(context_.d3dDevice_, L"shaders/Textured.fx", "VS", L"shaders/Textured.fx", "PS", texturedLayout);
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
 
     auto hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
@@ -36,13 +37,7 @@ HRESULT TexturingExample::setup() {
     if (FAILED(hr))
         return hr;
 
-    std::vector<D3D11_INPUT_ELEMENT_DESC> layoutSolid = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
-
-    solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layoutSolid);
+    solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     return S_OK;

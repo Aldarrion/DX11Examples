@@ -13,9 +13,8 @@ cbuffer ConstantBuffer : register(b0) {
     matrix NormalMatrix;
     matrix LightView;
     matrix LightProjection;
-    DirLight DirLights[1];
+    DirLight SunLight;
     float3 ViewPos;
-    int DirLightCount;
 }
 
 
@@ -54,21 +53,37 @@ PS_INPUT VS(VS_INPUT input) {
     return output;
 }
 
-float ShadowCalc(float4 fragPosLS, DirLight light, float3 normal, float3 fragPos) {
+float ShadowCalc(float4 fragPosLS, DirLight light, float3 normal, float3 fragPos, bool softShadows) {
     float3 projCoords = fragPosLS.xyz / fragPosLS.w;
-    projCoords = projCoords * 0.5 + 0.5;
-    float closestDepth = ShadowMap.Sample(samLinear, projCoords.xy).r;
+    projCoords.x = projCoords.x * 0.5 + 0.5;
+    projCoords.y = projCoords.y * (-0.5) + 0.5;
     float currentDepth = projCoords.z;
-    float3 lightDir = -light.Direction;
-    //float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-    float bias = 0.0;
+    float3 lightDir = normalize(-light.Direction);
+    // Bias is fine tuned to this particular case
+    float bias = max(0.0015 * (1.0 - dot(normal, lightDir)), 0.0005);
+    //bias = 0.0; // Uncomment this to see why we need bias
+
+    if (projCoords.z > 1.0)
+        return 0.0;
 
     float shadow = 0.0;
-
-    shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-
-    if (projCoords.z < -1.0)
-        shadow = 0.0;
+    if (softShadows) {
+        uint w, h;
+        ShadowMap.GetDimensions(w, h);
+        float2 texelSize = float2(1.0 / w, 1.0 / h);
+        
+        // Average 9 shadow map texels around our current pixel
+        for (int x = -1; x <= 1; ++x) {
+            for (int y = -1; y <= 1; ++y) {
+                float closestDepth = ShadowMap.Sample(samPoint, projCoords.xy + float2(x * texelSize.x, y * texelSize.y)).r;
+                shadow += (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
+            }
+        }
+        shadow /= 9.0;
+    } else {
+        float closestDepth = ShadowMap.Sample(samPoint, projCoords.xy).r;
+        shadow = (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
+    }
 
     return shadow;
 }
@@ -80,41 +95,10 @@ float4 PS(PS_INPUT input) : SV_Target {
     float3 normal = normalize(input.Norm);
     float3 viewDir = normalize(ViewPos - input.FragPos);
     float4 fragColor = txDiffuse.Sample(samLinear, input.UV);
-    float4 fragPosLS = input.FragPosLightSpace;
-    DirLight light = DirLights[0];
-    float3 fragPos = input.FragPos;
 
-    float4 finalColor = float4(0.0, 0.0, 0.0, 0.0);
-    //shadow = ShadowCalc(input.FragPosLightSpace, DirLights[i], normal, input.FragPos);
-    float3 projCoords = fragPosLS.xyz / fragPosLS.w;
-    //projCoords = projCoords * 0.5 + 0.5;
-    projCoords.x = projCoords.x * 0.5 + 0.5;
-    projCoords.y = projCoords.y * (-0.5) + 0.5;
-    //projCoords = saturate(projCoords);
-    float closestDepth = ShadowMap.Sample(samPoint, projCoords.xy).r;
-    float currentDepth = projCoords.z;
-    float3 lightDir = normalize(-light.Direction);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-    //bias = 0.0;
+    float shadow = ShadowCalc(input.FragPosLightSpace, SunLight, normal, input.FragPos, true);
 
-    float shadow = 0.0;
+    float4 finalColor = CalcDirLight(SunLight, normal, fragColor, viewDir, shadow);
 
-    shadow = (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
-
-    if (projCoords.z > 1.0)
-        shadow = 0.0;
-
-    finalColor += CalcDirLight(DirLights[0], normal, fragColor, viewDir, shadow);
-
-    finalColor = saturate(finalColor);
-
-    //return float4(shadow, shadow, shadow, shadow);
-    //return float4(currentDepth - closestDepth, currentDepth - closestDepth, currentDepth - closestDepth, 1.0);
-    //return float4(bias, bias, bias, 1.0);
-    //return float4(projCoords, 1.0);
-    //return float4(closestDepth, closestDepth, closestDepth, 1.0);
-    //return saturate(fragPosLS);
-    return finalColor;
-    //return float4(normal.x, normal.y, normal.z, 1.0);
-    //return ShadowMap.Sample(samLinear, input.UV).rrrr;
+    return saturate(finalColor);
 }

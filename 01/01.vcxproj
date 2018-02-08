@@ -146,6 +146,7 @@
     <ClCompile Include="src\BasicExample.cpp" />
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\Example.cpp" />
+    <ClCompile Include="src\Layouts.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mouse.cpp" />
     <ClCompile Include="src\PhongShadingExample.cpp" />
@@ -158,7 +159,9 @@
     <ClInclude Include="src\ColorCube.h" />
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\DDSTextureLoader.h" />
+    <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\Example.h" />
+    <ClInclude Include="src\Layouts.h" />
     <ClInclude Include="src\LinearSampler.h" />
     <ClInclude Include="src\Mouse.h" />
     <ClInclude Include="src\pch.h" />
@@ -168,6 +171,7 @@
     <ClInclude Include="src\ShaderProgram.h" />
     <ClInclude Include="src\ShadowSampler.h" />
     <ClInclude Include="src\ShadowsExample.h" />
+    <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\TexturedCube.h" />
     <ClInclude Include="src\TextureSampler.h" />
     <ClInclude Include="src\TexturingExample.h" />

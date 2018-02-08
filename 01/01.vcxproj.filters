@@ -50,6 +50,9 @@
     <ClCompile Include="src\ShadowsExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
+    <ClCompile Include="src\Layouts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -108,6 +111,15 @@
     </ClInclude>
     <ClInclude Include="src\LinearSampler.h">
       <Filter>Header Files\TextureSamplers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layouts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Transform.h">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

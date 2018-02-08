@@ -1,8 +1,8 @@
 #include "ShadowsExample.h"
-#include "DDSTextureLoader.h"
 #include <directxcolors.h>
 #include <minwinbase.h>
-#include <minwinbase.h>
+#include "Layouts.h"
+#include "Transform.h"
 
 using namespace DirectX;
 
@@ -10,32 +10,24 @@ namespace Shadows {
 HRESULT ShadowsExample::setup() {
     BasicExample::setup();
 
-    std::vector<D3D11_INPUT_ELEMENT_DESC> layout = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
+    // Shaders
+    shadowShader_ = std::make_unique<ShadowShader>(context_.d3dDevice_, L"shaders/Shadows.fx", "VS_Shadow", L"shaders/Shadows.fx", "PS_Shadow", Layouts::TEXTURED_LAYOUT);
+    texturedPhong_ = std::make_unique<TextureShader>(context_.d3dDevice_, L"shaders/PhongShadows.fx", "VS", L"shaders/PhongShadows.fx", "PS", Layouts::TEXTURED_LAYOUT);
+    solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
 
-    shadowShader_ = std::make_unique<ShadowShader>(context_.d3dDevice_, L"shaders/Shadows.fx", "VS_Shadow", L"shaders/Shadows.fx", "PS_Shadow", layout);
-    texturedPhong_ = std::make_unique<TextureShader>(context_.d3dDevice_, L"shaders/PhongShadows.fx", "VS", L"shaders/PhongShadows.fx", "PS", layout);
+    // Objects
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
-
-    auto hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
-    if (FAILED(hr))
-        return hr;
-
-    shadowSampler_ = std::make_unique<ShadowSampler>(context_.d3dDevice_);
-    linearSampler_ = std::make_unique<LinearSampler>(context_.d3dDevice_);
-
-    std::vector<D3D11_INPUT_ELEMENT_DESC> layoutSolid = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
-
-    solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layoutSolid);
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
+
+    // Textures
+    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, L"textures/seafloor.dds");
+
+    // Samplers
+    linearSampler_ = std::make_unique<LinearSampler>(context_.d3dDevice_);
+    // Shadows need point sampler, filtering needs to be done afterwards.
+    // Averaging depths would do no good
+    shadowSampler_ = std::make_unique<ShadowSampler>(context_.d3dDevice_);
+    
 
     // =======
     // Shadows
@@ -46,6 +38,7 @@ HRESULT ShadowsExample::setup() {
     texDesc.Height = context_.HEIGHT;
     texDesc.MipLevels = 1;
     texDesc.ArraySize = 1;
+    // We will look at this texture with 2 different views -> typeless
     texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
     texDesc.SampleDesc.Count = 1;
     texDesc.SampleDesc.Quality = 0;
@@ -54,12 +47,13 @@ HRESULT ShadowsExample::setup() {
     texDesc.CPUAccessFlags = 0;
     texDesc.MiscFlags = 0;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &shadowMap_);
+    auto hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &shadowMap_);
     if (FAILED(hr)) 
         return hr;
 
     D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
     ZeroMemory(&descDSV, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+    // Put all precision to the depth
     descDSV.Format = DXGI_FORMAT_D32_FLOAT;
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
@@ -70,6 +64,7 @@ HRESULT ShadowsExample::setup() {
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     ZeroMemory(&srvDesc, sizeof(srvDesc));
+    // In shader sample it like regular texture with single red channel
     srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
     srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
@@ -82,10 +77,6 @@ HRESULT ShadowsExample::setup() {
     return S_OK;
 }
 
-void ShadowsExample::renderScene(const XMMATRIX& projection, const XMMATRIX& viewMatrix, const XMFLOAT3& viewPos) const {
-    
-}
-
 void ShadowsExample::render() {
     BasicExample::render();
 
@@ -94,32 +85,44 @@ void ShadowsExample::render() {
     const auto focus = XMFLOAT3(0, 0, 0);
     const auto up = XMFLOAT3(0, 1, 0);
     const XMMATRIX lightView = XMMatrixLookAtLH(XMLoadFloat4(&sunPos), XMLoadFloat3(&focus), XMLoadFloat3(&up));
-    const XMFLOAT4 planePos = XMFLOAT4(0.0, -4.0f, 0.0f, 1.0f);
-    const XMMATRIX planeScale = XMMatrixScaling(20.0f, 2.2f, 20.0f);
+    const Transform planeTransform(XMFLOAT3(0.0, -4.0f, 0.0f), XMFLOAT3(), XMFLOAT3(20.0f, 2.2f, 20.0f));
+    const std::vector<Transform> cubes = {
+        Transform(),
+        Transform(XMFLOAT3(2.5f, 1.2f, 1.8f), XMFLOAT3(XMConvertToRadians(45.0f), XMConvertToRadians(30.0f), 0.0f)),
+        Transform(XMFLOAT3(-2.5f, -0.8f, -2.5f))
+    };
 
+    // ==================
+    // Generate shadowmap
+    // ==================
     {
-        // Draw shadows
         context_.immediateContext_->OMSetRenderTargets(0, nullptr, shadowMapDepthView_);
         context_.immediateContext_->ClearDepthStencilView(shadowMapDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
         // Draw cube
         ShadowConstBuffer cb;
-        cb.World = XMMatrixIdentity();
         cb.Projection = XMMatrixTranspose(lightProjection);
         cb.View = XMMatrixTranspose(lightView);
 
-        shadowShader_->updateConstantBuffer(context_.immediateContext_, cb);
         shadowShader_->use(context_.immediateContext_);
-        texturedCube_->draw(context_.immediateContext_);
-
+        for (const auto& transform : cubes) {
+            cb.World = XMMatrixTranspose(transform.GenerateModelMatrix());
+            shadowShader_->updateConstantBuffer(context_.immediateContext_, cb);
+            texturedCube_->draw(context_.immediateContext_);
+        }
         // Draw floor
-        cb.World = XMMatrixTranspose(planeScale * XMMatrixTranslationFromVector(XMLoadFloat4(&planePos)));
+        cb.World = XMMatrixTranspose(planeTransform.GenerateModelMatrix());
 
         shadowShader_->updateConstantBuffer(context_.immediateContext_, cb);
         texturedCube_->draw(context_.immediateContext_);
     }
 
-    // Draw rest
+    // Set to true to see how light sees the scene
+    const bool drawFromLightView = false;
+
+    // ==============
+    // Draw the scene
+    // ==============
     {
         context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
         context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
@@ -127,12 +130,14 @@ void ShadowsExample::render() {
 
         // Draw cube
         ConstantBuffer cb;
-        cb.World = XMMatrixIdentity();
-        cb.NormalMatrix = computeNormalMatrix(cb.World);
-        //cb.Projection = XMMatrixTranspose(lightProjection);
-        cb.Projection = XMMatrixTranspose(projection_);
-        //cb.View = XMMatrixTranspose(lightView);
-        cb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+        if (drawFromLightView) {
+            cb.Projection = XMMatrixTranspose(lightProjection);
+            cb.View = XMMatrixTranspose(lightView);
+        } else {
+            cb.Projection = XMMatrixTranspose(projection_);
+            cb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+        }
+        
         cb.LightView = XMMatrixTranspose(lightView);
         cb.LightProjection = XMMatrixTranspose(lightProjection);
         cb.ViewPos = camera_.Position;
@@ -140,23 +145,29 @@ void ShadowsExample::render() {
         cb.DirLights[0].Color = SUN_YELLOW;
         cb.DirLights[0].Direction = XMFLOAT4(-sunPos.x, -sunPos.y, -sunPos.z, 1.0f);
 
-        texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
         texturedPhong_->use(context_.immediateContext_);
-        context_.immediateContext_->PSSetShaderResources(0, 1, &seaFloorTexture_);
+        seaFloorTexture_->use(context_.immediateContext_, 0);
         context_.immediateContext_->PSSetShaderResources(1, 1, &shadowShaderResourceView_);
         linearSampler_->use(context_.immediateContext_, 0);
         shadowSampler_->use(context_.immediateContext_, 1);
-        texturedCube_->draw(context_.immediateContext_);
+
+        for (const auto& transform : cubes) {
+            cb.World = XMMatrixIdentity();
+            cb.NormalMatrix = computeNormalMatrix(cb.World);
+            cb.World = XMMatrixTranspose(transform.GenerateModelMatrix());
+            texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
+            texturedCube_->draw(context_.immediateContext_);
+        }
 
         // Draw floor
-        cb.World = XMMatrixTranspose(planeScale * XMMatrixTranslationFromVector(XMLoadFloat4(&planePos)));
+        cb.World = XMMatrixTranspose(planeTransform.GenerateModelMatrix());
         cb.NormalMatrix = computeNormalMatrix(cb.World);
 
         texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
         texturedCube_->draw(context_.immediateContext_);
 
         // Draw sun
-        /*SolidConstBuffer scb;
+        SolidConstBuffer scb;
         scb.OutputColor = SUN_YELLOW;
         scb.Projection = XMMatrixTranspose(projection_);
         scb.View = XMMatrixTranspose(camera_.GetViewMatrix());
@@ -165,7 +176,7 @@ void ShadowsExample::render() {
 
         solidShader_->updateConstantBuffer(context_.immediateContext_, scb);
         solidShader_->use(context_.immediateContext_);
-        colorCube_->draw(context_.immediateContext_);*/
+        colorCube_->draw(context_.immediateContext_);
 
         context_.swapChain_->Present(0, 0);
     }
