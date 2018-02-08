@@ -17,7 +17,7 @@ struct ConstantBuffer {
     DirectX::XMMATRIX NormalMatrix;
     DirectX::XMMATRIX LightView;
     DirectX::XMMATRIX LightProjection;
-    DirLight DirLight;
+    DirLight SunLight;
     DirectX::XMFLOAT3 ViewPos;
 };
 
