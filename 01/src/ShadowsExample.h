@@ -17,9 +17,8 @@ struct ConstantBuffer {
     DirectX::XMMATRIX NormalMatrix;
     DirectX::XMMATRIX LightView;
     DirectX::XMMATRIX LightProjection;
-    DirLight DirLights[1];
+    DirLight DirLight;
     DirectX::XMFLOAT3 ViewPos;
-    int DirLightCount;
 };
 
 struct SolidConstBuffer {

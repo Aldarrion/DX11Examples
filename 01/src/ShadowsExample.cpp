@@ -152,9 +152,8 @@ void ShadowsExample::render() {
         cb.LightView = XMMatrixTranspose(lightView);
         cb.LightProjection = XMMatrixTranspose(lightProjection);
         cb.ViewPos = camera_.Position;
-        cb.DirLightCount = 1;
-        cb.DirLights[0].Color = SUN_YELLOW;
-        cb.DirLights[0].Direction = XMFLOAT4(-sunPos.x, -sunPos.y, -sunPos.z, 1.0f);
+        cb.SunLight.Color = SUN_YELLOW;
+        cb.SunLight.Direction = XMFLOAT4(-sunPos.x, -sunPos.y, -sunPos.z, 1.0f);
 
         texturedPhong_->use(context_.immediateContext_);
         seaFloorTexture_->use(context_.immediateContext_, 0);
