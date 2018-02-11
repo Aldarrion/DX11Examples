@@ -89,7 +89,7 @@ HRESULT ShadowsExample::setup() {
 void ShadowsExample::render() {
     BasicExample::render();
 
-    currentCubeRotation_ += deltaTime * cubeRotationPerSecond_;
+    currentCubeRotation_ += deltaTime_ * cubeRotationPerSecond_;
     while (currentCubeRotation_ > 360.0f) {
         currentCubeRotation_ -= 360.0f;
     }

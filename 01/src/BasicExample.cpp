@@ -39,9 +39,9 @@ std::chrono::steady_clock::time_point lastFrame = std::chrono::high_resolution_c
 void BasicExample::render() {
     // Update our time
     const auto currentFrame = std::chrono::high_resolution_clock::now();
-    deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(currentFrame - lastFrame).count() / 1000000000.0;
+    deltaTime_ = std::chrono::duration_cast<std::chrono::nanoseconds>(currentFrame - lastFrame).count() / 1000000000.0;
     lastFrame = currentFrame;
-    timeFromStart += deltaTime;
+    timeFromStart += deltaTime_;
 
-    handleInput(static_cast<float>(deltaTime));
+    handleInput(static_cast<float>(deltaTime_));
 }

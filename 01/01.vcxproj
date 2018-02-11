@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\BasicExample.cpp" />
+    <ClCompile Include="src\BillboardExample.cpp" />
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\Example.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
@@ -157,11 +158,14 @@
   <ItemGroup>
     <ClInclude Include="src\AnisotropicSampler.h" />
     <ClInclude Include="src\BasicExample.h" />
+    <ClInclude Include="src\BillboardExample.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\ColorCube.h" />
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\DDSTextureLoader.h" />
+    <ClInclude Include="src\DrawableObject.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />
+    <ClInclude Include="src\Plane.h" />
     <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\Example.h" />
     <ClInclude Include="src\Layouts.h" />
@@ -179,8 +183,15 @@
     <ClInclude Include="src\TextureSampler.h" />
     <ClInclude Include="src\TexturingExample.h" />
     <ClInclude Include="src\Util.h" />
+    <ClInclude Include="src\VertexTypes.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaders\Billboard.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="shaders\ExplodeGeomShader.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

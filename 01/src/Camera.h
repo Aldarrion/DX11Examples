@@ -38,11 +38,12 @@ public:
     float Zoom;
 
     // Constructor with vectors
-    Camera(
-            dx::XMFLOAT3 position = dx::XMFLOAT3(0.0f, 0.0f, 0.0f), 
-            dx::XMFLOAT3 up = dx::XMFLOAT3(0.0f, 1.0f, 0.0f), 
-            float yaw = YAW,
-            float pitch = PITCH)
+    explicit Camera(
+        const dx::XMFLOAT3 position = dx::XMFLOAT3(0.0f, 0.0f, 0.0f),
+        const dx::XMFLOAT3 up = dx::XMFLOAT3(0.0f, 1.0f, 0.0f), 
+        const float yaw = YAW,
+        const float pitch = PITCH
+    )
             : Front(dx::XMFLOAT3(0.0f, 0.0f, -1.0f))
             , MovementSpeed(SPEED)
             , MouseSensitivity(SENSITIVTY)
@@ -53,6 +54,7 @@ public:
         Pitch = pitch;
         updateCameraVectors();
     }
+
     // Constructor with scalar values
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) 
             : Front(dx::XMFLOAT3(0.0f, 0.0f, -1.0f))

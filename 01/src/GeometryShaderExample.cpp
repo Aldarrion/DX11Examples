@@ -2,6 +2,7 @@
 #include <directxcolors.h>
 #include <vector>
 #include "Layouts.h"
+#include <minwinbase.h>
 
 namespace GeometryShader {
 

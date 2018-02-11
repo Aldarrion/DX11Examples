@@ -7,7 +7,7 @@ protected:
     Camera camera_;
     DirectX::XMMATRIX projection_;
 
-    double deltaTime = 0.0;
+    double deltaTime_ = 0.0;
     double timeFromStart = 0.0;
 
     void handleInput(float deltaTime);
@@ -22,7 +22,7 @@ protected:
     }
 
 public:
-    BasicExample() : camera_(DirectX::XMFLOAT3(0.0f, 4.0f, -10.0f)) {
+    BasicExample() : camera_(DirectX::XMFLOAT3(0.0f, 0.0f, -10.0f)) {
     }
     virtual ~BasicExample() = default;
 };
