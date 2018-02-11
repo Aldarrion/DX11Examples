@@ -40,7 +40,6 @@ PS_INPUT VS(VS_INPUT input) {
     output.Pos = mul(output.Pos, View);
     output.Pos = mul(output.Pos, Projection);
     output.Norm = mul(float4(input.Norm, 0), NormalMatrix).xyz;
-    //output.Norm = input.Norm;
     output.Color = input.Color;
     output.FragPos = mul(input.Pos, World);
     output.UV = input.UV;

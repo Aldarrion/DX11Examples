@@ -53,6 +53,9 @@
     <ClCompile Include="src\Layouts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GeometryShaderExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -124,6 +127,9 @@
     <ClInclude Include="src\AnisotropicSampler.h">
       <Filter>Header Files\TextureSamplers</Filter>
     </ClInclude>
+    <ClInclude Include="src\GeometryShaderExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">
@@ -142,6 +148,15 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PhongShadows.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\UnlitGeom.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ExplodeGeomShader.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\NormalGeomShader.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

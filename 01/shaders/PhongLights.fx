@@ -20,7 +20,7 @@ struct SpotLight {
 
 float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 viewDir, float shadow = 0.0) {
     // ambient
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.2;
     float3 ambient = mul(ambientStrength, light.Color);
     
     // diffuse

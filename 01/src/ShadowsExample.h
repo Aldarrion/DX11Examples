@@ -48,6 +48,8 @@ protected:
     std::unique_ptr<TexturedCube> texturedCube_;
     std::unique_ptr<SolidShader> solidShader_;
     std::unique_ptr<ColorCube> colorCube_;
+    float currentCubeRotation_ = 0.0f;
+    float cubeRotationPerSecond_ = 45.0f;
 
     // =======
     // Shadows

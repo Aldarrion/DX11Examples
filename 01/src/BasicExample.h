@@ -18,7 +18,7 @@ protected:
     void render() override;
 
     static DirectX::XMMATRIX computeNormalMatrix(const DirectX::XMMATRIX& model) {
-        return XMMatrixTranspose(XMMatrixInverse(nullptr, model));
+        return XMMatrixTranspose(XMMatrixInverse(nullptr, (model)));
     }
 
 public:

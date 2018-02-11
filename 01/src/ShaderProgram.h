@@ -8,6 +8,7 @@ template <typename TConstBuffer>
 class ShaderProgram {
     ID3D11Buffer* constantBuffer_;
     ID3D11VertexShader* vertexShader_;
+    ID3D11GeometryShader* geometryShader_;
     ID3D11PixelShader* pixelShader_;
     ID3D11InputLayout* inputLayout_;
 
@@ -18,43 +19,88 @@ public:
             const char* vertexStart, 
             const WCHAR* pixelPath, 
             const char* pixelStart, 
-            const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout) {
+            const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout,
+            const WCHAR* geomPath = nullptr,
+            const char* geomStart = nullptr) {
         // Compile vertex shader
-        ID3DBlob* pVSBlob = nullptr;
-        auto hr = CompileShaderFromFile(vertexPath, vertexStart, "vs_4_0", &pVSBlob);
+        ID3DBlob* VSBlob = nullptr;
+        auto hr = CompileShaderFromFile(vertexPath, vertexStart, "vs_5_0", &VSBlob);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"The FX file cannot be compiled. See errors in console.", L"Error", MB_OK);
+            MessageBox(nullptr, L"The FX file cannot be compiled (VS). See errors in console.", L"Error", MB_OK);
             return;
         }
         // Create vertex shader
-        hr = device->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &vertexShader_);
+        hr = device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), nullptr, &vertexShader_);
         if (FAILED(hr)) {
-            pVSBlob->Release();
+            VSBlob->Release();
             MessageBox(nullptr, L"Failed to create vertex shader", L"Error", MB_OK);
             return;
         }
         // Create input layout
-        hr = device->CreateInputLayout(layout.data(), static_cast<UINT>(layout.size()), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &inputLayout_);
-        pVSBlob->Release();
+        hr = device->CreateInputLayout(layout.data(), static_cast<UINT>(layout.size()), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), &inputLayout_);
+        VSBlob->Release();
         if (FAILED(hr)) {
             MessageBox(nullptr, L"Failed to create input layout", L"Error", MB_OK);
             return;
         }
-        
+
         // Compile pixel shader
-        ID3DBlob* pPSBlob = nullptr;
-        hr = CompileShaderFromFile(pixelPath, pixelStart, "ps_4_0", &pPSBlob);
+        ID3DBlob* PSBlob = nullptr;
+        hr = CompileShaderFromFile(pixelPath, pixelStart, "ps_5_0", &PSBlob);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"The FX file cannot be compiled. See errors in console.", L"Error", MB_OK);
+            MessageBox(nullptr, L"The FX file cannot be compiled (PS). See errors in console.", L"Error", MB_OK);
             return;
         }
 
         // Create the pixel shader
-        hr = device->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &pixelShader_);
-        pPSBlob->Release();
+        hr = device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), nullptr, &pixelShader_);
+        PSBlob->Release();
         if (FAILED(hr)) {
             MessageBox(nullptr, L"Failed to create pixel shader", L"Error", MB_OK);
             return;
+        }
+
+        // Geometry shader
+        if (geomPath != nullptr && geomStart != nullptr) {
+            ID3DBlob* GSBlob = nullptr;
+            hr = CompileShaderFromFile(geomPath, geomStart, "gs_5_0", &GSBlob);
+            if (FAILED(hr)) {
+                MessageBox(nullptr, L"The FX file cannot be compiled (GS). See errors in console.", L"Error", MB_OK);
+                return;
+            }
+
+            D3D11_SO_DECLARATION_ENTRY decl[] = {
+                // semantic name, semantic index, start component, component count, output slot
+                { 0, "SV_POSITION", 0, 0, 4, 0 },   // output all components of position
+                { 1, "TEXCOORD0", 0, 0, 3, 0 },     // output the first 3 of the normal
+                { 2, "TEXCOORD1", 0, 0, 2, 0 },     // output the first 2 texture coordinates
+            };
+
+            /*hr = device->CreateGeometryShaderWithStreamOutput(
+                GSBlob->GetBufferPointer(),
+                GSBlob->GetBufferSize(),
+                decl,
+                sizeof(decl),
+                nullptr,
+                0,
+                0,
+                nullptr,
+                &geometryShader_
+            );*/
+            hr = device->CreateGeometryShader(
+                GSBlob->GetBufferPointer(),
+                GSBlob->GetBufferSize(),
+                nullptr,
+                &geometryShader_
+            );
+            GSBlob->Release();
+            if (FAILED(hr)) {
+                std::cout << hr << std::endl;
+                MessageBox(nullptr, L"Failed to create geometry shader", L"Error", MB_OK);
+                return;
+            }
+        } else {
+            geometryShader_ = nullptr;
         }
 
         // Create constantBuffer
@@ -74,6 +120,7 @@ public:
     ~ShaderProgram() {
         if (vertexShader_) vertexShader_->Release();
         if (pixelShader_) pixelShader_->Release();
+        if (geometryShader_) geometryShader_->Release();
         if (inputLayout_) inputLayout_->Release();
         if (constantBuffer_) constantBuffer_->Release();
     }
@@ -85,6 +132,10 @@ public:
         context->IASetInputLayout(inputLayout_);
         context->VSSetShader(vertexShader_, nullptr, 0);
         context->VSSetConstantBuffers(0, 1, &constantBuffer_);
+        context->GSSetShader(geometryShader_, nullptr, 0);
+        if (geometryShader_) {
+            context->GSSetConstantBuffers(0, 1, &constantBuffer_);
+        }
         context->PSSetShader(pixelShader_, nullptr, 0);
         context->PSSetConstantBuffers(0, 1, &constantBuffer_);
     }

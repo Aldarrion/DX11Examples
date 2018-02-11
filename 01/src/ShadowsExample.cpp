@@ -89,6 +89,11 @@ HRESULT ShadowsExample::setup() {
 void ShadowsExample::render() {
     BasicExample::render();
 
+    currentCubeRotation_ += deltaTime * cubeRotationPerSecond_;
+    while (currentCubeRotation_ > 360.0f) {
+        currentCubeRotation_ -= 360.0f;
+    }
+
     const XMFLOAT4 sunPos = XMFLOAT4(-30.0f, 30.0f, -30.0f, 1.0f);
     const XMMATRIX lightProjection = XMMatrixOrthographicLH(40.0f, 40.0f, 1.0f, 100.0f);
     const auto focus = XMFLOAT3(0, 0, 0);
@@ -97,7 +102,7 @@ void ShadowsExample::render() {
     const Transform planeTransform(XMFLOAT3(0.0, -4.0f, 0.0f), XMFLOAT3(), XMFLOAT3(20.0f, 2.2f, 20.0f));
     const std::vector<Transform> cubes = {
         Transform(),
-        Transform(XMFLOAT3(2.5f, 1.2f, 1.8f), XMFLOAT3(XMConvertToRadians(45.0f), XMConvertToRadians(30.0f), 0.0f)),
+        Transform(XMFLOAT3(2.5f, 1.2f, 1.8f), XMFLOAT3(XMConvertToRadians(45.0f), XMConvertToRadians(currentCubeRotation_), 0.0f)),
         Transform(XMFLOAT3(-2.5f, -0.8f, -2.5f))
     };
 
@@ -162,9 +167,8 @@ void ShadowsExample::render() {
         shadowSampler_->use(context_.immediateContext_, 1);
 
         for (const auto& transform : cubes) {
-            cb.World = XMMatrixIdentity();
-            cb.NormalMatrix = computeNormalMatrix(cb.World);
             cb.World = XMMatrixTranspose(transform.GenerateModelMatrix());
+            cb.NormalMatrix = computeNormalMatrix(cb.World);
             texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
             texturedCube_->draw(context_.immediateContext_);
         }
