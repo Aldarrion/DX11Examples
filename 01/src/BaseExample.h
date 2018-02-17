@@ -2,13 +2,13 @@
 #include "Example.h"
 #include "Camera.h"
 
-class BasicExample : public Example {
+class BaseExample : public Example {
 protected:
     Camera camera_;
     DirectX::XMMATRIX projection_;
 
-    double deltaTime_ = 0.0;
-    double timeFromStart = 0.0;
+    float deltaTime_ = 0.0f;
+    float timeFromStart = 0.0f;
 
     void handleInput(float deltaTime);
     HRESULT setup() override {
@@ -22,7 +22,7 @@ protected:
     }
 
 public:
-    BasicExample() : camera_(DirectX::XMFLOAT3(0.0f, 0.0f, -10.0f)) {
+    BaseExample() : camera_(DirectX::XMFLOAT3(0.0f, 0.0f, -10.0f)) {
     }
-    virtual ~BasicExample() = default;
+    virtual ~BaseExample() = default;
 };

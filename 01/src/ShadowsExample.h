@@ -1,5 +1,5 @@
 #pragma once
-#include "BasicExample.h"
+#include "BaseExample.h"
 #include "ColorCube.h"
 #include "TexturedCube.h"
 #include "ShaderProgram.h"
@@ -34,7 +34,7 @@ struct ShadowConstBuffer {
     DirectX::XMMATRIX Projection;
 };
 
-class ShadowsExample : public BasicExample {
+class ShadowsExample : public BaseExample {
 protected:
     using TextureShader = ShaderProgram<ConstantBuffer>;
     using SolidShader = ShaderProgram<SolidConstBuffer>;

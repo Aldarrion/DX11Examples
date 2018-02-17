@@ -1,10 +1,10 @@
-#include "BasicExample.h"
+#include "BaseExample.h"
 #include <chrono>
 #include <directxcolors.h>
 
 using namespace DirectX;
 
-void BasicExample::handleInput(float deltaTime) {
+void BaseExample::handleInput(float deltaTime) {
     if (GetActiveWindow() != context_.hWnd_)
         return;
 
@@ -36,10 +36,10 @@ void BasicExample::handleInput(float deltaTime) {
 }
 
 std::chrono::steady_clock::time_point lastFrame = std::chrono::high_resolution_clock::now();
-void BasicExample::render() {
+void BaseExample::render() {
     // Update our time
     const auto currentFrame = std::chrono::high_resolution_clock::now();
-    deltaTime_ = std::chrono::duration_cast<std::chrono::nanoseconds>(currentFrame - lastFrame).count() / 1000000000.0;
+    deltaTime_ = std::chrono::duration_cast<std::chrono::nanoseconds>(currentFrame - lastFrame).count() / 1000000000.0f;
     lastFrame = currentFrame;
     timeFromStart += deltaTime_;
 

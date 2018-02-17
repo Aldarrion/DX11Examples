@@ -4,7 +4,7 @@
 using namespace DirectX;
 
 HRESULT PhongShadingExample::setup() {
-    BasicExample::setup();
+    BaseExample::setup();
 
     // Define the input layout
     std::vector<D3D11_INPUT_ELEMENT_DESC> layout = {
@@ -22,7 +22,7 @@ HRESULT PhongShadingExample::setup() {
 }
 
 void PhongShadingExample::render() {
-    BasicExample::render();
+    BaseExample::render();
 
     // Setup our lighting parameters
     XMFLOAT4 sunPosition = XMFLOAT4(-3.0f, 3.0f, -3.0f, 1.0f);

@@ -8,7 +8,7 @@ using namespace DirectX;
 
 namespace Shadows {
 HRESULT ShadowsExample::setup() {
-    BasicExample::setup();
+    BaseExample::setup();
 
     // Shaders
     shadowShader_ = std::make_unique<ShadowShader>(context_.d3dDevice_, L"shaders/Shadows.fx", "VS_Shadow", L"shaders/Shadows.fx", "PS_Shadow", Layouts::TEXTURED_LAYOUT);
@@ -87,7 +87,7 @@ HRESULT ShadowsExample::setup() {
 }
 
 void ShadowsExample::render() {
-    BasicExample::render();
+    BaseExample::render();
 
     currentCubeRotation_ += deltaTime_ * cubeRotationPerSecond_;
     while (currentCubeRotation_ > 360.0f) {

@@ -1,5 +1,5 @@
 #pragma once
-#include "BasicExample.h"
+#include "BaseExample.h"
 #include "ShaderProgram.h"
 #include "TexturedCube.h"
 #include "Texture.h"
@@ -19,7 +19,7 @@ struct BillboardCBuffer {
     DirectX::XMMATRIX GrassMatrices[GRASS_COUNT];
 };
 
-class BillboardExample : public BasicExample {
+class BillboardExample : public BaseExample {
 protected:
     using BillboardShader = ShaderProgram<BillboardCBuffer>;
     using TextureShader = ShaderProgram<BillboardCBuffer>;

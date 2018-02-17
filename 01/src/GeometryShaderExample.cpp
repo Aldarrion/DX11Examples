@@ -9,7 +9,7 @@ namespace GeometryShader {
 using namespace DirectX;
 
 HRESULT GeometryShaderExample::setup() {
-    BasicExample::setup();
+    BaseExample::setup();
 
     normalShader_ = std::make_unique<GeomShader>(
         context_.d3dDevice_, 
@@ -34,7 +34,7 @@ HRESULT GeometryShaderExample::setup() {
 }
 
 void GeometryShaderExample::render() {
-    BasicExample::render();
+    BaseExample::render();
 
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);

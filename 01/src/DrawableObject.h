@@ -7,7 +7,7 @@ class DrawableObject {
 protected:
     ID3D11Buffer* vertexBuffer_;
     ID3D11Buffer* indexBuffer_;
-    size_t indexCount_;
+    UINT indexCount_;
 
     void initialize(
         ID3D11Device* device,
@@ -17,7 +17,7 @@ protected:
         D3D11_BUFFER_DESC bd;
         ZeroMemory(&bd, sizeof(bd));
         bd.Usage = D3D11_USAGE_DEFAULT;
-        bd.ByteWidth = sizeof(TVertex) * vertices.size();
+        bd.ByteWidth = static_cast<UINT>(sizeof(TVertex) * vertices.size());
         bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         bd.CPUAccessFlags = 0;
         D3D11_SUBRESOURCE_DATA InitData;
@@ -31,7 +31,7 @@ protected:
 
         // Create index buffer
         bd.Usage = D3D11_USAGE_DEFAULT;
-        bd.ByteWidth = sizeof(WORD) * indices.size();
+        bd.ByteWidth = static_cast<UINT>(sizeof(WORD) * indices.size());
         bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
         bd.CPUAccessFlags = 0;
         InitData.pSysMem = indices.data();
@@ -40,7 +40,7 @@ protected:
             MessageBox(nullptr, L"Failed to create index buffer", L"Error", MB_OK);
             return;
         }
-        indexCount_ = indices.size();
+        indexCount_ = static_cast<UINT>(indices.size());
     }
 
 public:

@@ -32,9 +32,6 @@
     <ClCompile Include="src\Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\BasicExample.cpp">
-      <Filter>Source Files\Examples</Filter>
-    </ClCompile>
     <ClCompile Include="src\Example.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
@@ -57,6 +54,9 @@
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
     <ClCompile Include="src\BillboardExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BaseExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,9 +92,6 @@
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
     <ClInclude Include="src\TexturingExample.h">
-      <Filter>Header Files\Examples</Filter>
-    </ClInclude>
-    <ClInclude Include="src\BasicExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
     <ClInclude Include="src\ColorCube.h">
@@ -144,6 +141,9 @@
     </ClInclude>
     <ClInclude Include="src\DrawableObject.h">
       <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BaseExample.h">
+      <Filter>Header Files\Examples</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

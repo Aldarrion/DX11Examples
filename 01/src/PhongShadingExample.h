@@ -1,5 +1,5 @@
 #pragma once
-#include "BasicExample.h"
+#include "BaseExample.h"
 #include "ShaderProgram.h"
 #include "ColorCube.h"
 #include "PhongLights.h"
@@ -25,7 +25,7 @@ struct SolidConstBuffer {
     DirectX::XMFLOAT4 OutputColor;
 };
 
-class PhongShadingExample : public BasicExample {
+class PhongShadingExample : public BaseExample {
 protected:
     std::unique_ptr<ShaderProgram<ConstantBuffer>> cubeShader_;
     std::unique_ptr<ShaderProgram<SolidConstBuffer>> solidShader_;

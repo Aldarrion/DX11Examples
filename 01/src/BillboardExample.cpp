@@ -14,7 +14,7 @@ struct PosVertex {
 ID3D11RasterizerState* state = nullptr;
 
 HRESULT BillboardExample::setup() {
-    BasicExample::setup();
+    BaseExample::setup();
 
     textureShader_ = std::make_unique<TextureShader>(
         context_.d3dDevice_,
@@ -136,7 +136,7 @@ HRESULT BillboardExample::setup() {
 }
 
 void BillboardExample::render() {
-    BasicExample::render();
+    BaseExample::render();
 
     std::cout << "Frame time: " << deltaTime_ * 1000 << std::endl;
 
@@ -184,7 +184,7 @@ void BillboardExample::render() {
         context_.immediateContext_->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
         context_.immediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
         //context_.immediateContext_->Draw(1, 0);
-        context_.immediateContext_->DrawInstanced(1, grassPositions_.size(), 0, 0);
+        context_.immediateContext_->DrawInstanced(1, static_cast<UINT>(grassPositions_.size()), 0, 0);
     }
 
     context_.swapChain_->Present(0, 0);

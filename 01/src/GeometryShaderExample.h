@@ -1,5 +1,5 @@
 #pragma once
-#include "BasicExample.h"
+#include "BaseExample.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include "AnisotropicSampler.h"
@@ -14,7 +14,7 @@ struct ConstantBuffer {
     DirectX::XMMATRIX NormalMatrix;
 };
 
-class GeometryShaderExample : public BasicExample {
+class GeometryShaderExample : public BaseExample {
 protected:
     using GeomShader = ShaderProgram<ConstantBuffer>;
     using StdShader = ShaderProgram<ConstantBuffer>;
