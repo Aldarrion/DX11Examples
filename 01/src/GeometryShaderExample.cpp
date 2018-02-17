@@ -41,7 +41,7 @@ void GeometryShaderExample::render() {
 
     ConstantBuffer cb;
     cb.World = XMMatrixIdentity();
-    cb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+    cb.View = XMMatrixTranspose(camera_.getViewMatrix());
     cb.Projection = XMMatrixTranspose(projection_);
     cb.NormalMatrix = computeNormalMatrix(cb.World);
 

@@ -13,8 +13,8 @@ HRESULT PhongShadingExample::setup() {
         { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
-    cubeShader_ = std::make_unique<ShaderProgram<ConstantBuffer>>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
-    solidShader_ = std::make_unique<ShaderProgram<SolidConstBuffer>>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
+    cubeShader_ = std::make_unique<ShaderProgram<ConstantBuffers::PhongCB>>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
+    solidShader_ = std::make_unique<ShaderProgram<ConstantBuffers::SolidConstBuffer>>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
 
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
@@ -48,10 +48,10 @@ void PhongShadingExample::render() {
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     // Update matrix variables and lighting variables
-    ConstantBuffer cb;
+    ConstantBuffers::PhongCB cb;
     cb.World = XMMatrixIdentity();
     cb.NormalMatrix = computeNormalMatrix(cb.World);
-    cb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+    cb.View = XMMatrixTranspose(camera_.getViewMatrix());
     cb.Projection = XMMatrixTranspose(projection_);
     cb.PointLightCount = 1;
     cb.PointLights[0].Position = pointLightPositions[0];
@@ -83,8 +83,8 @@ void PhongShadingExample::render() {
 
     // Render each light
     {
-        SolidConstBuffer solidCb;
-        solidCb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+        ConstantBuffers::SolidConstBuffer solidCb;
+        solidCb.View = XMMatrixTranspose(camera_.getViewMatrix());
         solidCb.Projection = XMMatrixTranspose(projection_);
         const XMMATRIX lightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
         for (int m = 0; m < 1; m++) {

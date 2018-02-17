@@ -150,7 +150,7 @@ void BillboardExample::render() {
 
 
     BillboardCBuffer cb;
-    cb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+    cb.View = XMMatrixTranspose(camera_.getViewMatrix());
     cb.Projection = XMMatrixTranspose(projection_);
     
     {

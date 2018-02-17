@@ -18,9 +18,9 @@ struct SpotLight {
     float4 OuterCone;
 };
 
-float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 viewDir, float shadow = 0.0) {
+float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 viewDir, float shadow = 0.0, float4 specularity = 1.0) {
     // ambient
-    float ambientStrength = 0.2;
+    float ambientStrength = 0.25;
     float3 ambient = mul(ambientStrength, light.Color);
     
     // diffuse
@@ -29,10 +29,10 @@ float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 view
     float3 diffuse = diff * light.Color;
 
     // specular
-    float specularStrength = 0.5;
+    float specularStrength = 1.0;
     float3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), SHININESS);
-    float3 specular = specularStrength * spec * light.Color;
+    float3 specular = specularStrength * spec * light.Color * specularity;
 
     float4 finalColor = saturate(float4((ambient + (1.0 - shadow) * (diffuse + specular)), 1) * fragColor);
     finalColor.a = 1;
@@ -40,7 +40,7 @@ float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 view
     return finalColor;
 }
 
-float4 CalcPointLight(PointLight light, float3 normal, float3 fragPos, float4 fragColor, float3 viewDir) {
+float4 CalcPointLight(PointLight light, float3 normal, float3 fragPos, float4 fragColor, float3 viewDir, float4 specularity = 1.0) {
     // ambient
     float ambientStrength = 0.1;
     float3 ambient = mul(ambientStrength, light.Color);
@@ -51,10 +51,10 @@ float4 CalcPointLight(PointLight light, float3 normal, float3 fragPos, float4 fr
     float3 diffuse = diff * light.Color;
 
     // specular
-    float specularStrength = 0.5;
+    float specularStrength = 1.0;
     float3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), SHININESS);
-    float3 specular = specularStrength * spec * light.Color;
+    float3 specular = specularStrength * spec * light.Color * specularity;
 
     float4 finalColor = saturate(float4((ambient + diffuse + specular), 1) * fragColor);
     finalColor.a = 1;
@@ -62,7 +62,7 @@ float4 CalcPointLight(PointLight light, float3 normal, float3 fragPos, float4 fr
     return finalColor;
 }
 
-float4 CalcSpotLight(SpotLight light, float3 normal, float3 fragPos, float4 fragColor, float3 viewDir) {
+float4 CalcSpotLight(SpotLight light, float3 normal, float3 fragPos, float4 fragColor, float3 viewDir, float4 specularity = 1.0) {
     // ambient
     float ambientStrength = 0.1;
     float3 ambient = mul(ambientStrength, light.Color);
@@ -73,10 +73,10 @@ float4 CalcSpotLight(SpotLight light, float3 normal, float3 fragPos, float4 frag
     float3 diffuse = diff * light.Color;
 
     // specular
-    float specularStrength = 0.5;
+    float specularStrength = 1.0;
     float3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), SHININESS);
-    float3 specular = specularStrength * spec * light.Color;
+    float3 specular = specularStrength * spec * light.Color * specularity;
 
     float theta = dot(lightDir, normalize(light.Direction));
     float epsilon = light.InnerCone.x - light.OuterCone.x;

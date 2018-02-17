@@ -154,6 +154,7 @@
     <ClCompile Include="src\Mouse.cpp" />
     <ClCompile Include="src\PhongShadingExample.cpp" />
     <ClCompile Include="src\ShadowsExample.cpp" />
+    <ClCompile Include="src\SpecularMapExample.cpp" />
     <ClCompile Include="src\TexturingExample.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -163,11 +164,13 @@
     <ClInclude Include="src\BillboardExample.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\ColorCube.h" />
+    <ClInclude Include="src\ConstantBuffers.h" />
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\DDSTextureLoader.h" />
     <ClInclude Include="src\DrawableObject.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />
     <ClInclude Include="src\Plane.h" />
+    <ClInclude Include="src\SpecularMapExample.h" />
     <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\Example.h" />
     <ClInclude Include="src\Layouts.h" />
@@ -226,6 +229,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\PhongShadows.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\Specular.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

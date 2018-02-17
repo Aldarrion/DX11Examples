@@ -1,7 +1,6 @@
 #include "TexturingExample.h"
 #include "DDSTextureLoader.h"
 #include <directxcolors.h>
-#include "Layouts.h"
 
 namespace Texturing {
 
@@ -20,7 +19,7 @@ HRESULT TexturingExample::setup() {
     texturedPhong_ = std::make_unique<ShaderProgram<ConstantBuffer>>(context_.d3dDevice_, L"shaders/Textured.fx", "VS", L"shaders/Textured.fx", "PS", texturedLayout);
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
     texturedPlane_ = std::make_unique<Plane>(context_.d3dDevice_);
-    solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
+    solidShader_ = Shaders::createSolidShader(context_);
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     // ========================
@@ -89,7 +88,7 @@ void TexturingExample::render() {
     cb.World = XMMatrixIdentity();
     cb.NormalMatrix = computeNormalMatrix(cb.World);
     cb.Projection = XMMatrixTranspose(projection_);
-    cb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+    cb.View = XMMatrixTranspose(camera_.getViewMatrix());
     cb.ViewPos = camera_.Position;
     cb.DirLightCount = 1;
     cb.DirLights[0].Color = SUN_YELLOW;
@@ -115,10 +114,10 @@ void TexturingExample::render() {
     texturedPlane_->draw(context_.immediateContext_);
 
     // Draw sun
-    SolidConstBuffer scb;
+    ConstantBuffers::SolidConstBuffer scb;
     scb.OutputColor = SUN_YELLOW;
     scb.Projection = XMMatrixTranspose(projection_);
-    scb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+    scb.View = XMMatrixTranspose(camera_.getViewMatrix());
     const XMMATRIX scale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
     scb.World = XMMatrixTranspose(scale * XMMatrixTranslationFromVector(XMLoadFloat4(&sunPos)));
 

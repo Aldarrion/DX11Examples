@@ -24,3 +24,19 @@ public:
         context->PSSetShaderResources(slot, 1, &texture_);
     }
 };
+
+namespace Textures {
+    using PTexture = std::unique_ptr<Texture>;
+    
+    inline PTexture createSeaFloorTexture(const ContextWrapper& context) {
+        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/seafloor.dds");
+    }
+
+    inline PTexture createBoxDiffuse(const ContextWrapper& context) {
+        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/container2.dds");
+    }
+
+    inline PTexture createBoxSpecular(const ContextWrapper& context) {
+        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/container2_specular.dds");
+    }
+}

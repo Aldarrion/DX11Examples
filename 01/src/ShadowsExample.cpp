@@ -13,7 +13,7 @@ HRESULT ShadowsExample::setup() {
     // Shaders
     shadowShader_ = std::make_unique<ShadowShader>(context_.d3dDevice_, L"shaders/Shadows.fx", "VS_Shadow", L"shaders/Shadows.fx", "PS_Shadow", Layouts::TEXTURED_LAYOUT);
     texturedPhong_ = std::make_unique<TextureShader>(context_.d3dDevice_, L"shaders/PhongShadows.fx", "VS", L"shaders/PhongShadows.fx", "PS", Layouts::TEXTURED_LAYOUT);
-    solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
+    solidShader_ = Shaders::createSolidShader(context_);
 
     // Objects
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
@@ -153,7 +153,7 @@ void ShadowsExample::render() {
             cb.View = XMMatrixTranspose(lightView);
         } else {
             cb.Projection = XMMatrixTranspose(projection_);
-            cb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+            cb.View = XMMatrixTranspose(camera_.getViewMatrix());
         }
         
         cb.LightView = XMMatrixTranspose(lightView);
@@ -184,10 +184,10 @@ void ShadowsExample::render() {
         plane_->draw(context_.immediateContext_);
 
         // Draw sun
-        SolidConstBuffer scb;
+        ConstantBuffers::SolidConstBuffer scb;
         scb.OutputColor = SUN_YELLOW;
         scb.Projection = XMMatrixTranspose(projection_);
-        scb.View = XMMatrixTranspose(camera_.GetViewMatrix());
+        scb.View = XMMatrixTranspose(camera_.getViewMatrix());
         const XMMATRIX scale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
         scb.World = XMMatrixTranspose(scale * XMMatrixTranslationFromVector(XMLoadFloat4(&sunPos)));
 

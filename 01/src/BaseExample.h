@@ -1,6 +1,7 @@
 #pragma once
 #include "Example.h"
 #include "Camera.h"
+#include <directxcolors.h>
 
 class BaseExample : public Example {
 protected:
@@ -19,6 +20,11 @@ protected:
 
     static DirectX::XMMATRIX computeNormalMatrix(const DirectX::XMMATRIX& model) {
         return XMMatrixTranspose(XMMatrixInverse(nullptr, (model)));
+    }
+
+    void clearViews() const {
+        context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, DirectX::Colors::MidnightBlue);
+        context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
     }
 
 public:

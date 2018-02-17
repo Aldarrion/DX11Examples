@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "AnisotropicSampler.h"
 #include "Plane.h"
+#include "ConstantBuffers.h"
 
 namespace Shadows {
 
@@ -22,13 +23,6 @@ struct ConstantBuffer {
     DirectX::XMFLOAT3 ViewPos;
 };
 
-struct SolidConstBuffer {
-    DirectX::XMMATRIX World;
-    DirectX::XMMATRIX View;
-    DirectX::XMMATRIX Projection;
-    DirectX::XMFLOAT4 OutputColor;
-};
-
 struct ShadowConstBuffer {
     DirectX::XMMATRIX World;
     DirectX::XMMATRIX View;
@@ -38,7 +32,7 @@ struct ShadowConstBuffer {
 class ShadowsExample : public BaseExample {
 protected:
     using TextureShader = ShaderProgram<ConstantBuffer>;
-    using SolidShader = ShaderProgram<SolidConstBuffer>;
+    using SolidShader = ShaderProgram<ConstantBuffers::SolidConstBuffer>;
     using ShadowShader = ShaderProgram<ShadowConstBuffer>;
 
     std::unique_ptr<Texture> seaFloorTexture_;

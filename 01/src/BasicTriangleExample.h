@@ -14,5 +14,5 @@ protected:
     void render() override;
 
 public:
-    ~BasicTriangleExample() = default;
+    virtual ~BasicTriangleExample() = default;
 };

@@ -3,8 +3,10 @@
 #include <d3dcompiler.h>
 #include <iostream>
 #include <vector>
+#include "ConstantBuffers.h"
+#include "Layouts.h"
 
-namespace Shader {
+namespace ShaderUtil {
     template <bool cb>
     void initCb(ID3D11Device*, UINT, ID3D11Buffer**);
 
@@ -128,7 +130,7 @@ public:
             geometryShader_ = nullptr;
         }
 
-        Shader::initCb<UseCB>(device, sizeof(TConstBuffer), &constantBuffer_);
+        ShaderUtil::initCb<UseCB>(device, sizeof(TConstBuffer), &constantBuffer_);
     }
 
     ~ShaderProgram() {
@@ -192,3 +194,12 @@ private:
         return S_OK;
     }
 };
+
+namespace Shaders {
+    using SolidShader = ShaderProgram<ConstantBuffers::SolidConstBuffer>;
+    using PSolidShader = std::unique_ptr<SolidShader>;
+    
+    inline PSolidShader createSolidShader(const ContextWrapper& context) {
+        return std::make_unique<SolidShader>(context.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
+    }
+}

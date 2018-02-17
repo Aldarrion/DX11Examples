@@ -20,17 +20,9 @@ struct ConstantBuffer {
     int DirLightCount;
 };
 
-struct SolidConstBuffer {
-    DirectX::XMMATRIX World;
-    DirectX::XMMATRIX View;
-    DirectX::XMMATRIX Projection;
-    DirectX::XMFLOAT4 OutputColor;
-};
-
 class TexturingExample : public BaseExample {
 protected:
     using TextureShader = ShaderProgram<ConstantBuffer>;
-    using SolidShader = ShaderProgram<SolidConstBuffer>;
 
     ID3D11ShaderResourceView* seaFloorTexture_ = nullptr;
     ID3D11ShaderResourceView* boxTexture_ = nullptr;
@@ -39,7 +31,7 @@ protected:
     std::unique_ptr<TextureShader> texturedPhong_;
     std::unique_ptr<TexturedCube> texturedCube_;
     std::unique_ptr<Plane> texturedPlane_;
-    std::unique_ptr<SolidShader> solidShader_;
+    Shaders::PSolidShader solidShader_;
     std::unique_ptr<ColorCube> colorCube_;
 
     HRESULT setup() override;

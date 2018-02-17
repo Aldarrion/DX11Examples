@@ -69,7 +69,7 @@ public:
     }
 
     // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-    dx::XMMATRIX GetViewMatrix() const {
+    dx::XMMATRIX getViewMatrix() const {
         const dx::XMVECTOR pos = XMLoadFloat3(&Position);
         const auto focusPosition = dx::XMVectorAdd(XMLoadFloat3(&Position), XMLoadFloat3(&Front));
         const dx::XMVECTOR up = XMLoadFloat3(&Up);
