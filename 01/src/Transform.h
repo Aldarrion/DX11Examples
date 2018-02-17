@@ -18,7 +18,7 @@ struct Transform {
             , Scale(scale) {
     }
 
-    DirectX::XMMATRIX GenerateModelMatrix() const {
+    DirectX::XMMATRIX generateModelMatrix() const {
         const DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&RollPithYaw));
         const DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector(XMLoadFloat3(&Scale));
         const DirectX::XMMATRIX traslation = DirectX::XMMatrixTranslationFromVector(XMLoadFloat3(&Position));

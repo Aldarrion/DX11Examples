@@ -26,7 +26,7 @@ HRESULT GeometryShaderExample::setup() {
         Layouts::TEXTURED_LAYOUT
     );
 
-    texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds");
+    texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds");
     sampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
     cube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
 

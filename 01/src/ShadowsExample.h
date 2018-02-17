@@ -7,6 +7,7 @@
 #include "ShadowSampler.h"
 #include "Texture.h"
 #include "AnisotropicSampler.h"
+#include "Plane.h"
 
 namespace Shadows {
 
@@ -41,11 +42,13 @@ protected:
     using ShadowShader = ShaderProgram<ShadowConstBuffer>;
 
     std::unique_ptr<Texture> seaFloorTexture_;
+    std::unique_ptr<Texture> woodBoxTexture_;
     std::unique_ptr<ShadowSampler> shadowSampler_;
     std::unique_ptr<AnisotropicSampler> anisoSampler_;
     std::unique_ptr<ShadowShader> shadowShader_;
     std::unique_ptr<TextureShader> texturedPhong_;
     std::unique_ptr<TexturedCube> texturedCube_;
+    std::unique_ptr<Plane> plane_;
     std::unique_ptr<SolidShader> solidShader_;
     std::unique_ptr<ColorCube> colorCube_;
     float currentCubeRotation_ = 0.0f;

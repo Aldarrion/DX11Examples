@@ -128,7 +128,7 @@ HRESULT BillboardExample::setup() {
             const float offsetX = static_cast<float>((rand() % 1000) / 1000.0);
             const float offsetZ = static_cast<float>((rand() % 1000) / 1000.0);
             Transform t(XMFLOAT3(x + offsetX, -1.3f, z + offsetZ));
-            grassPositions_.push_back(XMMatrixTranspose(t.GenerateModelMatrix()));
+            grassPositions_.push_back(XMMatrixTranspose(t.generateModelMatrix()));
         }
     }
 
@@ -154,7 +154,7 @@ void BillboardExample::render() {
     cb.Projection = XMMatrixTranspose(projection_);
     
     {
-        cb.World = XMMatrixTranspose(planeTransform.GenerateModelMatrix());
+        cb.World = XMMatrixTranspose(planeTransform.generateModelMatrix());
         cb.NormalMatrix = computeNormalMatrix(cb.World);
         seaFloorTexture_->use(context_.immediateContext_, 0);
         diffuseSampler_->use(context_.immediateContext_, 0);
@@ -165,12 +165,12 @@ void BillboardExample::render() {
 
     //for (const auto& t : grassPositions_)
     {
-        cb.World = XMMatrixTranspose(grassTransform.GenerateModelMatrix());
+        cb.World = XMMatrixTranspose(grassTransform.generateModelMatrix());
         //cb.World = t;
         cb.NormalMatrix = computeNormalMatrix(cb.World);
         cb.GrassModels[0] = XMMatrixIdentity();
-        cb.GrassModels[1] = XMMatrixTranspose(grass1Trasform.GenerateModelMatrix());
-        cb.GrassModels[2] = XMMatrixTranspose(grass2Trasform.GenerateModelMatrix());
+        cb.GrassModels[1] = XMMatrixTranspose(grass1Trasform.generateModelMatrix());
+        cb.GrassModels[2] = XMMatrixTranspose(grass2Trasform.generateModelMatrix());
         for (int i = 0; i < grassPositions_.size(); ++i) {
             cb.GrassMatrices[i] = grassPositions_[i];
         }

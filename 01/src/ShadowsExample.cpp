@@ -18,9 +18,11 @@ HRESULT ShadowsExample::setup() {
     // Objects
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
+    plane_ = std::make_unique<Plane>(context_.d3dDevice_);
 
     // Textures
     seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds");
+    woodBoxTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds");
 
     // Samplers
     anisoSampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
@@ -99,11 +101,11 @@ void ShadowsExample::render() {
     const auto focus = XMFLOAT3(0, 0, 0);
     const auto up = XMFLOAT3(0, 1, 0);
     const XMMATRIX lightView = XMMatrixLookAtLH(XMLoadFloat4(&sunPos), XMLoadFloat3(&focus), XMLoadFloat3(&up));
-    const Transform planeTransform(XMFLOAT3(0.0, -4.0f, 0.0f), XMFLOAT3(), XMFLOAT3(20.0f, 2.2f, 20.0f));
+    const Transform planeTransform(XMFLOAT3(0.0, -3.0f, 0.0f), XMFLOAT3(), XMFLOAT3(20.0f, 1.0f, 20.0f));
     const std::vector<Transform> cubes = {
         Transform(),
-        Transform(XMFLOAT3(2.5f, 1.2f, 1.8f), XMFLOAT3(XMConvertToRadians(45.0f), XMConvertToRadians(currentCubeRotation_), 0.0f)),
-        Transform(XMFLOAT3(-2.5f, -0.8f, -2.5f))
+        Transform(XMFLOAT3(2.5f, 1.0f, 1.8f), XMFLOAT3(XMConvertToRadians(45.0f), XMConvertToRadians(currentCubeRotation_), 0.0f)),
+        Transform(XMFLOAT3(-2.5f, -1.0f, -2.5f))
     };
 
     // ==================
@@ -121,15 +123,15 @@ void ShadowsExample::render() {
 
         shadowShader_->use(context_.immediateContext_);
         for (const auto& transform : cubes) {
-            cb.World = XMMatrixTranspose(transform.GenerateModelMatrix());
+            cb.World = XMMatrixTranspose(transform.generateModelMatrix());
             shadowShader_->updateConstantBuffer(context_.immediateContext_, cb);
             texturedCube_->draw(context_.immediateContext_);
         }
         // Draw floor
-        cb.World = XMMatrixTranspose(planeTransform.GenerateModelMatrix());
+        cb.World = XMMatrixTranspose(planeTransform.generateModelMatrix());
 
         shadowShader_->updateConstantBuffer(context_.immediateContext_, cb);
-        texturedCube_->draw(context_.immediateContext_);
+        plane_->draw(context_.immediateContext_);
     }
 
     // Set to true to see how light sees the scene
@@ -161,24 +163,25 @@ void ShadowsExample::render() {
         cb.SunLight.Direction = XMFLOAT4(-sunPos.x, -sunPos.y, -sunPos.z, 1.0f);
 
         texturedPhong_->use(context_.immediateContext_);
-        seaFloorTexture_->use(context_.immediateContext_, 0);
+        woodBoxTexture_->use(context_.immediateContext_, 0);
         context_.immediateContext_->PSSetShaderResources(1, 1, &shadowShaderResourceView_);
         anisoSampler_->use(context_.immediateContext_, 0);
         shadowSampler_->use(context_.immediateContext_, 1);
 
         for (const auto& transform : cubes) {
-            cb.World = XMMatrixTranspose(transform.GenerateModelMatrix());
+            cb.World = XMMatrixTranspose(transform.generateModelMatrix());
             cb.NormalMatrix = computeNormalMatrix(cb.World);
             texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
             texturedCube_->draw(context_.immediateContext_);
         }
 
         // Draw floor
-        cb.World = XMMatrixTranspose(planeTransform.GenerateModelMatrix());
+        cb.World = XMMatrixTranspose(planeTransform.generateModelMatrix());
         cb.NormalMatrix = computeNormalMatrix(cb.World);
 
+        seaFloorTexture_->use(context_.immediateContext_, 0);
         texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
-        texturedCube_->draw(context_.immediateContext_);
+        plane_->draw(context_.immediateContext_);
 
         // Draw sun
         SolidConstBuffer scb;
