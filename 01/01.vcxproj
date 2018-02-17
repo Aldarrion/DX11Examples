@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\BaseExample.cpp" />
+    <ClCompile Include="src\BasicTriangleExample.cpp" />
     <ClCompile Include="src\BillboardExample.cpp" />
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\Example.cpp" />
@@ -158,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="src\AnisotropicSampler.h" />
     <ClInclude Include="src\BaseExample.h" />
+    <ClInclude Include="src\BasicTriangleExample.h" />
     <ClInclude Include="src\BillboardExample.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\ColorCube.h" />
@@ -182,10 +184,17 @@
     <ClInclude Include="src\TexturedCube.h" />
     <ClInclude Include="src\TextureSampler.h" />
     <ClInclude Include="src\TexturingExample.h" />
+    <ClInclude Include="src\Triangle.h" />
     <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\VertexTypes.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaders\BasicTriangle.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="shaders\Billboard.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

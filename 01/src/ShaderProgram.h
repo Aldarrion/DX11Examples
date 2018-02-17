@@ -4,7 +4,32 @@
 #include <iostream>
 #include <vector>
 
-template <typename TConstBuffer>
+namespace Shader {
+    template <bool cb>
+    void initCb(ID3D11Device*, UINT, ID3D11Buffer**);
+
+    template<>
+    inline void initCb<true>(ID3D11Device* device, const UINT size, ID3D11Buffer** constantBuffer) {
+        // Create constantBuffer
+        D3D11_BUFFER_DESC bufferDesc;
+        ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+        bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        bufferDesc.ByteWidth = size;
+        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bufferDesc.CPUAccessFlags = 0;
+        auto hr = device->CreateBuffer(&bufferDesc, nullptr, constantBuffer);
+        if (FAILED(hr)) {
+            MessageBox(nullptr, L"Failed to create constant buffer", L"Error", MB_OK);
+            return;
+        }
+    }
+
+    template<>
+    inline void initCb<false>(ID3D11Device*, UINT, ID3D11Buffer**) {
+    }
+}
+
+template <typename TConstBuffer, bool UseCB = true>
 class ShaderProgram {
     ID3D11Buffer* constantBuffer_;
     ID3D11VertexShader* vertexShader_;
@@ -103,18 +128,7 @@ public:
             geometryShader_ = nullptr;
         }
 
-        // Create constantBuffer
-        D3D11_BUFFER_DESC bufferDesc;
-        ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-        bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        bufferDesc.ByteWidth = sizeof(TConstBuffer);
-        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        bufferDesc.CPUAccessFlags = 0;
-        hr = device->CreateBuffer(&bufferDesc, nullptr, &constantBuffer_);
-        if (FAILED(hr)) {
-            MessageBox(nullptr, L"Failed to create constant buffer", L"Error", MB_OK);
-            return;
-        }
+        Shader::initCb<UseCB>(device, sizeof(TConstBuffer), &constantBuffer_);
     }
 
     ~ShaderProgram() {

@@ -59,6 +59,9 @@
     <ClCompile Include="src\BaseExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
+    <ClCompile Include="src\BasicTriangleExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -145,6 +148,12 @@
     <ClInclude Include="src\BaseExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
+    <ClInclude Include="src\BasicTriangleExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Triangle.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">
@@ -175,6 +184,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\Billboard.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\BasicTriangle.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
