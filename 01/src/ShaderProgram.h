@@ -27,7 +27,8 @@ namespace ShaderUtil {
     }
 
     template<>
-    inline void initCb<false>(ID3D11Device*, UINT, ID3D11Buffer**) {
+    inline void initCb<false>(ID3D11Device*, UINT, ID3D11Buffer** constBuffer) {
+        *constBuffer = nullptr;
     }
 }
 
@@ -147,13 +148,17 @@ public:
     void use(ID3D11DeviceContext* context) const {
         context->IASetInputLayout(inputLayout_);
         context->VSSetShader(vertexShader_, nullptr, 0);
-        context->VSSetConstantBuffers(0, 1, &constantBuffer_);
+        if (constantBuffer_) {
+            context->VSSetConstantBuffers(0, 1, &constantBuffer_);
+        }
         context->GSSetShader(geometryShader_, nullptr, 0);
-        if (geometryShader_) {
+        if (geometryShader_ && constantBuffer_) {
             context->GSSetConstantBuffers(0, 1, &constantBuffer_);
         }
         context->PSSetShader(pixelShader_, nullptr, 0);
-        context->PSSetConstantBuffers(0, 1, &constantBuffer_);
+        if (constantBuffer_) {
+            context->PSSetConstantBuffers(0, 1, &constantBuffer_);
+        }
     }
 
     void updateConstantBuffer(ID3D11DeviceContext* context, const TConstBuffer& newBuffer) {
