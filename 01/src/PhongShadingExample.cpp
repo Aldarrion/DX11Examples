@@ -3,7 +3,7 @@
 
 using namespace DirectX;
 
-HRESULT PhongShadingExample::setup() {
+HRESULT Phong::PhongShadingExample::setup() {
     BaseExample::setup();
 
     // Define the input layout
@@ -13,15 +13,17 @@ HRESULT PhongShadingExample::setup() {
         { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
-    cubeShader_ = std::make_unique<ShaderProgram<ConstantBuffers::PhongCB>>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
-    solidShader_ = std::make_unique<ShaderProgram<ConstantBuffers::SolidConstBuffer>>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
+    // Create shaders
+    cubeShader_ = std::make_unique<PhongShader>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
+    solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
 
+    // Create object to draw
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     return S_OK;
 }
 
-void PhongShadingExample::render() {
+void Phong::PhongShadingExample::render() {
     BaseExample::render();
 
     // Setup our lighting parameters
@@ -47,41 +49,48 @@ void PhongShadingExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    // Update matrix variables and lighting variables
-    ConstantBuffers::PhongCB cb;
-    cb.World = XMMatrixIdentity();
-    cb.NormalMatrix = computeNormalMatrix(cb.World);
-    cb.View = XMMatrixTranspose(camera_.getViewMatrix());
-    cb.Projection = XMMatrixTranspose(projection_);
-    cb.PointLightCount = 1;
-    cb.PointLights[0].Position = pointLightPositions[0];
-    cb.PointLights[0].Color = pointLightColors[0];
-    cb.DirLightCount = 1;
-    cb.DirLights[0].Color = sunColor;
-    cb.DirLights[0].Direction = XMFLOAT4(-sunPosition.x, -sunPosition.y, -sunPosition.z, 1.0);
-    cb.SpotLightCount = 1;
-    cb.SpotLights[0].Position = spotLightPos;
-    cb.SpotLights[0].Direction = XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f);
-    cb.SpotLights[0].Color = spotLightColor;
-    cb.SpotLights[0].InnerCone = XMFLOAT4(cos(XMConvertToRadians(43.0f)), 0.0f, 0.0f, 0.0f);
-    cb.SpotLights[0].OuterCone = XMFLOAT4(cos(XMConvertToRadians(47.0f)), 0.0f, 0.0f, 0.0f);
-    cb.ViewPos = camera_.Position;
-    cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
+    // ==============================
+    // Draw scene with phong lighting
+    // ==============================
+    {
+        // Update matrix variables and lighting variables
+        ConstantBuffers::PhongCB cb;
+        cb.World = XMMatrixIdentity();
+        cb.NormalMatrix = computeNormalMatrix(cb.World);
+        cb.View = XMMatrixTranspose(camera_.getViewMatrix());
+        cb.Projection = XMMatrixTranspose(projection_);
+        cb.PointLightCount = 1;
+        cb.PointLights[0].Position = pointLightPositions[0];
+        cb.PointLights[0].Color = pointLightColors[0];
+        cb.DirLightCount = 1;
+        cb.DirLights[0].Color = sunColor;
+        cb.DirLights[0].Direction = XMFLOAT4(-sunPosition.x, -sunPosition.y, -sunPosition.z, 1.0);
+        cb.SpotLightCount = 1;
+        cb.SpotLights[0].Position = spotLightPos;
+        cb.SpotLights[0].Direction = XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f);
+        cb.SpotLights[0].Color = spotLightColor;
+        cb.SpotLights[0].InnerCone = XMFLOAT4(cos(XMConvertToRadians(43.0f)), 0.0f, 0.0f, 0.0f);
+        cb.SpotLights[0].OuterCone = XMFLOAT4(cos(XMConvertToRadians(47.0f)), 0.0f, 0.0f, 0.0f);
+        cb.ViewPos = camera_.Position;
+        cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
 
-    // Render the cube
-    cubeShader_->use(context_.immediateContext_);
-    colorCube_->draw(context_.immediateContext_);
+        // Render the cube
+        cubeShader_->use(context_.immediateContext_);
+        colorCube_->draw(context_.immediateContext_);
 
-    // Render plane
-    XMFLOAT4 planePos = XMFLOAT4(0.0, -2.0f, 0.0f, 1.0f);
-    const XMMATRIX planeScale = XMMatrixScaling(20.0f, 0.2f, 20.0f);
-    cb.World = XMMatrixTranspose(planeScale * XMMatrixTranslationFromVector(XMLoadFloat4(&planePos)));
-    cb.NormalMatrix = computeNormalMatrix(cb.World);
-    
-    cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
-    colorCube_->draw(context_.immediateContext_);
+        // Render plane
+        XMFLOAT4 planePos = XMFLOAT4(0.0, -2.0f, 0.0f, 1.0f);
+        const XMMATRIX planeScale = XMMatrixScaling(20.0f, 0.2f, 20.0f);
+        cb.World = XMMatrixTranspose(planeScale * XMMatrixTranslationFromVector(XMLoadFloat4(&planePos)));
+        cb.NormalMatrix = computeNormalMatrix(cb.World);
 
+        cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
+        colorCube_->draw(context_.immediateContext_);
+    }
+
+    // =================
     // Render each light
+    // =================
     {
         ConstantBuffers::SolidConstBuffer solidCb;
         solidCb.View = XMMatrixTranspose(camera_.getViewMatrix());
