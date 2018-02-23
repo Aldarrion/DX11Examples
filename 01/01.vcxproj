@@ -177,7 +177,6 @@
     <ClInclude Include="src\Layouts.h" />
     <ClInclude Include="src\LinearSampler.h" />
     <ClInclude Include="src\Mouse.h" />
-    <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\PhongLights.h" />
     <ClInclude Include="src\PhongShadingExample.h" />
     <ClInclude Include="src\PlatformHelpers.h" />

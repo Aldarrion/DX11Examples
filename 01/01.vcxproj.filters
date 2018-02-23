@@ -73,9 +73,6 @@
     <ClInclude Include="src\Mouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\PlatformHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
