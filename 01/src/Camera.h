@@ -8,12 +8,14 @@ enum class CameraMovement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN
 };
 
 constexpr float YAW = -90.0f;
 constexpr float PITCH = 0.0f;
-constexpr float SPEED = 2.5f;
+constexpr float SPEED = 5.0f;
 constexpr float SENSITIVTY = 0.1f;
 constexpr float ZOOM = 45.0f;
 
@@ -36,11 +38,12 @@ public:
     float Zoom;
 
     // Constructor with vectors
-    Camera(
-            dx::XMFLOAT3 position = dx::XMFLOAT3(0.0f, 0.0f, 0.0f), 
-            dx::XMFLOAT3 up = dx::XMFLOAT3(0.0f, 1.0f, 0.0f), 
-            float yaw = YAW,
-            float pitch = PITCH)
+    explicit Camera(
+        const dx::XMFLOAT3 position = dx::XMFLOAT3(0.0f, 0.0f, 0.0f),
+        const dx::XMFLOAT3 up = dx::XMFLOAT3(0.0f, 1.0f, 0.0f), 
+        const float yaw = YAW,
+        const float pitch = PITCH
+    )
             : Front(dx::XMFLOAT3(0.0f, 0.0f, -1.0f))
             , MovementSpeed(SPEED)
             , MouseSensitivity(SENSITIVTY)
@@ -51,6 +54,7 @@ public:
         Pitch = pitch;
         updateCameraVectors();
     }
+
     // Constructor with scalar values
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) 
             : Front(dx::XMFLOAT3(0.0f, 0.0f, -1.0f))
@@ -65,7 +69,7 @@ public:
     }
 
     // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-    dx::XMMATRIX GetViewMatrix() const {
+    dx::XMMATRIX getViewMatrix() const {
         const dx::XMVECTOR pos = XMLoadFloat3(&Position);
         const auto focusPosition = dx::XMVectorAdd(XMLoadFloat3(&Position), XMLoadFloat3(&Front));
         const dx::XMVECTOR up = XMLoadFloat3(&Up);
@@ -84,6 +88,10 @@ public:
             XMStoreFloat3(&Position, XMLoadFloat3(&Position) - XMLoadFloat3(&Right) * velocity);
         if (direction == CameraMovement::RIGHT)
             XMStoreFloat3(&Position, XMLoadFloat3(&Position) + XMLoadFloat3(&Right) * velocity);
+        if (direction == CameraMovement::UP)
+            XMStoreFloat3(&Position, XMLoadFloat3(&Position) + XMLoadFloat3(&Up) * velocity);
+        if (direction == CameraMovement::DOWN)
+            XMStoreFloat3(&Position, XMLoadFloat3(&Position) - XMLoadFloat3(&Up) * velocity);
     }
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.

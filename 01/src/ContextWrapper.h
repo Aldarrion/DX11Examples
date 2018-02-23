@@ -4,22 +4,23 @@
 #include <d3d11_1.h>
 
 struct ContextWrapper {
-    HINSTANCE               g_hInst = nullptr;
-    HWND                    g_hWnd = nullptr;
-    D3D_DRIVER_TYPE         g_driverType = D3D_DRIVER_TYPE_NULL;
-    D3D_FEATURE_LEVEL       g_featureLevel = D3D_FEATURE_LEVEL_11_0;
-    ID3D11Device*           g_pd3dDevice = nullptr;
-    ID3D11Device1*          g_pd3dDevice1 = nullptr;
-    ID3D11DeviceContext*    g_pImmediateContext = nullptr;
-    ID3D11DeviceContext1*   g_pImmediateContext1 = nullptr;
-    IDXGISwapChain*         g_pSwapChain = nullptr;
-    IDXGISwapChain1*        g_pSwapChain1 = nullptr;
-    ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
-    ID3D11Texture2D*        g_pDepthStencil = nullptr;
-    ID3D11DepthStencilView* g_pDepthStencilView = nullptr;
+    HINSTANCE               hInst_ = nullptr;
+    HWND                    hWnd_ = nullptr;
+    D3D_DRIVER_TYPE         driverType_ = D3D_DRIVER_TYPE_NULL;
+    D3D_FEATURE_LEVEL       featureLevel_ = D3D_FEATURE_LEVEL_11_0;
+    ID3D11Device*           d3dDevice_ = nullptr;
+    ID3D11Device1*          d3dDevice1_ = nullptr;
+    ID3D11DeviceContext*    immediateContext_ = nullptr;
+    ID3D11DeviceContext1*   immediateContext1_ = nullptr;
+    IDXGISwapChain*         swapChain_ = nullptr;
+    IDXGISwapChain1*        swapChain1_ = nullptr;
+    ID3D11RenderTargetView* renderTargetView_ = nullptr;
+    ID3D11Texture2D*        depthStencil_ = nullptr;
+    ID3D11DepthStencilView* depthStencilView_ = nullptr;
+    D3D11_VIEWPORT viewPort_;
 
-    int WIDTH = 800;
-    int HEIGHT = 600;
+    int WIDTH = 1024;
+    int HEIGHT = 768;
 
     HRESULT Init(_In_ HINSTANCE hInstance, _In_ int nCmdShow) {
         if (FAILED(InitWindow(hInstance, nCmdShow))) {
@@ -83,17 +84,17 @@ private:
             return E_FAIL;
 
         // Create window
-        g_hInst = hInstance;
+        hInst_ = hInstance;
         RECT rc = { 0, 0, WIDTH, HEIGHT };
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-        g_hWnd = CreateWindow(L"TutorialWindowClass", L"Direct3D 11 Tutorial 6",
+        hWnd_ = CreateWindow(L"TutorialWindowClass", L"Direct3D 11 Tutorial",
             WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
             CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
             nullptr);
-        if (!g_hWnd)
+        if (!hWnd_)
             return E_FAIL;
 
-        ShowWindow(g_hWnd, nCmdShow);
+        ShowWindow(hWnd_, nCmdShow);
 
         return S_OK;
     }
@@ -102,9 +103,9 @@ private:
         HRESULT hr = S_OK;
 
         RECT rc;
-        GetClientRect(g_hWnd, &rc);
-        UINT width = rc.right - rc.left;
-        UINT height = rc.bottom - rc.top;
+        GetClientRect(hWnd_, &rc);
+        const UINT width = rc.right - rc.left;
+        const UINT height = rc.bottom - rc.top;
 
         UINT createDeviceFlags = 0;
 #ifdef _DEBUG
@@ -117,7 +118,7 @@ private:
             D3D_DRIVER_TYPE_WARP,
             D3D_DRIVER_TYPE_REFERENCE,
         };
-        UINT numDriverTypes = ARRAYSIZE(driverTypes);
+        const UINT numDriverTypes = ARRAYSIZE(driverTypes);
 
         D3D_FEATURE_LEVEL featureLevels[] =
         {
@@ -126,19 +127,19 @@ private:
             D3D_FEATURE_LEVEL_10_1,
             D3D_FEATURE_LEVEL_10_0,
         };
-        UINT numFeatureLevels = ARRAYSIZE(featureLevels);
+        const UINT numFeatureLevels = ARRAYSIZE(featureLevels);
 
         for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
         {
-            g_driverType = driverTypes[driverTypeIndex];
-            hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
-                D3D11_SDK_VERSION, &g_pd3dDevice, &g_featureLevel, &g_pImmediateContext);
+            driverType_ = driverTypes[driverTypeIndex];
+            hr = D3D11CreateDevice(nullptr, driverType_, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
+                D3D11_SDK_VERSION, &d3dDevice_, &featureLevel_, &immediateContext_);
 
             if (hr == E_INVALIDARG)
             {
                 // DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
-                hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, &featureLevels[1], numFeatureLevels - 1,
-                    D3D11_SDK_VERSION, &g_pd3dDevice, &g_featureLevel, &g_pImmediateContext);
+                hr = D3D11CreateDevice(nullptr, driverType_, nullptr, createDeviceFlags, &featureLevels[1], numFeatureLevels - 1,
+                    D3D11_SDK_VERSION, &d3dDevice_, &featureLevel_, &immediateContext_);
             }
 
             if (SUCCEEDED(hr))
@@ -151,7 +152,7 @@ private:
         IDXGIFactory1* dxgiFactory = nullptr;
         {
             IDXGIDevice* dxgiDevice = nullptr;
-            hr = g_pd3dDevice->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice));
+            hr = d3dDevice_->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice));
             if (SUCCEEDED(hr))
             {
                 IDXGIAdapter* adapter = nullptr;
@@ -173,9 +174,9 @@ private:
         if (dxgiFactory2)
         {
             // DirectX 11.1 or later
-            hr = g_pd3dDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&g_pd3dDevice1));
+            hr = d3dDevice_->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&d3dDevice1_));
             if (SUCCEEDED(hr)) {
-                (void)g_pImmediateContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&g_pImmediateContext1));
+                (void)immediateContext_->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&immediateContext1_));
             }
 
             DXGI_SWAP_CHAIN_DESC1 sd;
@@ -188,9 +189,9 @@ private:
             sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
             sd.BufferCount = 1;
 
-            hr = dxgiFactory2->CreateSwapChainForHwnd(g_pd3dDevice, g_hWnd, &sd, nullptr, nullptr, &g_pSwapChain1);
+            hr = dxgiFactory2->CreateSwapChainForHwnd(d3dDevice_, hWnd_, &sd, nullptr, nullptr, &swapChain1_);
             if (SUCCEEDED(hr)) {
-                hr = g_pSwapChain1->QueryInterface(__uuidof(IDXGISwapChain), reinterpret_cast<void**>(&g_pSwapChain));
+                hr = swapChain1_->QueryInterface(__uuidof(IDXGISwapChain), reinterpret_cast<void**>(&swapChain_));
             }
 
             dxgiFactory2->Release();
@@ -207,16 +208,16 @@ private:
             sd.BufferDesc.RefreshRate.Numerator = 60;
             sd.BufferDesc.RefreshRate.Denominator = 1;
             sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-            sd.OutputWindow = g_hWnd;
+            sd.OutputWindow = hWnd_;
             sd.SampleDesc.Count = 1;
             sd.SampleDesc.Quality = 0;
             sd.Windowed = TRUE;
 
-            hr = dxgiFactory->CreateSwapChain(g_pd3dDevice, &sd, &g_pSwapChain);
+            hr = dxgiFactory->CreateSwapChain(d3dDevice_, &sd, &swapChain_);
         }
 
         // Note this tutorial doesn't handle full-screen swapchains so we block the ALT+ENTER shortcut
-        dxgiFactory->MakeWindowAssociation(g_hWnd, DXGI_MWA_NO_ALT_ENTER);
+        dxgiFactory->MakeWindowAssociation(hWnd_, DXGI_MWA_NO_ALT_ENTER);
 
         dxgiFactory->Release();
 
@@ -225,11 +226,11 @@ private:
 
         // Create a render target view
         ID3D11Texture2D* pBackBuffer = nullptr;
-        hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
+        hr = swapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
         if (FAILED(hr))
             return hr;
 
-        hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_pRenderTargetView);
+        hr = d3dDevice_->CreateRenderTargetView(pBackBuffer, nullptr, &renderTargetView_);
         pBackBuffer->Release();
         if (FAILED(hr))
             return hr;
@@ -248,7 +249,7 @@ private:
         descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
         descDepth.CPUAccessFlags = 0;
         descDepth.MiscFlags = 0;
-        hr = g_pd3dDevice->CreateTexture2D(&descDepth, nullptr, &g_pDepthStencil);
+        hr = d3dDevice_->CreateTexture2D(&descDepth, nullptr, &depthStencil_);
         if (FAILED(hr))
             return hr;
 
@@ -258,35 +259,34 @@ private:
         descDSV.Format = descDepth.Format;
         descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         descDSV.Texture2D.MipSlice = 0;
-        hr = g_pd3dDevice->CreateDepthStencilView(g_pDepthStencil, &descDSV, &g_pDepthStencilView);
+        hr = d3dDevice_->CreateDepthStencilView(depthStencil_, &descDSV, &depthStencilView_);
         if (FAILED(hr))
             return hr;
 
-        g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
+        immediateContext_->OMSetRenderTargets(1, &renderTargetView_, depthStencilView_);
 
         // Setup the viewport
-        D3D11_VIEWPORT vp;
-        vp.Width = (FLOAT)width;
-        vp.Height = (FLOAT)height;
-        vp.MinDepth = 0.0f;
-        vp.MaxDepth = 1.0f;
-        vp.TopLeftX = 0;
-        vp.TopLeftY = 0;
-        g_pImmediateContext->RSSetViewports(1, &vp);
+        viewPort_.Width = static_cast<FLOAT>(width);
+        viewPort_.Height = static_cast<FLOAT>(height);
+        viewPort_.MinDepth = 0.0f;
+        viewPort_.MaxDepth = 1.0f;
+        viewPort_.TopLeftX = 0;
+        viewPort_.TopLeftY = 0;
+        immediateContext_->RSSetViewports(1, &viewPort_);
 
         return S_OK;
     }
 
     void CleanupDevice() {
-        if (g_pImmediateContext) g_pImmediateContext->ClearState();
-        if (g_pDepthStencil) g_pDepthStencil->Release();
-        if (g_pDepthStencilView) g_pDepthStencilView->Release();
-        if (g_pRenderTargetView) g_pRenderTargetView->Release();
-        if (g_pSwapChain1) g_pSwapChain1->Release();
-        if (g_pSwapChain) g_pSwapChain->Release();
-        if (g_pImmediateContext1) g_pImmediateContext1->Release();
-        if (g_pImmediateContext) g_pImmediateContext->Release();
-        if (g_pd3dDevice1) g_pd3dDevice1->Release();
-        if (g_pd3dDevice) g_pd3dDevice->Release();
+        if (immediateContext_) immediateContext_->ClearState();
+        if (depthStencil_) depthStencil_->Release();
+        if (depthStencilView_) depthStencilView_->Release();
+        if (renderTargetView_) renderTargetView_->Release();
+        if (swapChain1_) swapChain1_->Release();
+        if (swapChain_) swapChain_->Release();
+        if (immediateContext1_) immediateContext1_->Release();
+        if (immediateContext_) immediateContext_->Release();
+        if (d3dDevice1_) d3dDevice1_->Release();
+        if (d3dDevice_) d3dDevice_->Release();
     }
 };
