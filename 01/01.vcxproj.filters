@@ -160,6 +160,9 @@
     <ClInclude Include="src\ConstantBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ResourceHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">

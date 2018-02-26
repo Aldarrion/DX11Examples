@@ -311,6 +311,7 @@
     <ClInclude Include="src\DrawableObject.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />
     <ClInclude Include="src\Plane.h" />
+    <ClInclude Include="src\ResourceHolder.h" />
     <ClInclude Include="src\SpecularMapExample.h" />
     <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\Example.h" />
