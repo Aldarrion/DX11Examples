@@ -5,6 +5,7 @@
 #include <vector>
 #include "ConstantBuffers.h"
 #include "Layouts.h"
+#include "ResourceHolder.h"
 
 namespace ShaderUtil {
     template <bool cb>
@@ -32,8 +33,14 @@ namespace ShaderUtil {
     }
 }
 
+
+/**
+ * \brief Class representing a set of shaders (vertex, pixel and optionally geometry).
+ * @tparam TConstBuffer Type of constant buffer this shader uses
+ * @tparam UseCB Do we want to use constant buffers? False will not initialize and use constant buffer.
+ */
 template <typename TConstBuffer, bool UseCB = true>
-class ShaderProgram {
+class ShaderProgram : public ResourceHolder {
     ID3D11Buffer* constantBuffer_;
     ID3D11VertexShader* vertexShader_;
     ID3D11GeometryShader* geometryShader_;
@@ -142,9 +149,10 @@ public:
         if (constantBuffer_) constantBuffer_->Release();
     }
 
-    ShaderProgram(const ShaderProgram&) = delete;
-    ShaderProgram operator=(const ShaderProgram&) = delete;
-
+    /**
+     * \brief Sets this set of shaders as active shaders with current constant buffer (if any).
+     * @param context Context to use shaders in
+     */
     void use(ID3D11DeviceContext* context) const {
         context->IASetInputLayout(inputLayout_);
         context->VSSetShader(vertexShader_, nullptr, 0);
@@ -161,6 +169,11 @@ public:
         }
     }
 
+    /**
+     * \brief Updates constant buffer in given context.
+     * @param context Context to update cbuffer against
+     * @param newBuffer Data which should be used to update the buffer
+     */
     void updateConstantBuffer(ID3D11DeviceContext* context, const TConstBuffer& newBuffer) {
         context->UpdateSubresource(constantBuffer_, 0, nullptr, &newBuffer, 0, 0);
     }

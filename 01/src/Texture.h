@@ -1,8 +1,9 @@
 #pragma once
 #include <d3d11.h>
 #include "DDSTextureLoader.h"
+#include "ResourceHolder.h"
 
-class Texture {
+class Texture : public ResourceHolder {
 private:
     ID3D11ShaderResourceView * texture_;
 
@@ -16,9 +17,6 @@ public:
     ~Texture() {
         if (texture_) texture_->Release();
     }
-
-    Texture(const Texture&) = delete;
-    Texture operator=(const Texture&) = delete;
 
     void use(ID3D11DeviceContext* context, const UINT slot) const {
         context->PSSetShaderResources(slot, 1, &texture_);
