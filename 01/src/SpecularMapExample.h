@@ -6,7 +6,6 @@
 #include "AnisotropicSampler.h"
 #include "TexturedCube.h"
 #include "Plane.h"
-#include "VariadicShaderProgram.h"
 
 namespace Specular {
 
@@ -22,7 +21,7 @@ struct SpecularCB {
 
 class SpecularMapExample : public BaseExample {
 protected:
-    using SpecularShader = VariadicShaderProgram<SpecularCB>;
+    using SpecularShader = ShaderProgram<SpecularCB>;
 
     std::unique_ptr<SpecularShader> shader_;
     Shaders::PSolidShader solidShader_;

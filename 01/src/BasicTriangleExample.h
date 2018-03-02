@@ -2,13 +2,12 @@
 #include "Example.h"
 #include "Triangle.h"
 #include "ShaderProgram.h"
-#include "VariadicShaderProgram.h"
 
 class BasicTriangleExample : public Example {
 protected:
     // Typedef shader. void* since we do not want to use constant buffer
     // and false to indicate this fact to the shader.
-    using SimpleShader = VariadicShaderProgram<>;
+    using SimpleShader = ShaderProgram<>;
     
     // In examples we usually use unique pointers
     // This allows us to postpone the construction of these objects
