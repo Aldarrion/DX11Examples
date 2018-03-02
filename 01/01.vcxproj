@@ -289,6 +289,7 @@
     <ClCompile Include="src\BillboardExample.cpp" />
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\Example.cpp" />
+    <ClCompile Include="src\FontRenderingExample.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
     <ClCompile Include="src\Layouts.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -309,10 +310,12 @@
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\DDSTextureLoader.h" />
     <ClInclude Include="src\DrawableObject.h" />
+    <ClInclude Include="src\FontRenderingExample.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />
     <ClInclude Include="src\Plane.h" />
     <ClInclude Include="src\ResourceHolder.h" />
     <ClInclude Include="src\SpecularMapExample.h" />
+    <ClInclude Include="src\Text.h" />
     <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\Example.h" />
     <ClInclude Include="src\Layouts.h" />
