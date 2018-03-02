@@ -1,3 +1,4 @@
+// SHININESS is defining "specularity" of surfaces in this shader
 #define SHININESS 32
 
 struct PointLight {

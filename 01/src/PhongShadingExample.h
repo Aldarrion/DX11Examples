@@ -12,7 +12,7 @@ protected:
     using PhongShader = ShaderProgram<ConstantBuffers::PhongCB>;
     using SolidShader = ShaderProgram<ConstantBuffers::SolidConstBuffer>;
 
-    std::unique_ptr<PhongShader> cubeShader_;
+    std::unique_ptr<PhongShader> phongShader_;
     std::unique_ptr<SolidShader> solidShader_;
     std::unique_ptr<ColorCube> colorCube_;
 

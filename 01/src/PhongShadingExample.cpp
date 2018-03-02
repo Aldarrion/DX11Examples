@@ -14,10 +14,14 @@ HRESULT Phong::PhongShadingExample::setup() {
     };
 
     // Create shaders
-    cubeShader_ = std::make_unique<PhongShader>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
+	phongShader_ = std::make_unique<PhongShader>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
     solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
 
     // Create object to draw
+	// We will use this CUBE model to actually render everything
+	//   1) the cube in the middle, which is lit
+	//   2) the plane under the cube (it's just going to be a big cube)
+	//   3) each light will be also rendered as an unlit white cube (with solidShader)
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     return S_OK;
@@ -72,10 +76,10 @@ void Phong::PhongShadingExample::render() {
         cb.SpotLights[0].InnerCone = XMFLOAT4(cos(XMConvertToRadians(43.0f)), 0.0f, 0.0f, 0.0f);
         cb.SpotLights[0].OuterCone = XMFLOAT4(cos(XMConvertToRadians(47.0f)), 0.0f, 0.0f, 0.0f);
         cb.ViewPos = camera_.Position;
-        cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
+        phongShader_->updateConstantBuffer(context_.immediateContext_, cb);
 
         // Render the cube
-        cubeShader_->use(context_.immediateContext_);
+        phongShader_->use(context_.immediateContext_);
         colorCube_->draw(context_.immediateContext_);
 
         // Render plane
@@ -84,7 +88,7 @@ void Phong::PhongShadingExample::render() {
         cb.World = XMMatrixTranspose(planeScale * XMMatrixTranslationFromVector(XMLoadFloat4(&planePos)));
         cb.NormalMatrix = computeNormalMatrix(cb.World);
 
-        cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
+        phongShader_->updateConstantBuffer(context_.immediateContext_, cb);
         colorCube_->draw(context_.immediateContext_);
     }
 

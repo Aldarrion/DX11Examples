@@ -29,7 +29,16 @@ void BaseExample::handleInput(float deltaTime) {
     if (GetAsyncKeyState(0x11)) { // Ctrl
         camera_.ProcessKeyboard(CameraMovement::DOWN, deltaTime);
     }
-    auto mouse = mouse_->GetState();
+
+	auto mouse = mouse_->GetState();
+	if (GetAsyncKeyState(0x4D) & 1) { // M
+		if (mouse.positionMode == Mouse::MODE_RELATIVE)	{
+			mouse_->SetMode(Mouse::MODE_ABSOLUTE);
+		} else {
+			mouse_->SetMode(Mouse::MODE_RELATIVE);
+		}
+	}
+    
     if (mouse.positionMode == Mouse::MODE_RELATIVE) {
         camera_.ProcessMouseMovement(static_cast<float>(-mouse.x), static_cast<float>(mouse.y));
     }
