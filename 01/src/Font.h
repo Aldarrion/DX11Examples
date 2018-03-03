@@ -11,6 +11,7 @@ class Font {
     int glyphPxHeight_;
     int texturePxWidth_;
     int texturePxHeight_;
+    float sizeScale_;
 
 public:
     Font(
@@ -25,7 +26,20 @@ public:
             , glyphPxWidth_(glyphPxWidth) 
             , glyphPxHeight_(glyphPxHeight) 
             , texturePxWidth_(texturePxWidth)
-            , texturePxHeight_(texturePxHeight) {
+            , texturePxHeight_(texturePxHeight)
+            , sizeScale_(0.006f) {
+    }
+
+    float getWidthSizeScale() const {
+        return sizeScale_ * getFontAspectRatio();
+    }
+    
+    float getHeightSizeScale() const {
+        return sizeScale_;
+    }
+
+    float getFontAspectRatio() const {
+        return glyphPxWidth_ / static_cast<float>(glyphPxHeight_);
     }
 
     DirectX::XMFLOAT4 getUVWH(char c) const {

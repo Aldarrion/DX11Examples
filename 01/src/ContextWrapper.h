@@ -19,8 +19,8 @@ struct ContextWrapper {
     ID3D11DepthStencilView* depthStencilView_ = nullptr;
     D3D11_VIEWPORT viewPort_;
 
-    int WIDTH = 1024;
-    int HEIGHT = 768;
+    int WIDTH = 1280;
+    int HEIGHT = 720;
 
     HRESULT Init(_In_ HINSTANCE hInstance, _In_ int nCmdShow) {
         if (FAILED(InitWindow(hInstance, nCmdShow))) {
@@ -273,6 +273,31 @@ private:
         viewPort_.TopLeftX = 0;
         viewPort_.TopLeftY = 0;
         immediateContext_->RSSetViewports(1, &viewPort_);
+
+        // =====================
+        // Enable alpha blending
+        // =====================
+
+        D3D11_BLEND_DESC blendDesc;
+        ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
+        blendDesc.RenderTarget[0].BlendEnable = true;
+        blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+        blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+        blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+        blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+        blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        ID3D11BlendState* blendState;
+        hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
+        if (FAILED(hr)) {
+            MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
+            return hr;
+        }
+
+        float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
 
         return S_OK;
     }

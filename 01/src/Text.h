@@ -23,6 +23,8 @@ private:
     Quad quad_;
     ShaderProgram<GlyphCb> fontShader_;
     Font font_;
+    float sizeMultiplier_ = 1.0f;
+    DirectX::XMFLOAT2 position_;
 
 public:
     Text(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text)
@@ -31,18 +33,37 @@ public:
             , sampler_(device)
             , quad_(device)
             , fontShader_(device, L"shaders/FontShader.fx", "VS", L"shaders/FontShader.fx", "PS", Layouts::POS_UV_LAYOUT)
-            , font_(makeInconsolata()) {
+            , font_(makeInconsolata())
+            , sizeMultiplier_(10.0f)
+            , position_({ 0, 0 }) {
     }
 
     void setText(const std::string& newText) {
         text_ = newText;
     }
 
+    void setSize(float size) {
+        sizeMultiplier_ = size;
+    }
+
+    void setPosition(const DirectX::XMFLOAT2& position) {
+        position_ = position;
+    }
+
+    float getAbsoluteWidth() const {
+        return font_.getWidthSizeScale() * sizeMultiplier_;
+    }
+
+    float getAbsoluteHeight() const {
+        return font_.getHeightSizeScale() * sizeMultiplier_;
+    }
+
     void draw(ID3D11DeviceContext* context, float aspectRatio) {
         using namespace DirectX;
         XMMATRIX aspectCorrection = XMMatrixScalingFromVector({ 1, aspectRatio, 1 });
+        aspectCorrection = aspectCorrection * XMMatrixScalingFromVector({ 1, 1 / font_.getFontAspectRatio(), 1 });
 
-        float sizeScale = 0.02f;
+        float finalSizeScale = getAbsoluteWidth();
 
         fontShader_.use(context);
         fontMap_.use(context, 0);
@@ -50,8 +71,13 @@ public:
 
         for (int i = 0; i < text_.size(); ++i) {
             // TODO maybe create row based positioning?
-            XMMATRIX model = aspectCorrection * XMMatrixScalingFromVector({ sizeScale, sizeScale, 1 });
-            model = model * XMMatrixTranslationFromVector({ -1.0f + (i + 1) * sizeScale + (i * sizeScale), 0.98f, 0 });
+            XMMATRIX model = aspectCorrection * XMMatrixScalingFromVector({ finalSizeScale / 2.0f, finalSizeScale / 2.0f, 1 });
+            model = model * XMMatrixTranslationFromVector({ 
+                -1.0f + finalSizeScale / 2.0f + i * finalSizeScale + position_.x, 
+                1.0f - getAbsoluteHeight() / 2.0f - position_.y,
+                0 
+            });
+            //model = model * XMMatrixTranslationFromVector({ -1.0f + i * finalSizeScale, 0.98f, 0 });
 
             GlyphCb cb;
             cb.Model = XMMatrixTranspose(model);
