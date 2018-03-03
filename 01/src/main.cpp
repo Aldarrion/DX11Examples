@@ -9,6 +9,7 @@
 #include "BillboardExample.h"
 #include "BasicTriangleExample.h"
 #include "SpecularMapExample.h"
+#include "FontRenderingExample.h"
 
 std::unique_ptr<Example> example;
 
@@ -21,6 +22,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     example = std::make_unique<GeometryShader::GeometryShaderExample>();
     example = std::make_unique<Billboard::BillboardExample>();
     example = std::make_unique<Specular::SpecularMapExample>();
+    example = std::make_unique<FontRendering::FontRenderingExample>();
 
     return example->run(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }

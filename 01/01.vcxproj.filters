@@ -24,8 +24,8 @@
     <Filter Include="Header Files\TextureSamplers">
       <UniqueIdentifier>{15d15866-315c-45c7-94dc-4636352d1b82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Text">
-      <UniqueIdentifier>{71b147d2-8cb0-40d9-939e-fc5c01fb8798}</UniqueIdentifier>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{7e7036e3-76e1-4a95-80f5-31f29a94f940}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -172,8 +172,17 @@
     <ClInclude Include="src\FontRenderingExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
+    <ClInclude Include="src\Quad.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
     <ClInclude Include="src\Text.h">
-      <Filter>Header Files\Text</Filter>
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PointWrapSampler.h">
+      <Filter>Header Files\TextureSamplers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Font.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -211,6 +220,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\Specular.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\FontShader.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

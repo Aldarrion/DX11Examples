@@ -12,6 +12,11 @@ struct PosColVertex {
     DirectX::XMFLOAT4 Color;
 };
 
+struct PosTexVertex {
+    DirectX::XMFLOAT3 Pos;
+    DirectX::XMFLOAT2 UV;
+};
+
 struct SimpleVertex {
     DirectX::XMFLOAT3 Pos;
     DirectX::XMFLOAT3 Normal;
