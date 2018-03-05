@@ -9,6 +9,7 @@ cbuffer ConstantBuffer : register(b0) {
     matrix NormalMatrix;
     matrix GrassModels[3];
     matrix GrassPositions[1000];
+    int isInstanced;
 }
 
 struct VS_INPUT {
@@ -52,8 +53,11 @@ void outputVertex(
 
     output.Pos = input.Pos + vertex.posOffset;
     output.Pos = mul(output.Pos, model);
-    output.Pos = mul(output.Pos, GrassPositions[input.InstanceId]);
-    //output.Pos = mul(output.Pos, World);
+    if (isInstanced) {
+        output.Pos = mul(output.Pos, GrassPositions[input.InstanceId]);
+    } else {
+        output.Pos = mul(output.Pos, World);
+    }
     output.Pos = mul(output.Pos, View);
     output.Pos = mul(output.Pos, Projection);
 

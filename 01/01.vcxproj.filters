@@ -24,6 +24,9 @@
     <Filter Include="Header Files\TextureSamplers">
       <UniqueIdentifier>{15d15866-315c-45c7-94dc-4636352d1b82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{7e7036e3-76e1-4a95-80f5-31f29a94f940}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -63,6 +66,9 @@
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
     <ClCompile Include="src\SpecularMapExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FontRenderingExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
   </ItemGroup>
@@ -163,6 +169,24 @@
     <ClInclude Include="src\ResourceHolder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\FontRenderingExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Quad.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Text.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PointWrapSampler.h">
+      <Filter>Header Files\TextureSamplers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Exceptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">
@@ -199,6 +223,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\Specular.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\FontShader.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

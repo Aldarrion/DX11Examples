@@ -289,6 +289,7 @@
     <ClCompile Include="src\BillboardExample.cpp" />
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\Example.cpp" />
+    <ClCompile Include="src\FontRenderingExample.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
     <ClCompile Include="src\Layouts.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -309,10 +310,16 @@
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\DDSTextureLoader.h" />
     <ClInclude Include="src\DrawableObject.h" />
+    <ClInclude Include="src\Exceptions.h" />
+    <ClInclude Include="src\Font.h" />
+    <ClInclude Include="src\FontRenderingExample.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />
     <ClInclude Include="src\Plane.h" />
+    <ClInclude Include="src\PointWrapSampler.h" />
+    <ClInclude Include="src\Quad.h" />
     <ClInclude Include="src\ResourceHolder.h" />
     <ClInclude Include="src\SpecularMapExample.h" />
+    <ClInclude Include="src\Text.h" />
     <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\Example.h" />
     <ClInclude Include="src\Layouts.h" />
@@ -348,6 +355,10 @@
     <FxCompile Include="shaders\ExplodeGeomShader.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\FontShader.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>

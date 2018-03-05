@@ -15,6 +15,7 @@ struct PhongCB {
     int PointLightCount;
     int DirLightCount;
     int SpotLightCount;
+    float Shininess;
 };
 
 struct SolidConstBuffer {

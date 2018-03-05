@@ -14,11 +14,18 @@ HRESULT Phong::PhongShadingExample::setup() {
     };
 
     // Create shaders
-    cubeShader_ = std::make_unique<PhongShader>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
+	phongShader_ = std::make_unique<PhongShader>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
     solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
 
     // Create object to draw
+	// We will use this CUBE model to actually render everything
+	//   1) the cube in the middle, which is lit
+	//   2) the plane under the cube (it's just going to be a big cube)
+	//   3) each light will be also rendered as an unlit white cube (with solidShader)
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
+
+    // Create info text with hint to render on screen
+    infoText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "");
 
     return S_OK;
 }
@@ -46,8 +53,12 @@ void Phong::PhongShadingExample::render() {
     vLightPos = XMVector3Transform(vLightPos, mRotate);
     XMStoreFloat4(&pointLightPositions[0], vLightPos);
 
+    infoText_->setText("To adjust specularity press K/L\nSpecularity: " + std::to_string(shininess_));
+
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
 
     // ==============================
     // Draw scene with phong lighting
@@ -72,10 +83,11 @@ void Phong::PhongShadingExample::render() {
         cb.SpotLights[0].InnerCone = XMFLOAT4(cos(XMConvertToRadians(43.0f)), 0.0f, 0.0f, 0.0f);
         cb.SpotLights[0].OuterCone = XMFLOAT4(cos(XMConvertToRadians(47.0f)), 0.0f, 0.0f, 0.0f);
         cb.ViewPos = camera_.Position;
-        cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
+        cb.Shininess = shininess_;
+        phongShader_->updateConstantBuffer(context_.immediateContext_, cb);
 
         // Render the cube
-        cubeShader_->use(context_.immediateContext_);
+        phongShader_->use(context_.immediateContext_);
         colorCube_->draw(context_.immediateContext_);
 
         // Render plane
@@ -84,7 +96,7 @@ void Phong::PhongShadingExample::render() {
         cb.World = XMMatrixTranspose(planeScale * XMMatrixTranslationFromVector(XMLoadFloat4(&planePos)));
         cb.NormalMatrix = computeNormalMatrix(cb.World);
 
-        cubeShader_->updateConstantBuffer(context_.immediateContext_, cb);
+        phongShader_->updateConstantBuffer(context_.immediateContext_, cb);
         colorCube_->draw(context_.immediateContext_);
     }
 
@@ -135,4 +147,19 @@ void Phong::PhongShadingExample::render() {
     }
 
     context_.swapChain_->Present(0, 0);
+}
+
+void Phong::PhongShadingExample::handleInput() {
+    BaseExample::handleInput();
+
+    float step = 1.f;
+
+    if (GetAsyncKeyState(0x4B) & 1) { // K
+        shininess_ -= step;
+    }
+    if (GetAsyncKeyState(0x4C) & 1) { // L
+        shininess_ += step;
+    }
+
+    shininess_ = max(1.f, min(shininess_, 256.0f));
 }

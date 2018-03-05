@@ -12,6 +12,7 @@ cbuffer ConstantBuffer : register(b0) {
     int PointLightCount;
     int DirLightCount;
     int SpotLightCount;
+    float Shininess;
 }
 
 
@@ -55,13 +56,13 @@ float4 PS(PS_INPUT input) : SV_Target {
     // Iterate all through all lights and add their contribution
     float4 finalColor = float4(0.0, 0.0, 0.0, 0.0);
     for (int i = 0; i < DirLightCount; ++i) {
-        finalColor += CalcDirLight(DirLights[i], normal, input.Color, viewDir);
+        finalColor += CalcDirLight(DirLights[i], normal, input.Color, viewDir, 0, 1, Shininess);
     }
     for (int i = 0; i < PointLightCount; ++i) {
-        finalColor += CalcPointLight(PointLights[i], normal, input.FragPos, input.Color, viewDir);
+        finalColor += CalcPointLight(PointLights[i], normal, input.FragPos, input.Color, viewDir, 1, Shininess);
     }
     for (int i = 0; i < SpotLightCount; ++i) {
-        finalColor += CalcSpotLight(SpotLights[i], normal, input.FragPos, input.Color, viewDir);
+        finalColor += CalcSpotLight(SpotLights[i], normal, input.FragPos, input.Color, viewDir, 1, Shininess);
     }
 
     // clamp to (0,1)

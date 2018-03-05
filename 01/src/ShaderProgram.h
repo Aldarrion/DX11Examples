@@ -1,62 +1,63 @@
 #pragma once
-#include <d3d11_1.h>
+#include <d3d11.h>
+#include <array>
+#include "ResourceHolder.h"
+#include <vector>
 #include <d3dcompiler.h>
 #include <iostream>
-#include <vector>
-#include "ConstantBuffers.h"
 #include "Layouts.h"
-#include "ResourceHolder.h"
-
-namespace ShaderUtil {
-    template <bool cb>
-    void initCb(ID3D11Device*, UINT, ID3D11Buffer**);
-
-    template<>
-    inline void initCb<true>(ID3D11Device* device, const UINT size, ID3D11Buffer** constantBuffer) {
-        // Create constantBuffer
-        D3D11_BUFFER_DESC bufferDesc;
-        ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-        bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        bufferDesc.ByteWidth = size;
-        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        bufferDesc.CPUAccessFlags = 0;
-        auto hr = device->CreateBuffer(&bufferDesc, nullptr, constantBuffer);
-        if (FAILED(hr)) {
-            MessageBox(nullptr, L"Failed to create constant buffer", L"Error", MB_OK);
-            return;
-        }
-    }
-
-    template<>
-    inline void initCb<false>(ID3D11Device*, UINT, ID3D11Buffer** constBuffer) {
-        *constBuffer = nullptr;
-    }
-}
+#include "ConstantBuffers.h"
 
 
-/**
- * \brief Class representing a set of shaders (vertex, pixel and optionally geometry).
- * @tparam TConstBuffer Type of constant buffer this shader uses
- * @tparam UseCB Do we want to use constant buffers? False will not initialize and use constant buffer.
- */
-template <typename TConstBuffer, bool UseCB = true>
-class ShaderProgram : public ResourceHolder {
-    ID3D11Buffer* constantBuffer_;
+template<typename ... TCBuffers>
+class ShaderProgram : ResourceHolder {
+    typedef std::tuple<TCBuffers ...> types;
+    typedef std::array<ID3D11Buffer*, sizeof...(TCBuffers)> buffer_array_t;
+
+    buffer_array_t cbuffers_;
     ID3D11VertexShader* vertexShader_;
     ID3D11GeometryShader* geometryShader_;
     ID3D11PixelShader* pixelShader_;
     ID3D11InputLayout* inputLayout_;
 
+    template<int ArrSize, int N>
+    struct InitCb {
+        static void initCb(ID3D11Device* device, buffer_array_t& arr) {
+            // Create constantBuffer
+            D3D11_BUFFER_DESC bufferDesc;
+            ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+            bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+            bufferDesc.ByteWidth = sizeof(typename std::tuple_element<N, types>::type);
+            bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+            bufferDesc.CPUAccessFlags = 0;
+            auto hr = device->CreateBuffer(&bufferDesc, nullptr, &arr[N]);
+            if (FAILED(hr)) {
+                MessageBox(nullptr, L"Failed to create constant buffer", L"Error", MB_OK);
+                return;
+            }
+
+            InitCb<ArrSize, N + 1>::initCb(device, arr);
+        }
+    };
+
+    template<int ArrSize>
+    struct InitCb<ArrSize, ArrSize> {
+        static void initCb(ID3D11Device*, buffer_array_t&) {
+        }
+    };
+
+
 public:
     ShaderProgram(
-            ID3D11Device* device, 
-            const WCHAR* vertexPath, 
-            const char* vertexStart, 
-            const WCHAR* pixelPath, 
-            const char* pixelStart, 
+            ID3D11Device* device,
+            const WCHAR* vertexPath,
+            const char* vertexStart,
+            const WCHAR* pixelPath,
+            const char* pixelStart,
             const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout,
             const WCHAR* geomPath = nullptr,
-            const char* geomStart = nullptr) {
+            const char* geomStart = nullptr
+    ) {
         // Compile vertex shader
         ID3DBlob* VSBlob = nullptr;
         auto hr = CompileShaderFromFile(vertexPath, vertexStart, "vs_5_0", &VSBlob);
@@ -112,15 +113,15 @@ public:
             };
 
             /*hr = device->CreateGeometryShaderWithStreamOutput(
-                GSBlob->GetBufferPointer(),
-                GSBlob->GetBufferSize(),
-                decl,
-                sizeof(decl),
-                nullptr,
-                0,
-                0,
-                nullptr,
-                &geometryShader_
+            GSBlob->GetBufferPointer(),
+            GSBlob->GetBufferSize(),
+            decl,
+            sizeof(decl),
+            nullptr,
+            0,
+            0,
+            nullptr,
+            &geometryShader_
             );*/
             hr = device->CreateGeometryShader(
                 GSBlob->GetBufferPointer(),
@@ -138,7 +139,7 @@ public:
             geometryShader_ = nullptr;
         }
 
-        ShaderUtil::initCb<UseCB>(device, sizeof(TConstBuffer), &constantBuffer_);
+        InitCb<sizeof...(TCBuffers), 0>::initCb(device, cbuffers_);
     }
 
     ~ShaderProgram() {
@@ -146,36 +147,66 @@ public:
         if (pixelShader_) pixelShader_->Release();
         if (geometryShader_) geometryShader_->Release();
         if (inputLayout_) inputLayout_->Release();
-        if (constantBuffer_) constantBuffer_->Release();
+        if (cbuffers_.size()) {
+            for (auto cbuffer : cbuffers_) {
+                cbuffer->Release();
+            }
+        }
     }
 
-    /**
-     * \brief Sets this set of shaders as active shaders with current constant buffer (if any).
-     * @param context Context to use shaders in
-     */
     void use(ID3D11DeviceContext* context) const {
         context->IASetInputLayout(inputLayout_);
         context->VSSetShader(vertexShader_, nullptr, 0);
-        if (constantBuffer_) {
-            context->VSSetConstantBuffers(0, 1, &constantBuffer_);
+        if (cbuffers_.size()) {
+            for (auto cbuffer : cbuffers_) {
+                context->VSSetConstantBuffers(0, 1, &cbuffer);
+            }
         }
         context->GSSetShader(geometryShader_, nullptr, 0);
-        if (geometryShader_ && constantBuffer_) {
-            context->GSSetConstantBuffers(0, 1, &constantBuffer_);
+        if (geometryShader_ && cbuffers_.size()) {
+            for (auto cbuffer : cbuffers_) {
+                context->GSSetConstantBuffers(0, 1, &cbuffer);
+            }
         }
         context->PSSetShader(pixelShader_, nullptr, 0);
-        if (constantBuffer_) {
-            context->PSSetConstantBuffers(0, 1, &constantBuffer_);
+        if (cbuffers_.size()) {
+            for (auto cbuffer : cbuffers_) {
+                context->PSSetConstantBuffers(0, 1, &cbuffer);
+            }
         }
     }
 
-    /**
-     * \brief Updates constant buffer in given context.
-     * @param context Context to update cbuffer against
-     * @param newBuffer Data which should be used to update the buffer
-     */
+private:
+    template<int N, typename T>
+    struct BuffOfType : std::is_same<T, typename std::tuple_element<N, types>::type>
+    { };
+
+    template<int N, typename TBuff, bool IsMatch>
+    struct MatchingBuff {
+        static ID3D11Buffer* get(buffer_array_t& arr) {
+            return MatchingBuff<N + 1, TBuff, BuffOfType<N + 1, TBuff>::value>::get(arr);
+        }
+    };
+
+    template<int N, typename TBuff>
+    struct MatchingBuff<N, TBuff, true> {
+        static ID3D11Buffer* get(buffer_array_t& arr) {
+            return arr[N];
+        }
+    };
+
+    template<typename TBuff>
+    struct GetBuffer {
+        static ID3D11Buffer* get(buffer_array_t& arr) {
+            return MatchingBuff<0, TBuff, BuffOfType<0, TBuff>::value>::get(arr);
+        }
+    };
+
+public:
+    template<typename TConstBuffer>
     void updateConstantBuffer(ID3D11DeviceContext* context, const TConstBuffer& newBuffer) {
-        context->UpdateSubresource(constantBuffer_, 0, nullptr, &newBuffer, 0, 0);
+        auto buffer = GetBuffer<TConstBuffer>::get(cbuffers_);
+        context->UpdateSubresource(buffer, 0, nullptr, &newBuffer, 0, 0);
     }
 
 private:
@@ -216,7 +247,7 @@ private:
 namespace Shaders {
     using SolidShader = ShaderProgram<ConstantBuffers::SolidConstBuffer>;
     using PSolidShader = std::unique_ptr<SolidShader>;
-    
+
     inline PSolidShader createSolidShader(const ContextWrapper& context) {
         return std::make_unique<SolidShader>(context.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
     }
