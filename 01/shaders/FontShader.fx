@@ -25,8 +25,7 @@ PS_INPUT VS(VS_INPUT input) {
     
     output.Pos = mul(input.Pos, Model);
     
-
-    // TODO refactor
+    // Compute UV for given glyph in the texture atlas
     float u, v;
     if (input.UV.x == 0) {
         u = UVWH.x;
@@ -42,23 +41,14 @@ PS_INPUT VS(VS_INPUT input) {
 
     output.Tex = float2(u, v);
 
-    output.Tex = input.UV;
-
     return output;
 }
 
 // ============
 // Pixel shader
 // ============
-float2 lerp(float2 uv) {
-    float u = UVWH.x + uv.x * UVWH.z;
-    float v = UVWH.y + uv.y * UVWH.w;
-    return float2(u, v);
-}
-
 float4 PS(PS_INPUT input) : SV_Target {
-    float4 outColor = saturate(txDiffuse.Sample(diffuseSampler, lerp(input.Tex)));
-    //float4 outColor = saturate(txDiffuse.Sample(diffuseSampler, input.Tex));
+    float4 outColor = saturate(txDiffuse.Sample(diffuseSampler, input.Tex));
     if (outColor.a < 0.01)
         discard;
     return float4(outColor.r, outColor.g, outColor.b, outColor.a);
