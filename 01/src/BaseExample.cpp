@@ -4,7 +4,7 @@
 
 using namespace DirectX;
 
-void BaseExample::handleInput(float deltaTime) {
+void BaseExample::handleInput() {
     if (GetActiveWindow() != context_.hWnd_)
         return;
 
@@ -12,22 +12,22 @@ void BaseExample::handleInput(float deltaTime) {
         shouldExit_ = true;
     }
     if (GetAsyncKeyState(0x57)) { // W
-        camera_.ProcessKeyboard(CameraMovement::FORWARD, deltaTime);
+        camera_.ProcessKeyboard(CameraMovement::FORWARD, deltaTime_);
     }
     if (GetAsyncKeyState(0x53)) { // S
-        camera_.ProcessKeyboard(CameraMovement::BACKWARD, deltaTime);
+        camera_.ProcessKeyboard(CameraMovement::BACKWARD, deltaTime_);
     }
     if (GetAsyncKeyState(0x41)) { // A
-        camera_.ProcessKeyboard(CameraMovement::LEFT, deltaTime);
+        camera_.ProcessKeyboard(CameraMovement::LEFT, deltaTime_);
     }
     if (GetAsyncKeyState(0x44)) { // D
-        camera_.ProcessKeyboard(CameraMovement::RIGHT, deltaTime);
+        camera_.ProcessKeyboard(CameraMovement::RIGHT, deltaTime_);
     }
     if (GetAsyncKeyState(0x20)) { // Space
-        camera_.ProcessKeyboard(CameraMovement::UP, deltaTime);
+        camera_.ProcessKeyboard(CameraMovement::UP, deltaTime_);
     }
     if (GetAsyncKeyState(0x11)) { // Ctrl
-        camera_.ProcessKeyboard(CameraMovement::DOWN, deltaTime);
+        camera_.ProcessKeyboard(CameraMovement::DOWN, deltaTime_);
     }
 
 	auto mouse = mouse_->GetState();
@@ -61,5 +61,5 @@ void BaseExample::render() {
         deltaTimeSMA_ = newSmaSum / smaPeriod_;
     }
 
-    handleInput(static_cast<float>(deltaTime_));
+    handleInput();
 }

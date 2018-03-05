@@ -4,6 +4,7 @@
 #include "ColorCube.h"
 #include "PhongLights.h"
 #include "ConstantBuffers.h"
+#include "Text.h"
 
 namespace Phong {
 
@@ -16,8 +17,12 @@ protected:
     std::unique_ptr<SolidShader> solidShader_;
     std::unique_ptr<ColorCube> colorCube_;
 
+    std::unique_ptr<Text::Text> infoText_;
+    float shininess_ = 32.0f;
+
     HRESULT setup() override;
     void render() override;
+    void handleInput() override;
 
 public:
     virtual ~PhongShadingExample() = default;

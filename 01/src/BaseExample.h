@@ -14,7 +14,7 @@ protected:
     float deltaTimeSMA_ = 0.0f;
     size_t frameCount_ = 0;
 
-    void handleInput(float deltaTime);
+    virtual void handleInput();
     HRESULT setup() override {
         projection_ = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, context_.WIDTH / static_cast<FLOAT>(context_.HEIGHT), 0.01f, 100.0f);
         return S_OK;

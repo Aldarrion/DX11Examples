@@ -24,6 +24,9 @@ HRESULT Phong::PhongShadingExample::setup() {
 	//   3) each light will be also rendered as an unlit white cube (with solidShader)
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
+    // Create info text with hint to render on screen
+    infoText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "");
+
     return S_OK;
 }
 
@@ -50,8 +53,12 @@ void Phong::PhongShadingExample::render() {
     vLightPos = XMVector3Transform(vLightPos, mRotate);
     XMStoreFloat4(&pointLightPositions[0], vLightPos);
 
+    infoText_->setText("To adjust specularity press K/L\nSpecularity: " + std::to_string(shininess_));
+
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
 
     // ==============================
     // Draw scene with phong lighting
@@ -76,6 +83,7 @@ void Phong::PhongShadingExample::render() {
         cb.SpotLights[0].InnerCone = XMFLOAT4(cos(XMConvertToRadians(43.0f)), 0.0f, 0.0f, 0.0f);
         cb.SpotLights[0].OuterCone = XMFLOAT4(cos(XMConvertToRadians(47.0f)), 0.0f, 0.0f, 0.0f);
         cb.ViewPos = camera_.Position;
+        cb.Shininess = shininess_;
         phongShader_->updateConstantBuffer(context_.immediateContext_, cb);
 
         // Render the cube
@@ -139,4 +147,19 @@ void Phong::PhongShadingExample::render() {
     }
 
     context_.swapChain_->Present(0, 0);
+}
+
+void Phong::PhongShadingExample::handleInput() {
+    BaseExample::handleInput();
+
+    float step = 1.f;
+
+    if (GetAsyncKeyState(0x4B) & 1) { // K
+        shininess_ -= step;
+    }
+    if (GetAsyncKeyState(0x4C) & 1) { // L
+        shininess_ += step;
+    }
+
+    shininess_ = max(1.f, min(shininess_, 256.0f));
 }

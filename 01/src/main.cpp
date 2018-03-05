@@ -17,10 +17,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 {
     example = std::make_unique<BasicTriangleExample>();
     example = std::make_unique<Phong::PhongShadingExample>();
-    example = std::make_unique<Texturing::TexturingExample>();
-    example = std::make_unique<Shadows::ShadowsExample>();
-    example = std::make_unique<GeometryShader::GeometryShaderExample>();
-    example = std::make_unique<Billboard::BillboardExample>();
+    //example = std::make_unique<Texturing::TexturingExample>();
+    //example = std::make_unique<Shadows::ShadowsExample>();
+    //example = std::make_unique<GeometryShader::GeometryShaderExample>();
+    //example = std::make_unique<Billboard::BillboardExample>();
     //example = std::make_unique<Specular::SpecularMapExample>();
     //example = std::make_unique<FontRendering::FontRenderingExample>();
 
