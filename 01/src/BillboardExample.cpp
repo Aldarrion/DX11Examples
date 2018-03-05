@@ -3,6 +3,10 @@
 #include "Layouts.h"
 #include "Transform.h"
 
+// Uncomment to see non instanced version
+// Recommended to run in Release mode
+#define BILLBOARD_EXAMPLE_NON_INSTANCED
+
 namespace Billboard {
 
 using namespace DirectX;
@@ -15,6 +19,8 @@ ID3D11RasterizerState* state = nullptr;
 
 HRESULT BillboardExample::setup() {
     BaseExample::setup();
+
+    frameTimeText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
 
     textureShader_ = std::make_unique<TextureShader>(
         context_.d3dDevice_,
@@ -138,7 +144,7 @@ HRESULT BillboardExample::setup() {
 void BillboardExample::render() {
     BaseExample::render();
 
-    std::cout << "Frame time: " << deltaTime_ * 1000 << std::endl;
+    frameTimeText_->setText("Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000));
 
     const Transform planeTransform(XMFLOAT3(0.0, -4.0f, 0.0f), XMFLOAT3(), XMFLOAT3(20.0f, 2.2f, 20.0f));
     const Transform grassTransform(XMFLOAT3(0.0, -1.3f, 0.0f));
@@ -148,6 +154,7 @@ void BillboardExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
+    frameTimeText_->draw(context_.immediateContext_, context_.getAspectRatio());
 
     BillboardCBuffer cb;
     cb.View = XMMatrixTranspose(camera_.getViewMatrix());
@@ -163,10 +170,17 @@ void BillboardExample::render() {
         plane_->draw(context_.immediateContext_);
     }
 
-    //for (const auto& t : grassPositions_)
+#if defined(BILLBOARD_EXAMPLE_NON_INSTANCED)
+    for (const auto& t : grassPositions_)
+#endif
     {
+#if defined(BILLBOARD_EXAMPLE_NON_INSTANCED)
+        cb.World = t;
+        cb.IsInstanced = 0;
+#else
         cb.World = XMMatrixTranspose(grassTransform.generateModelMatrix());
-        //cb.World = t;
+        cb.IsInstanced = 1;
+#endif
         cb.NormalMatrix = computeNormalMatrix(cb.World);
         cb.GrassModels[0] = XMMatrixIdentity();
         cb.GrassModels[1] = XMMatrixTranspose(grass1Trasform.generateModelMatrix());
@@ -183,8 +197,11 @@ void BillboardExample::render() {
         UINT offset = 0;
         context_.immediateContext_->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
         context_.immediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-        //context_.immediateContext_->Draw(1, 0);
+#if defined(BILLBOARD_EXAMPLE_NON_INSTANCED)
+        context_.immediateContext_->Draw(1, 0);
+#else
         context_.immediateContext_->DrawInstanced(1, static_cast<UINT>(grassPositions_.size()), 0, 0);
+#endif
     }
 
     context_.swapChain_->Present(0, 0);

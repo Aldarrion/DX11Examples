@@ -10,6 +10,9 @@ protected:
 
     float deltaTime_ = 0.0f;
     float timeFromStart = 0.0f;
+    static constexpr float smaPeriod_ = 30;
+    float deltaTimeSMA_ = 0.0f;
+    size_t frameCount_ = 0;
 
     void handleInput(float deltaTime);
     HRESULT setup() override {

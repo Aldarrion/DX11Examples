@@ -46,11 +46,20 @@ void BaseExample::handleInput(float deltaTime) {
 
 std::chrono::steady_clock::time_point lastFrame = std::chrono::high_resolution_clock::now();
 void BaseExample::render() {
+    ++frameCount_;
     // Update our time
     const auto currentFrame = std::chrono::high_resolution_clock::now();
     deltaTime_ = std::chrono::duration_cast<std::chrono::nanoseconds>(currentFrame - lastFrame).count() / 1000000000.0f;
     lastFrame = currentFrame;
     timeFromStart += deltaTime_;
+
+    // Compute frame moving average
+    if (frameCount_ == smaPeriod_) {
+        deltaTimeSMA_ = timeFromStart / smaPeriod_;
+    } else if (frameCount_ > smaPeriod_) {
+        float newSmaSum = deltaTimeSMA_ * (smaPeriod_ - 1) + deltaTime_;
+        deltaTimeSMA_ = newSmaSum / smaPeriod_;
+    }
 
     handleInput(static_cast<float>(deltaTime_));
 }

@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "AnisotropicSampler.h"
 #include "Plane.h"
+#include "Text.h"
 
 namespace Billboard {
 
@@ -17,6 +18,7 @@ struct BillboardCBuffer {
     DirectX::XMMATRIX NormalMatrix;
     DirectX::XMMATRIX GrassModels[3];
     DirectX::XMMATRIX GrassMatrices[GRASS_COUNT];
+    int IsInstanced;
 };
 
 class BillboardExample : public BaseExample {
@@ -31,6 +33,7 @@ protected:
     std::unique_ptr<Texture> grassBillboard_;
     std::unique_ptr<AnisotropicSampler> diffuseSampler_;
     std::vector<DirectX::XMMATRIX> grassPositions_;
+    std::unique_ptr<Text::Text> frameTimeText_;
 
     ID3D11Buffer* vertexBuffer_ = nullptr;
 
