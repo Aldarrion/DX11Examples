@@ -49,14 +49,15 @@ class ShaderProgram : ResourceHolder {
 
 public:
     ShaderProgram(
-        ID3D11Device* device,
-        const WCHAR* vertexPath,
-        const char* vertexStart,
-        const WCHAR* pixelPath,
-        const char* pixelStart,
-        const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout,
-        const WCHAR* geomPath = nullptr,
-        const char* geomStart = nullptr) {
+            ID3D11Device* device,
+            const WCHAR* vertexPath,
+            const char* vertexStart,
+            const WCHAR* pixelPath,
+            const char* pixelStart,
+            const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout,
+            const WCHAR* geomPath = nullptr,
+            const char* geomStart = nullptr
+    ) {
         // Compile vertex shader
         ID3DBlob* VSBlob = nullptr;
         auto hr = CompileShaderFromFile(vertexPath, vertexStart, "vs_5_0", &VSBlob);
@@ -134,8 +135,7 @@ public:
                 MessageBox(nullptr, L"Failed to create geometry shader", L"Error", MB_OK);
                 return;
             }
-        }
-        else {
+        } else {
             geometryShader_ = nullptr;
         }
 

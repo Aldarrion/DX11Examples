@@ -5,7 +5,7 @@
 
 class Texture : public ResourceHolder {
 private:
-    ID3D11ShaderResourceView * texture_;
+    ID3D11ShaderResourceView* texture_;
 
 public:
     Texture(ID3D11Device* device, ID3D11DeviceContext* context, const WCHAR* pathToDDS) {
@@ -16,6 +16,18 @@ public:
     }
     ~Texture() {
         if (texture_) texture_->Release();
+    }
+
+    Texture(Texture&& other) noexcept {
+        texture_ = other.texture_;
+        other.texture_ = nullptr;
+    }
+
+    Texture& operator=(Texture&& other) noexcept {
+        texture_ = other.texture_;
+        other.texture_ = nullptr;
+        
+        return *this;
     }
 
     void use(ID3D11DeviceContext* context, const UINT slot) const {
