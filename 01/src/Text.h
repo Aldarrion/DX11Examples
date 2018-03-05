@@ -1,12 +1,11 @@
 #pragma once
-#include <string>
+
+#include "Font.h"
 #include "ContextWrapper.h"
-#include "Texture.h"
 #include "DrawableObject.h"
 #include "Quad.h"
 #include "ShaderProgram.h"
-#include "PointWrapSampler.h"
-#include "Font.h"
+#include <string>
 
 namespace Text {
 
@@ -18,8 +17,6 @@ struct GlyphCb {
 class Text {
 private:
     std::string text_;
-    Texture fontMap_;
-    PointWrapSampler sampler_;
     Quad quad_;
     ShaderProgram<GlyphCb> fontShader_;
     Font font_;
@@ -29,11 +26,9 @@ private:
 public:
     Text(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text)
             : text_(text)
-            , fontMap_(device, context, L"textures/Inconsolata-10-bold.dds")
-            , sampler_(device)
             , quad_(device)
             , fontShader_(device, L"shaders/FontShader.fx", "VS", L"shaders/FontShader.fx", "PS", Layouts::POS_UV_LAYOUT)
-            , font_(makeInconsolata())
+            , font_(makeInconsolata(device, context))
             , sizeMultiplier_(10.0f)
             , position_({ 0, 0 }) {
     }
@@ -65,19 +60,26 @@ public:
 
         float finalSizeScale = getAbsoluteWidth();
 
+        font_.use(context);
         fontShader_.use(context);
-        fontMap_.use(context, 0);
-        sampler_.use(context, 0);
 
+        int column = 0;
+        int row = 0;
         for (int i = 0; i < text_.size(); ++i) {
-            // TODO maybe create row based positioning?
+            if (text_[i] == '\n') {
+                column = 0;
+                ++row;
+                continue;
+            }
+            
             XMMATRIX model = aspectCorrection * XMMatrixScalingFromVector({ finalSizeScale / 2.0f, finalSizeScale / 2.0f, 1 });
-            model = model * XMMatrixTranslationFromVector({ 
-                -1.0f + finalSizeScale / 2.0f + i * finalSizeScale + position_.x, 
-                1.0f - getAbsoluteHeight() / 2.0f - position_.y,
-                0 
+            model = model * XMMatrixTranslationFromVector({
+                // Left + half letter width to align + which column in the text + position specified
+                -1.0f + getAbsoluteWidth() / 2.0f + column * getAbsoluteWidth() + position_.x,
+                // Top + half letter height to align + which row in the text + position specified
+                1.0f - getAbsoluteHeight() / 2.0f - row * getAbsoluteHeight() - position_.y,
+                0
             });
-            //model = model * XMMatrixTranslationFromVector({ -1.0f + i * finalSizeScale, 0.98f, 0 });
 
             GlyphCb cb;
             cb.Model = XMMatrixTranspose(model);
@@ -86,6 +88,8 @@ public:
             fontShader_.updateConstantBuffer(context, cb);
             
             quad_.draw(context);
+
+            ++column;
         }
     }
 };

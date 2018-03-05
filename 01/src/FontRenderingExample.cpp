@@ -15,8 +15,10 @@ HRESULT FontRenderingExample::setup() {
 
     fpsText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, frameTimeString(0));
     text_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, specString(0));
-
     text_->setPosition({ 0, text_->getAbsoluteHeight() });
+
+    multilineText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "1. First line...\n2. Second line... :)\n3. etc.");
+    multilineText_->setPosition({ 0, text_->getAbsoluteHeight() * 3 });
 
     return S_OK;
 }
@@ -29,8 +31,11 @@ void FontRenderingExample::render() {
 
     clearViews();
 
-    fpsText_->draw(context_.immediateContext_, context_.WIDTH / static_cast<float>(context_.HEIGHT));
-    text_->draw(context_.immediateContext_, context_.WIDTH / static_cast<float>(context_.HEIGHT));
+    float aspectRatio = context_.getAspectRatio();
+
+    fpsText_->draw(context_.immediateContext_, aspectRatio);
+    text_->draw(context_.immediateContext_, aspectRatio);
+    multilineText_->draw(context_.immediateContext_, aspectRatio);
 
     context_.swapChain_->Present(0, 0);
 }

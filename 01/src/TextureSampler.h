@@ -1,7 +1,8 @@
 #pragma once
 #include <d3d11.h>
+#include "ResourceHolder.h"
 
-class TextureSampler {
+class TextureSampler : public ResourceHolder {
 protected:
     ID3D11SamplerState * sampler_ = nullptr;
     
@@ -23,8 +24,17 @@ public:
         if (sampler_) sampler_->Release();
     }
     
-    TextureSampler(const TextureSampler&) = delete;
-    TextureSampler operator=(const TextureSampler&) = delete;
+    TextureSampler(TextureSampler && other) noexcept {
+        sampler_ = other.sampler_;
+        other.sampler_ = nullptr;
+    }
+
+    TextureSampler& operator=(TextureSampler&& other) noexcept {
+        sampler_ = other.sampler_;
+        other.sampler_ = nullptr;
+        
+        return *this;
+    }
 
     void use(ID3D11DeviceContext* context, const UINT slot) const {
         context->PSSetSamplers(slot, 1, &sampler_);

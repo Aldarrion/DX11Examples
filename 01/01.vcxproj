@@ -310,6 +310,7 @@
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\DDSTextureLoader.h" />
     <ClInclude Include="src\DrawableObject.h" />
+    <ClInclude Include="src\Exceptions.h" />
     <ClInclude Include="src\Font.h" />
     <ClInclude Include="src\FontRenderingExample.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />

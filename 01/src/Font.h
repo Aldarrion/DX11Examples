@@ -1,9 +1,13 @@
 #pragma once
 #include <string>
-
+#include "PointWrapSampler.h"
+#include "Texture.h"
+#include "Exceptions.h"
 
 namespace Text {
 class Font {
+    Texture fontMap_;
+    PointWrapSampler sampler_;
     std::string glyphs_;
     int xCount_;
     int yCount_;
@@ -15,19 +19,28 @@ class Font {
 
 public:
     Font(
+        ID3D11Device* device, ID3D11DeviceContext* context,
+        const std::wstring& fontMap,
         const std::string& glyphs, 
         int xCount, int yCount, 
         int glyphPxWidth, int glyphPxHeight, 
         int texturePxWidth, int texturePxHeight
     )
-            : glyphs_(glyphs)
+            : fontMap_(device, context, fontMap.c_str())
+            , sampler_(device)
+            , glyphs_(glyphs)
             , xCount_(xCount)
             , yCount_(yCount)
             , glyphPxWidth_(glyphPxWidth) 
             , glyphPxHeight_(glyphPxHeight) 
             , texturePxWidth_(texturePxWidth)
             , texturePxHeight_(texturePxHeight)
-            , sizeScale_(0.006f) {
+            , sizeScale_(0.005f) {
+    }
+
+    void use(ID3D11DeviceContext* context) const {
+        fontMap_.use(context, 0);
+        sampler_.use(context, 0);
     }
 
     float getWidthSizeScale() const {
@@ -44,6 +57,11 @@ public:
 
     DirectX::XMFLOAT4 getUVWH(char c) const {
         size_t idx = glyphs_.find(c);
+
+        if (idx == std::string::npos) {
+            throw Exception::InvalidCharacterException(c);
+        }
+
         size_t y = idx / xCount_;
         size_t x = idx % xCount_;
 
@@ -56,8 +74,13 @@ public:
     }
 };
 
-inline Font makeInconsolata() {
+
+// ======================
+// Font factory functions
+// ======================
+// TODO load font properties from config file
+inline Font makeInconsolata(ID3D11Device* device, ID3D11DeviceContext* context) {
     std::string glyphs = " !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-    return Font(glyphs, 16, 6, 7, 17, 112, 112);
+    return Font(device, context, L"textures/Inconsolata-10-bold.dds", glyphs, 16, 6, 7, 17, 112, 112);
 }
 }

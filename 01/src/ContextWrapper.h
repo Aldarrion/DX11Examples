@@ -22,6 +22,10 @@ struct ContextWrapper {
     int WIDTH = 1280;
     int HEIGHT = 720;
 
+    float getAspectRatio() const {
+        return WIDTH / static_cast<float>(HEIGHT);
+    }
+
     HRESULT Init(_In_ HINSTANCE hInstance, _In_ int nCmdShow) {
         if (FAILED(InitWindow(hInstance, nCmdShow))) {
             MessageBox(nullptr, L"Failed to window", L"Error", MB_OK);
