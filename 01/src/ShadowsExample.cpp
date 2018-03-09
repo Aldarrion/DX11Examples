@@ -98,10 +98,10 @@ HRESULT ShadowsExample::setup() {
 
 void ShadowsExample::handleInput() {
     BaseExample::handleInput();
-    if (GetAsyncKeyState(WinKeyMap::E) & 1) { // E
+    if (GetAsyncKeyState(WinKeyMap::E) & 1) {
         isSelfCubeActive_ = !isSelfCubeActive_;
     }
-    if (GetAsyncKeyState(WinKeyMap::Q) & 1) { // Q
+    if (GetAsyncKeyState(WinKeyMap::Q) & 1) {
         drawFromLightView_ = !drawFromLightView_;
     }
 }

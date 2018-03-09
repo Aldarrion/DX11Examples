@@ -155,10 +155,10 @@ void Phong::PhongShadingExample::handleInput() {
 
     float step = 1.f;
 
-    if (GetAsyncKeyState(WinKeyMap::K) & 1) { // K
+    if (GetAsyncKeyState(WinKeyMap::K) & 1) {
         shininess_ -= step;
     }
-    if (GetAsyncKeyState(WinKeyMap::L) & 1) { // L
+    if (GetAsyncKeyState(WinKeyMap::L) & 1) {
         shininess_ += step;
     }
 
