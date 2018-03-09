@@ -228,5 +228,8 @@
     <FxCompile Include="shaders\FontShader.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\ShadowMapQuadShader.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
