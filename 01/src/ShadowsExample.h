@@ -9,6 +9,9 @@
 #include "AnisotropicSampler.h"
 #include "Plane.h"
 #include "ConstantBuffers.h"
+#include "Quad.h"
+#include "PointWrapSampler.h"
+#include "Text.h"
 
 namespace Shadows {
 
@@ -29,11 +32,16 @@ struct ShadowConstBuffer {
     DirectX::XMMATRIX Projection;
 };
 
+struct ShadowDisplayBuffer {
+    DirectX::XMMATRIX World;
+};
+
 class ShadowsExample : public BaseExample {
 protected:
     using TextureShader = ShaderProgram<ConstantBuffer>;
     using SolidShader = ShaderProgram<ConstantBuffers::SolidConstBuffer>;
     using ShadowShader = ShaderProgram<ShadowConstBuffer>;
+    using ShadowDisplayShader = ShaderProgram<ShadowDisplayBuffer>;
 
     std::unique_ptr<Texture> seaFloorTexture_;
     std::unique_ptr<Texture> woodBoxTexture_;
@@ -47,6 +55,14 @@ protected:
     std::unique_ptr<ColorCube> colorCube_;
     float currentCubeRotation_ = 0.0f;
     float cubeRotationPerSecond_ = 45.0f;
+
+    std::unique_ptr<Quad> shadowMapDisplay_;
+    std::unique_ptr<ShadowDisplayShader> shadowMapDisplayShader_;
+    std::unique_ptr<PointWrapSampler> pointSampler_;
+
+    std::unique_ptr<Text::Text> selfCubeInfo_;
+    bool isSelfCubeActive_ = true;
+    bool drawFromLightView_ = false;
 
     // =======
     // Shadows
@@ -63,10 +79,14 @@ protected:
 
 
     HRESULT setup() override;
-    
+    void handleInput() override;
     void render() override;
 
 public:
-    virtual ~ShadowsExample() = default;
+    virtual ~ShadowsExample() {
+        if (shadowMap_) shadowMap_->Release();
+        if (shadowMapDepthView_) shadowMapDepthView_->Release();
+        if (shadowShaderResourceView_) shadowShaderResourceView_->Release();
+    }
 };
 }

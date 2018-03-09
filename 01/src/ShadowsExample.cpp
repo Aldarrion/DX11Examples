@@ -3,6 +3,7 @@
 #include <minwinbase.h>
 #include "Layouts.h"
 #include "Transform.h"
+#include "WinKeyMap.h"
 
 using namespace DirectX;
 
@@ -14,11 +15,18 @@ HRESULT ShadowsExample::setup() {
     shadowShader_ = std::make_unique<ShadowShader>(context_.d3dDevice_, L"shaders/Shadows.fx", "VS_Shadow", L"shaders/Shadows.fx", "PS_Shadow", Layouts::TEXTURED_LAYOUT);
     texturedPhong_ = std::make_unique<TextureShader>(context_.d3dDevice_, L"shaders/PhongShadows.fx", "VS", L"shaders/PhongShadows.fx", "PS", Layouts::TEXTURED_LAYOUT);
     solidShader_ = Shaders::createSolidShader(context_);
+    shadowMapDisplayShader_ = std::make_unique<ShadowDisplayShader>(context_.d3dDevice_, L"shaders/ShadowMapQuadShader.fx", "VS", L"shaders/ShadowMapQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
 
     // Objects
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
     plane_ = std::make_unique<Plane>(context_.d3dDevice_);
+    shadowMapDisplay_ = std::make_unique<Quad>(context_.d3dDevice_);
+    selfCubeInfo_ = std::make_unique<Text::Text>(
+        context_.d3dDevice_, 
+        context_.immediateContext_, 
+        "\n E: toggle rendering cube at camera's position\n Q: toggle rendering scene from light's position"
+    );
 
     // Textures
     seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds");
@@ -29,7 +37,7 @@ HRESULT ShadowsExample::setup() {
     // Shadows need point sampler, filtering needs to be done afterwards.
     // Averaging depths would do no good
     shadowSampler_ = std::make_unique<ShadowSampler>(context_.d3dDevice_);
-    
+    pointSampler_ = std::make_unique<PointWrapSampler>(context_.d3dDevice_);
 
     // =======
     // Shadows
@@ -88,6 +96,16 @@ HRESULT ShadowsExample::setup() {
     return S_OK;
 }
 
+void ShadowsExample::handleInput() {
+    BaseExample::handleInput();
+    if (GetAsyncKeyState(WinKeyMap::E) & 1) {
+        isSelfCubeActive_ = !isSelfCubeActive_;
+    }
+    if (GetAsyncKeyState(WinKeyMap::Q) & 1) {
+        drawFromLightView_ = !drawFromLightView_;
+    }
+}
+
 void ShadowsExample::render() {
     BaseExample::render();
 
@@ -96,17 +114,21 @@ void ShadowsExample::render() {
         currentCubeRotation_ -= 360.0f;
     }
 
-    const XMFLOAT4 sunPos = XMFLOAT4(-30.0f, 30.0f, -30.0f, 1.0f);
+    const XMFLOAT3 sunPos = XMFLOAT3(-30.0f, 30.0f, -30.0f);
     const XMMATRIX lightProjection = XMMatrixOrthographicLH(40.0f, 40.0f, 1.0f, 100.0f);
     const auto focus = XMFLOAT3(0, 0, 0);
     const auto up = XMFLOAT3(0, 1, 0);
-    const XMMATRIX lightView = XMMatrixLookAtLH(XMLoadFloat4(&sunPos), XMLoadFloat3(&focus), XMLoadFloat3(&up));
+    const XMMATRIX lightView = XMMatrixLookAtLH(XMLoadFloat3(&sunPos), XMLoadFloat3(&focus), XMLoadFloat3(&up));
     const Transform planeTransform(XMFLOAT3(0.0, -3.0f, 0.0f), XMFLOAT3(), XMFLOAT3(20.0f, 1.0f, 20.0f));
-    const std::vector<Transform> cubes = {
+    std::vector<Transform> cubes = {
         Transform(),
         Transform(XMFLOAT3(2.5f, 1.0f, 1.8f), XMFLOAT3(XMConvertToRadians(45.0f), XMConvertToRadians(currentCubeRotation_), 0.0f)),
-        Transform(XMFLOAT3(-2.5f, -1.0f, -2.5f))
+        Transform(XMFLOAT3(-2.5f, -1.0f, -2.5f)),
     };
+
+    if (isSelfCubeActive_) {
+        cubes.push_back(Transform(camera_.Position));
+    }
 
     // ==================
     // Generate shadowmap
@@ -134,9 +156,6 @@ void ShadowsExample::render() {
         plane_->draw(context_.immediateContext_);
     }
 
-    // Set to true to see how light sees the scene
-    const bool drawFromLightView = false;
-
     // ==============
     // Draw the scene
     // ==============
@@ -146,19 +165,42 @@ void ShadowsExample::render() {
         context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
         context_.immediateContext_->RSSetViewports(1, &context_.viewPort_);
 
+        selfCubeInfo_->draw(context_.immediateContext_, context_.getAspectRatio());
+
+        // ===========================
+        // Draw the shadow map display
+        // ===========================
+        float mapDisplaySize = 0.2f;
+        Transform shadowMapDisplayTransform(
+            XMFLOAT3(1 - mapDisplaySize, -1 + mapDisplaySize * context_.getAspectRatio(), 0),
+            XMFLOAT3(0, 0, 0),
+            XMFLOAT3(mapDisplaySize, mapDisplaySize * context_.getAspectRatio(), mapDisplaySize)
+        );
+        ShadowDisplayBuffer sdcb;
+        sdcb.World = XMMatrixTranspose(shadowMapDisplayTransform.generateModelMatrix());
+
+        shadowMapDisplayShader_->use(context_.immediateContext_);
+        shadowMapDisplayShader_->updateConstantBuffer(context_.immediateContext_, sdcb);
+        context_.immediateContext_->PSSetShaderResources(0, 1, &shadowShaderResourceView_);
+        pointSampler_->use(context_.immediateContext_, 0);
+        shadowMapDisplay_->draw(context_.immediateContext_);
+
+        // =========
         // Draw cube
+        // =========
         ConstantBuffer cb;
-        if (drawFromLightView) {
+        if (drawFromLightView_) {
             cb.Projection = XMMatrixTranspose(lightProjection);
             cb.View = XMMatrixTranspose(lightView);
+            cb.ViewPos = sunPos;
         } else {
             cb.Projection = XMMatrixTranspose(projection_);
             cb.View = XMMatrixTranspose(camera_.getViewMatrix());
+            cb.ViewPos = camera_.Position;
         }
         
         cb.LightView = XMMatrixTranspose(lightView);
         cb.LightProjection = XMMatrixTranspose(lightProjection);
-        cb.ViewPos = camera_.Position;
         cb.SunLight.Color = SUN_YELLOW;
         cb.SunLight.Direction = XMFLOAT4(-sunPos.x, -sunPos.y, -sunPos.z, 1.0f);
 
@@ -175,7 +217,9 @@ void ShadowsExample::render() {
             texturedCube_->draw(context_.immediateContext_);
         }
 
+        // ==========
         // Draw floor
+        // ==========
         cb.World = XMMatrixTranspose(planeTransform.generateModelMatrix());
         cb.NormalMatrix = computeNormalMatrix(cb.World);
 
@@ -183,13 +227,15 @@ void ShadowsExample::render() {
         texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
         plane_->draw(context_.immediateContext_);
 
+        // ========
         // Draw sun
+        // ========
         ConstantBuffers::SolidConstBuffer scb;
         scb.OutputColor = SUN_YELLOW;
         scb.Projection = XMMatrixTranspose(projection_);
         scb.View = XMMatrixTranspose(camera_.getViewMatrix());
         const XMMATRIX scale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-        scb.World = XMMatrixTranspose(scale * XMMatrixTranslationFromVector(XMLoadFloat4(&sunPos)));
+        scb.World = XMMatrixTranspose(scale * XMMatrixTranslationFromVector(XMLoadFloat3(&sunPos)));
 
         solidShader_->updateConstantBuffer(context_.immediateContext_, scb);
         solidShader_->use(context_.immediateContext_);

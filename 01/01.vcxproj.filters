@@ -187,6 +187,9 @@
     <ClInclude Include="src\Exceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\WinKeyMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">
@@ -226,6 +229,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\FontShader.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ShadowMapQuadShader.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

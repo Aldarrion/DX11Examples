@@ -1,6 +1,7 @@
 #include "BaseExample.h"
 #include <chrono>
 #include <directxcolors.h>
+#include "WinKeyMap.h"
 
 using namespace DirectX;
 
@@ -11,27 +12,27 @@ void BaseExample::handleInput() {
     if (GetAsyncKeyState(VK_ESCAPE)) {
         shouldExit_ = true;
     }
-    if (GetAsyncKeyState(0x57)) { // W
+    if (GetAsyncKeyState(WinKeyMap::W)) {
         camera_.ProcessKeyboard(CameraMovement::FORWARD, deltaTime_);
     }
-    if (GetAsyncKeyState(0x53)) { // S
+    if (GetAsyncKeyState(WinKeyMap::S)) {
         camera_.ProcessKeyboard(CameraMovement::BACKWARD, deltaTime_);
     }
-    if (GetAsyncKeyState(0x41)) { // A
+    if (GetAsyncKeyState(WinKeyMap::A)) {
         camera_.ProcessKeyboard(CameraMovement::LEFT, deltaTime_);
     }
-    if (GetAsyncKeyState(0x44)) { // D
+    if (GetAsyncKeyState(WinKeyMap::D)) {
         camera_.ProcessKeyboard(CameraMovement::RIGHT, deltaTime_);
     }
-    if (GetAsyncKeyState(0x20)) { // Space
+    if (GetAsyncKeyState(VK_SPACE)) {
         camera_.ProcessKeyboard(CameraMovement::UP, deltaTime_);
     }
-    if (GetAsyncKeyState(0x11)) { // Ctrl
+    if (GetAsyncKeyState(VK_CONTROL)) {
         camera_.ProcessKeyboard(CameraMovement::DOWN, deltaTime_);
     }
 
 	auto mouse = mouse_->GetState();
-	if (GetAsyncKeyState(0x4D) & 1) { // M
+	if (GetAsyncKeyState(WinKeyMap::M) & 1) {
 		if (mouse.positionMode == Mouse::MODE_RELATIVE)	{
 			mouse_->SetMode(Mouse::MODE_ABSOLUTE);
 		} else {
