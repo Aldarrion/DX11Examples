@@ -2,7 +2,7 @@
 
 namespace FontRendering {
 
-std::string specString(float spec) {
+std::string specString() {
     return "To adjust specularity press K/L: ";
 }
 
@@ -14,7 +14,7 @@ HRESULT FontRenderingExample::setup() {
     BaseExample::setup();
 
     fpsText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, frameTimeString(0));
-    text_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, specString(0));
+    text_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, specString());
     text_->setPosition({ 0, text_->getAbsoluteHeight() });
 
     multilineText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "1. First line...\n2. Second line... :)\n3. etc.");
@@ -27,7 +27,7 @@ void FontRenderingExample::render() {
     BaseExample::render();
 
     fpsText_->setText(frameTimeString(deltaTime_));
-    text_->setText(specString(deltaTime_));
+    text_->setText(specString());
 
     clearViews();
 
