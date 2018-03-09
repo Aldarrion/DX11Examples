@@ -91,8 +91,10 @@ public:
 
     void draw(ID3D11DeviceContext* context) const {
         for (UINT i = 0; i < textures_.size(); ++i) {
-            if (textures_[i].Type == TextureType::Diffuse) {
-                textures_[i].Texture->use(context, 0);
+            if (textures_[i].Type != TextureType::Unknown) {
+                textures_[i].Texture->use(context, static_cast<int>(textures_[i].Type));
+            } else {
+                std::cout << "Trying to use texture of unknown type" << std::endl;
             }
         }
 

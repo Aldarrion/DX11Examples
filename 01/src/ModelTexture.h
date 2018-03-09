@@ -5,8 +5,11 @@
 namespace Models {
 
 enum class TextureType {
-    Other,
-    Diffuse
+    Diffuse,
+    Specular,
+    Normal,
+    Height,
+    Unknown
 };
 
 struct ModelTexture {

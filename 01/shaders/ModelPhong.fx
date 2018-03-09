@@ -1,7 +1,7 @@
 #include "PhongLights.fx"
 
 Texture2D DiffuseTexture : register(t0);
-//Texture2D SpecularMap : register(t1);
+Texture2D SpecularMap : register(t1);
 
 SamplerState DiffuseSampler : register(s0);
 
@@ -53,7 +53,9 @@ float4 PS(PS_INPUT input) : SV_Target {
     float3 viewDir = normalize(ViewPos - input.FragPos);
     float4 fragColor = DiffuseTexture.Sample(DiffuseSampler, input.UV);
 
-    float4 finalColor = CalcDirLight(SunLight, normal, fragColor, viewDir);
+    float4 fragSpecular = SpecularMap.Sample(DiffuseSampler, input.UV);
+
+    float4 finalColor = CalcDirLight(SunLight, normal, fragColor, viewDir, 0.0, fragSpecular);
     finalColor.a = 1.0;
 
     finalColor = saturate(finalColor);

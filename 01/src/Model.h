@@ -13,8 +13,22 @@ private:
     std::vector<Mesh> meshes_;
     std::string directory_;
 
-    std::vector<ModelTexture> loadMaterialTextures(const ContextWrapper& context, aiMaterial *mat, const aiTextureType type)
-    {
+    static TextureType mapTextureType(const aiTextureType assimpType) {
+        switch (assimpType) {
+            case aiTextureType_DIFFUSE: 
+                return TextureType::Diffuse;
+            case aiTextureType_SPECULAR:
+                return TextureType::Specular;
+            case aiTextureType_AMBIENT:
+                return TextureType::Height;
+            case aiTextureType_HEIGHT:
+                return TextureType::Normal;
+            default: 
+                return TextureType::Unknown;
+        }
+    }
+
+    std::vector<ModelTexture> loadMaterialTextures(const ContextWrapper& context, aiMaterial *mat, const aiTextureType type) {
         std::vector<ModelTexture> textures;
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
             aiString str;
@@ -24,7 +38,7 @@ private:
             const std::wstring dir(directory_.begin(), directory_.end());
             
             Textures::PTexture texture = std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, (dir + L"/" + textureFile).c_str());
-            ModelTexture modelTexture(std::move(texture), type == aiTextureType_DIFFUSE ? TextureType::Diffuse : TextureType::Other);
+            ModelTexture modelTexture(std::move(texture), mapTextureType(type));
             textures.push_back(std::move(modelTexture));
         }
         return textures;
