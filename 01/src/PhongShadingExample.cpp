@@ -1,5 +1,6 @@
 #include "PhongShadingExample.h"
 #include <directxcolors.h>
+#include "WinKeyMap.h"
 
 using namespace DirectX;
 
@@ -53,7 +54,7 @@ void Phong::PhongShadingExample::render() {
     vLightPos = XMVector3Transform(vLightPos, mRotate);
     XMStoreFloat4(&pointLightPositions[0], vLightPos);
 
-    infoText_->setText("To adjust specularity press K/L\nSpecularity: " + std::to_string(shininess_));
+    infoText_->setText("\n To adjust specularity press K/L\n Specularity: " + std::to_string(shininess_));
 
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -154,10 +155,10 @@ void Phong::PhongShadingExample::handleInput() {
 
     float step = 1.f;
 
-    if (GetAsyncKeyState(0x4B) & 1) { // K
+    if (GetAsyncKeyState(WinKeyMap::K) & 1) { // K
         shininess_ -= step;
     }
-    if (GetAsyncKeyState(0x4C) & 1) { // L
+    if (GetAsyncKeyState(WinKeyMap::L) & 1) { // L
         shininess_ += step;
     }
 

@@ -338,6 +338,7 @@
     <ClInclude Include="src\Triangle.h" />
     <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\VertexTypes.h" />
+    <ClInclude Include="src\WinKeyMap.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\BasicTriangle.fx">

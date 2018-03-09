@@ -3,6 +3,7 @@
 #include <minwinbase.h>
 #include "Layouts.h"
 #include "Transform.h"
+#include "WinKeyMap.h"
 
 using namespace DirectX;
 
@@ -24,7 +25,7 @@ HRESULT ShadowsExample::setup() {
     selfCubeInfo_ = std::make_unique<Text::Text>(
         context_.d3dDevice_, 
         context_.immediateContext_, 
-        "To toggle rendering the cube at the camera's position press E\nTo toggle rendering from the light's perspective press Q"
+        "\n E: toggle rendering cube at camera's position\n Q: toggle rendering scene from light's position"
     );
 
     // Textures
@@ -97,10 +98,10 @@ HRESULT ShadowsExample::setup() {
 
 void ShadowsExample::handleInput() {
     BaseExample::handleInput();
-    if (GetAsyncKeyState(0x45) & 1) { // E
+    if (GetAsyncKeyState(WinKeyMap::E) & 1) { // E
         isSelfCubeActive_ = !isSelfCubeActive_;
     }
-    if (GetAsyncKeyState(0x51) & 1) { // Q
+    if (GetAsyncKeyState(WinKeyMap::Q) & 1) { // Q
         drawFromLightView_ = !drawFromLightView_;
     }
 }
