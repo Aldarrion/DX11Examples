@@ -9,7 +9,8 @@ HRESULT ModelLoadingExample::setup() {
     BaseExample::setup();
     //std::string path = "models/rock/rock.obj";
     //std::string path = "models/cyborg/cyborg.obj";
-    std::string path = "models/nanosuit/nanosuit.obj";
+    //std::string path = "models/nanosuit/nanosuit.obj";
+    std::string path = "models/planet/planet.obj";
 
     model_ = std::make_unique<Models::Model>(context_, path);
     shader_ = std::make_unique<ShaderProgram<SpecularCB>>(context_.d3dDevice_, L"shaders/ModelPhong.fx", "VS", L"shaders/ModelPhong.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
