@@ -60,7 +60,7 @@ protected:
     std::unique_ptr<ShadowDisplayShader> shadowMapDisplayShader_;
     std::unique_ptr<PointWrapSampler> pointSampler_;
 
-    std::unique_ptr<Text::Text> selfCubeInfo_;
+    std::unique_ptr<Text::Text> infoText_;
     bool isSelfCubeActive_ = true;
     bool drawFromLightView_ = false;
 
