@@ -8,7 +8,6 @@ using namespace DirectX;
 HRESULT ModelLoadingExample::setup() {
     BaseExample::setup();
     //std::string path = "models/rock/rock.obj";
-    //std::string path = "models/box.obj";
     //std::string path = "models/cyborg/cyborg.obj";
     std::string path = "models/nanosuit/nanosuit.obj";
 
