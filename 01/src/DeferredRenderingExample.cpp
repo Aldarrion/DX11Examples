@@ -168,7 +168,7 @@ void DeferredRenderingExample::render() {
 
     context_.immediateContext_->OMSetRenderTargets(3, views.data(), depthBufferDepthView_);
     for (auto& view : views) {
-        context_.immediateContext_->ClearRenderTargetView(view, Colors::MidnightBlue);
+        context_.immediateContext_->ClearRenderTargetView(view, Colors::Black);
     }
     context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
@@ -189,7 +189,7 @@ void DeferredRenderingExample::render() {
     // Render final quad
     // =================
     context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::Black);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
     
     frameTimeText_->setText("Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000));
