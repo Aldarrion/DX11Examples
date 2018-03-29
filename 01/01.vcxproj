@@ -290,6 +290,7 @@
     <ClCompile Include="src\BasicTriangleExample.cpp" />
     <ClCompile Include="src\BillboardExample.cpp" />
     <ClCompile Include="src\DDSTextureLoader.cpp" />
+    <ClCompile Include="src\DeferredRenderingExample.cpp" />
     <ClCompile Include="src\Example.cpp" />
     <ClCompile Include="src\FontRenderingExample.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
@@ -312,6 +313,7 @@
     <ClInclude Include="src\ConstantBuffers.h" />
     <ClInclude Include="src\ContextWrapper.h" />
     <ClInclude Include="src\DDSTextureLoader.h" />
+    <ClInclude Include="src\DeferredRenderingExample.h" />
     <ClInclude Include="src\DrawableObject.h" />
     <ClInclude Include="src\Exceptions.h" />
     <ClInclude Include="src\Font.h" />
@@ -398,6 +400,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="shaders\DeferredShader.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="shaders\ShadowMapQuadShader.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -417,6 +423,10 @@
     <FxCompile Include="shaders\Solid.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\DeferredGBuffer.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
