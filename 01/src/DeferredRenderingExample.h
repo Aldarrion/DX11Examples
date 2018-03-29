@@ -5,6 +5,8 @@
 #include "Quad.h"
 #include "Model.h"
 #include "PointWrapSampler.h"
+#include "Transform.h"
+#include "Text.h"
 
 namespace Deferred {
 
@@ -22,10 +24,11 @@ struct UnlitCB {
     DirectX::XMMATRIX NormalMatrix;
 };
 
+#define NUM_LIGHTS 32
+
 struct DeferredLightCB {
-    DirectX::XMMATRIX Pad;
-    DirectX::XMFLOAT4 LightPos;
-    DirectX::XMFLOAT4 LightCol;
+    PointLight Lights[NUM_LIGHTS];
+    DirectX::XMFLOAT4 ViewPos;
 };
 
 class DeferredRenderingExample : public BaseExample {
@@ -60,6 +63,11 @@ protected:
 
     Samplers::PAnisotropicSampler anisoSampler_;
     std::unique_ptr<PointWrapSampler> pointSampler_;
+
+    std::array<PointLight, NUM_LIGHTS> lights_;
+    std::vector<Transform> modelTransforms_;
+
+    std::unique_ptr<Text::Text> frameTimeText_;
 
     HRESULT setup() override;    
     void render() override;

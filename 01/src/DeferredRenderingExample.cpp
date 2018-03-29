@@ -1,4 +1,5 @@
 #include "DeferredRenderingExample.h"
+#include <algorithm>
 
 namespace Deferred {
 
@@ -120,6 +121,8 @@ HRESULT DeferredRenderingExample::setup() {
     // ====================
     // Other initialization
     // ====================
+    frameTimeText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
+
     std::string path = "models/nanosuit/nanosuit.obj";
     model_ = std::make_unique<Models::Model>(context_, path);
 
@@ -130,6 +133,26 @@ HRESULT DeferredRenderingExample::setup() {
     pointSampler_ = std::make_unique<PointWrapSampler>(context_.d3dDevice_);
 
     quad_ = std::make_unique<Quad>(context_.d3dDevice_);
+
+    srand(42);
+    for (auto& light : lights_) {
+        // calculate slightly random offsets
+        const float xPos = ((rand() % 100) / 100.0) * 6.0 - 3.0;
+        const float yPos = ((rand() % 100) / 100.0) * 6.0 - 4.0;
+        const float zPos = ((rand() % 100) / 100.0) * 6.0 - 3.0;
+        light.Position = XMFLOAT4(xPos, yPos, zPos, 1.0f);
+        // also calculate random color
+        const float rColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+        const float gColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+        const float bColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+        light.Color = XMFLOAT4(rColor, gColor, bColor, 1.0f);
+    }
+
+    for (int x = -2; x < 2; x++) {
+        for (int z = -2; z < 2; z++) {
+            modelTransforms_.emplace_back(XMFLOAT3(x * 7, 0.0, z * 5));
+        }
+    }
 
     return S_OK;
 }
@@ -150,25 +173,31 @@ void DeferredRenderingExample::render() {
     context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     GShaderCB gscb;
-    gscb.World = XMMatrixIdentity();
-    gscb.NormalMatrix = XMMatrixTranspose(computeNormalMatrix(gscb.World));
     gscb.View = XMMatrixTranspose(camera_.getViewMatrix());
     gscb.Projection = XMMatrixTranspose(projection_);
 
     gShader_->use(context_.immediateContext_);
-    gShader_->updateConstantBuffer(context_.immediateContext_, gscb);
     anisoSampler_->use(context_.immediateContext_, 0);
-    model_->draw(context_.immediateContext_);
+    for (const auto& transform : modelTransforms_) {
+        gscb.World = XMMatrixTranspose(transform.generateModelMatrix());
+        gscb.NormalMatrix = XMMatrixTranspose(computeNormalMatrix(gscb.World));
+        gShader_->updateConstantBuffer(context_.immediateContext_, gscb);
+        model_->draw(context_.immediateContext_);
+    }
 
     // =================
     // Render final quad
     // =================
-    DeferredLightCB lightCb;
-    lightCb.LightPos = XMFLOAT4(-30.0f, 30.0f, -30.0f, 1.0f);
-    lightCb.LightCol = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    
+    frameTimeText_->setText("Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000));
+    frameTimeText_->draw(context_.immediateContext_, context_.getAspectRatio());
+    
+    DeferredLightCB lightCb;
+    std::copy(lights_.begin(), lights_.end(), lightCb.Lights);
+    lightCb.ViewPos = XMFLOAT4(camera_.Position.x, camera_.Position.y, camera_.Position.z, 1.0f);
     context_.immediateContext_->PSSetShaderResources(0, 1, &gPositionRV_);
     context_.immediateContext_->PSSetShaderResources(1, 1, &gNormalRV_);
     context_.immediateContext_->PSSetShaderResources(2, 1, &gAlbedoRV_);

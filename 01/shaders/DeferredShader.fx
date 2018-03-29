@@ -1,3 +1,5 @@
+#include "PhongLights.fx"
+
 Texture2D gPosition : register(t0);
 Texture2D gNormal : register(t1);
 Texture2D gAlbedo : register(t2);
@@ -5,10 +7,11 @@ Texture2D gAlbedo : register(t2);
 SamplerState txSampler : register(s0);
 SamplerState pointSampler : register(s1);
 
+#define NUM_LIGHTS 32
+
 cbuffer ConstantBuffer : register(b0) {
-    matrix Pad;
-    float4 LightPos;
-    float4 LightCol;
+    PointLight lights[NUM_LIGHTS];
+    float4 ViewPos;
 }
 
 struct VS_INPUT {
@@ -42,23 +45,15 @@ float4 PS(PS_INPUT input) : SV_Target {
     float3 Normal = gNormal.Sample(pointSampler, input.Tex).rgb;
     float3 Diffuse = gAlbedo.Sample(pointSampler, input.Tex).rgb;
 
-    // Then calculate lighting as usual
-    float3 ambient = 0.3 * LightCol.rgb;
-    
-    // Diffuse
-    float3 lightDir = normalize(LightPos.xyz);
-    float3 diffuse = max(dot(Normal, lightDir), 0.0) * LightCol.rgb;
-    // Specular
+    // Calculate lighting as usual
+    float3 viewDir = normalize(ViewPos - FragPos);
 
-    float3 viewDir = normalize(-FragPos);
-    float3 reflectDir = reflect(-lightDir, Normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    float3 specular = spec * LightCol.rgb;
+    float4 finalColor = float4(0.0, 0.0, 0.0, 0.0);
+    for (int i = 0; i < NUM_LIGHTS; i++) {
+        finalColor += CalcPointLight(lights[i], Normal, FragPos, float4(Diffuse, 1.0), viewDir);
+    }
 
-    //lighting += diffuse + specular;
-    float3 lighting = (ambient + diffuse + specular) * Diffuse;
+    //return float4(Normal, 1);
 
-    //return float4(Normal, 1.0);
-    //return LightCol;
-    return saturate(float4(lighting, 1.0));
+    return saturate(finalColor);
 }
