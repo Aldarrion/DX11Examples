@@ -39,8 +39,8 @@ public:
 
     // Constructor with vectors
     explicit Camera(
-        const dx::XMFLOAT3 position = dx::XMFLOAT3(0.0f, 0.0f, 0.0f),
-        const dx::XMFLOAT3 up = dx::XMFLOAT3(0.0f, 1.0f, 0.0f), 
+        const dx::XMFLOAT3& position = dx::XMFLOAT3(0.0f, 0.0f, 0.0f),
+        const dx::XMFLOAT3& up = dx::XMFLOAT3(0.0f, 1.0f, 0.0f),
         const float yaw = YAW,
         const float pitch = PITCH
     )
@@ -48,11 +48,7 @@ public:
             , MovementSpeed(SPEED)
             , MouseSensitivity(SENSITIVTY)
             , Zoom(ZOOM) {
-        Position = position;
-        WorldUp = up;
-        Yaw = yaw;
-        Pitch = pitch;
-        updateCameraVectors();
+        positionCamera(position, up, yaw, pitch);
     }
 
     // Constructor with scalar values
@@ -65,6 +61,24 @@ public:
         WorldUp = dx::XMFLOAT3(upX, upY, upZ);
         Yaw = yaw;
         Pitch = pitch;
+        updateCameraVectors();
+    }
+
+    void positionCamera(
+            const dx::XMFLOAT3& position,
+            const dx::XMFLOAT3& up,
+            const float yaw,
+            const float pitch
+    ) {
+        Position = position;
+        WorldUp = up;
+        Yaw = yaw;
+        Pitch = pitch;
+        updateCameraVectors();
+    }
+
+    void setPosition(const dx::XMFLOAT3& position) {
+        Position = position;
         updateCameraVectors();
     }
 

@@ -7,6 +7,8 @@
 #include "PointWrapSampler.h"
 #include "Transform.h"
 #include "Text.h"
+#include "ColorCube.h"
+#include "WinKeyMap.h"
 
 namespace Deferred {
 
@@ -24,11 +26,24 @@ struct UnlitCB {
     DirectX::XMMATRIX NormalMatrix;
 };
 
-#define NUM_LIGHTS 32
+#define NUM_LIGHTS 256
 
 struct DeferredLightCB {
     PointLight Lights[NUM_LIGHTS];
     DirectX::XMFLOAT4 ViewPos;
+};
+
+struct ForwardCB {
+    DirectX::XMMATRIX World;
+    DirectX::XMMATRIX View;
+    DirectX::XMMATRIX Projection;
+    DirectX::XMMATRIX NormalMatrix;
+    PointLight Lights[NUM_LIGHTS];
+    DirectX::XMFLOAT3 ViewPos;
+};
+
+struct GBufferDisplayCB {
+    DirectX::XMMATRIX World;
 };
 
 class DeferredRenderingExample : public BaseExample {
@@ -48,6 +63,8 @@ protected:
     ID3D11ShaderResourceView* gNormalRV_ = nullptr;
     ID3D11ShaderResourceView* gAlbedoRV_ = nullptr;
 
+    bool isDeferredRendering_ = true;
+
     // Shaders
     using GShader = ShaderProgram<GShaderCB>;
     using UnlitShader = ShaderProgram<UnlitCB>;
@@ -58,6 +75,18 @@ protected:
     PGShader gShader_;
     PDeferredShader defferedLightShader_;
 
+    using ForwardShader = ShaderProgram<ForwardCB>;
+    using PForwardShader = std::unique_ptr<ForwardShader>;
+
+    PForwardShader forwardShader_;
+    Shaders::PSolidShader lightShader_;
+
+    using GBufferDisplayShader = ShaderProgram<GBufferDisplayCB>;
+    using PGBufferDisplayShader = std::unique_ptr<GBufferDisplayShader>;
+
+    PGBufferDisplayShader gBufferDisplayShader_;
+
+    std::unique_ptr<ColorCube> colorCube_;
     std::unique_ptr<Models::Model> model_;
     std::unique_ptr<Quad> quad_;
 
@@ -67,9 +96,18 @@ protected:
     std::array<PointLight, NUM_LIGHTS> lights_;
     std::vector<Transform> modelTransforms_;
 
-    std::unique_ptr<Text::Text> frameTimeText_;
+    WinKeyMap::WinKeyMap switchRenderingModeKey_ = WinKeyMap::R;
+    std::unique_ptr<Text::Text> infoText_;
 
-    HRESULT setup() override;    
+    HRESULT setup() override;
+    void handleInput() override;
     void render() override;
+
+    void drawText() const;
+    void renderLights() const;
+    void drawGBufferDisplays() const;
+
+    void renderDeferred();
+    void renderForward();
 };
 }

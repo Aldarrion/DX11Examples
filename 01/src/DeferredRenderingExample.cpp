@@ -1,9 +1,14 @@
 #include "DeferredRenderingExample.h"
 #include <algorithm>
+#include "WinKeyMap.h"
 
 namespace Deferred {
 
 using namespace DirectX;
+
+/*
+ * All ligths and objects in this example are considered dynamic. For static objects and lights we could bake the lighting.
+ */
 
 HRESULT DeferredRenderingExample::setup() {
     BaseExample::setup();
@@ -121,13 +126,17 @@ HRESULT DeferredRenderingExample::setup() {
     // ====================
     // Other initialization
     // ====================
-    frameTimeText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
+    infoText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
 
     std::string path = "models/nanosuit/nanosuit.obj";
     model_ = std::make_unique<Models::Model>(context_, path);
+    colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     gShader_ = std::make_unique<GShader>(context_.d3dDevice_, L"shaders/DeferredGBuffer.fx", "VS", L"shaders/DeferredGBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
     defferedLightShader_ = std::make_unique<DefferedShader>(context_.d3dDevice_, L"shaders/DeferredShader.fx", "VS", L"shaders/DeferredShader.fx", "PS", Layouts::POS_UV_LAYOUT);
+    forwardShader_ = std::make_unique<ForwardShader>(context_.d3dDevice_, L"shaders/ForwardShader.fx", "VS", L"shaders/ForwardShader.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
+    lightShader_ = Shaders::createSolidShader(context_);
+    gBufferDisplayShader_ = std::make_unique<GBufferDisplayShader>(context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
 
     anisoSampler_ = Samplers::createAnisoSampler(context_);
     pointSampler_ = std::make_unique<PointWrapSampler>(context_.d3dDevice_);
@@ -137,36 +146,114 @@ HRESULT DeferredRenderingExample::setup() {
     srand(42);
     for (auto& light : lights_) {
         // calculate slightly random offsets
-        const float xPos = ((rand() % 100) / 100.0) * 6.0 - 3.0;
-        const float yPos = ((rand() % 100) / 100.0) * 6.0 - 4.0;
-        const float zPos = ((rand() % 100) / 100.0) * 6.0 - 3.0;
+        const float xPos = ((rand() % 100) / 100.0) * 32.0 - 16.0;
+        const float yPos = ((rand() % 100) / 100.0) * 32.0 - 10.0;
+        const float zPos = ((rand() % 100) / 100.0) * 32.0 - 16.0;
         light.Position = XMFLOAT4(xPos, yPos, zPos, 1.0f);
         // also calculate random color
-        const float rColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
-        const float gColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
-        const float bColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+        const float rColor = ((rand() % 100) / 800.0f);// + 0.5; // between 0.5 and 1.0
+        const float gColor = ((rand() % 100) / 800.0f);// + 0.5; // between 0.5 and 1.0
+        const float bColor = ((rand() % 100) / 800.0f);// + 0.5; // between 0.5 and 1.0
         light.Color = XMFLOAT4(rColor, gColor, bColor, 1.0f);
     }
 
-    for (int x = -2; x < 2; x++) {
-        for (int z = -2; z < 2; z++) {
+    for (int x = -3; x < 3; x++) {
+        for (int z = -3; z < 3; z++) {
             modelTransforms_.emplace_back(XMFLOAT3(x * 7, 0.0, z * 5));
         }
     }
 
+    camera_.positionCamera(
+        XMFLOAT3(17.8f, 18.3f, -18.2f),
+        XMFLOAT3(0.0f, 1.0f, 0.0f),
+        -40.6000977f,
+        17.0000191
+    );
+
     return S_OK;
+}
+
+void DeferredRenderingExample::handleInput() {
+    BaseExample::handleInput();
+
+    if (GetAsyncKeyState(switchRenderingModeKey_) & 1) {
+        isDeferredRendering_ = !isDeferredRendering_;
+    }
 }
 
 void DeferredRenderingExample::render() {
     BaseExample::render();
 
+    if (isDeferredRendering_) {
+        renderDeferred();
+    } else {
+        renderForward();
+    }
+}
+
+void DeferredRenderingExample::drawText() const {
+    using std::to_string;
+    infoText_->setText(
+        "\n " + to_string(switchRenderingModeKey_) + ": switch rendering mode."
+        + "\n Frame time is a SMA, it takes a few sec to stabilize. Models: " + to_string(modelTransforms_.size()) + " Lights: " + to_string(NUM_LIGHTS)
+        + "\n\n Frame time (ms): " + to_string(deltaTimeSMA_ * 1000)
+        + "\n Is dffered rendering: " + to_string(isDeferredRendering_)
+    );
+    infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
+}
+
+void DeferredRenderingExample::renderLights() const {
+    const XMMATRIX lightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+    ConstantBuffers::SolidConstBuffer solidCb;
+    solidCb.View = XMMatrixTranspose(camera_.getViewMatrix());
+    solidCb.Projection = XMMatrixTranspose(projection_);
+    lightShader_->use(context_.immediateContext_);
+    for (const auto& light : lights_) {
+        solidCb.OutputColor = light.Color;
+        solidCb.World = XMMatrixTranspose(lightScale * XMMatrixTranslationFromVector(XMLoadFloat4(&light.Position)));
+        lightShader_->updateConstantBuffer(context_.immediateContext_, solidCb);
+        colorCube_->draw(context_.immediateContext_);
+    }
+}
+
+void DeferredRenderingExample::drawGBufferDisplays() const {
+    std::array<ID3D11ShaderResourceView*, 3> gBufferViews = {
+        gPositionRV_,
+        gNormalRV_,
+        gAlbedoRV_
+    };
+    
+    const float mapDisplaySize = 0.2f;
+
+    for (size_t i = 0; i < gBufferViews.size(); ++i) {
+        Transform shadowMapDisplayTransform(
+            XMFLOAT3(1 - mapDisplaySize, -1 + mapDisplaySize * (i * 2 + 1), 0),
+            XMFLOAT3(0, 0, 0),
+            XMFLOAT3(mapDisplaySize, mapDisplaySize, mapDisplaySize)
+        );
+        GBufferDisplayCB gbdcb;
+        gbdcb.World = XMMatrixTranspose(shadowMapDisplayTransform.generateModelMatrix());
+
+        gBufferDisplayShader_->use(context_.immediateContext_);
+        gBufferDisplayShader_->updateConstantBuffer(context_.immediateContext_, gbdcb);
+        context_.immediateContext_->PSSetShaderResources(0, 1, &gBufferViews[i]);
+        pointSampler_->use(context_.immediateContext_, 0);
+        quad_->draw(context_.immediateContext_);
+    }
+}
+
+void DeferredRenderingExample::renderDeferred() {
+    // ===========================================
+    // Render infromation to geometry buffer views
+    // ===========================================
     std::array<ID3D11RenderTargetView*, 3> views = {
         gPositionView_,
         gNormalView_,
         gAlbedoView_
     };
-
-    context_.immediateContext_->OMSetRenderTargets(3, views.data(), depthBufferDepthView_);
+    
+    // Set multiple rendering targets
+    context_.immediateContext_->OMSetRenderTargets(views.size(), views.data(), depthBufferDepthView_);
     for (auto& view : views) {
         context_.immediateContext_->ClearRenderTargetView(view, Colors::Black);
     }
@@ -185,19 +272,19 @@ void DeferredRenderingExample::render() {
         model_->draw(context_.immediateContext_);
     }
 
+
     // =================
     // Render final quad
     // =================
     context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::Black);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
-    
-    frameTimeText_->setText("Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000));
-    frameTimeText_->draw(context_.immediateContext_, context_.getAspectRatio());
-    
+
     DeferredLightCB lightCb;
     std::copy(lights_.begin(), lights_.end(), lightCb.Lights);
     lightCb.ViewPos = XMFLOAT4(camera_.Position.x, camera_.Position.y, camera_.Position.z, 1.0f);
+    
+    // Set geometry buffer data as input to deferred lighting pass
     context_.immediateContext_->PSSetShaderResources(0, 1, &gPositionRV_);
     context_.immediateContext_->PSSetShaderResources(1, 1, &gNormalRV_);
     context_.immediateContext_->PSSetShaderResources(2, 1, &gAlbedoRV_);
@@ -208,6 +295,45 @@ void DeferredRenderingExample::render() {
     pointSampler_->use(context_.immediateContext_, 1);
 
     quad_->draw(context_.immediateContext_);
+
+
+    // ====================================================
+    // Forward pass to render the cubes representing lights
+    // ====================================================
+    // Set depth information from the geometry pass 
+    context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, depthBufferDepthView_);
+    renderLights();
+
+    // Render other billboards 
+    drawGBufferDisplays();
+    drawText();
+
+    context_.swapChain_->Present(0, 0);
+}
+
+void DeferredRenderingExample::renderForward() {
+    context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::Black);
+    context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    drawText();
+
+    anisoSampler_->use(context_.immediateContext_, 0);
+    forwardShader_->use(context_.immediateContext_);
+
+    ForwardCB cb;
+    cb.View = XMMatrixTranspose(camera_.getViewMatrix());
+    cb.Projection = XMMatrixTranspose(projection_);
+    std::copy(lights_.begin(), lights_.end(), cb.Lights);
+    cb.ViewPos = camera_.Position;
+    for (const auto& transform : modelTransforms_) {
+        cb.World = XMMatrixTranspose(transform.generateModelMatrix());
+        cb.NormalMatrix = XMMatrixTranspose(computeNormalMatrix(cb.World));
+        forwardShader_->updateConstantBuffer(context_.immediateContext_, cb);
+        model_->draw(context_.immediateContext_);
+    }
+
+    renderLights();
 
     context_.swapChain_->Present(0, 0);
 }

@@ -19,7 +19,7 @@ struct VS_INPUT {
 struct PS_INPUT {
     float4 Pos : SV_POSITION;
     float3 Norm : TEXCOORD0;
-    float3 FragViewPos : POSITION;
+    float3 FragWorldPos : POSITION;
     float2 UV : TEXCOORD1;
 };
 
@@ -36,8 +36,7 @@ PS_INPUT VS(VS_INPUT input) {
 
     output.Norm = mul(float4(input.Norm, 0), NormalMatrix).xyz;
 
-    output.FragViewPos = mul(input.Pos, World);
-    output.FragViewPos = mul(output.FragViewPos, View);
+    output.FragWorldPos = mul(input.Pos, World);
 
     output.UV = input.UV;
 
@@ -55,7 +54,7 @@ struct PS_OUTPUT {
 // ============
 PS_OUTPUT PS(PS_INPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Position = float4(input.FragViewPos.xyz, 1);
+    output.Position = float4(input.FragWorldPos.xyz, 1);
     output.Normal = float4(normalize(input.Norm), 1);
     output.Color = texDiffuse.Sample(txSampler, input.UV);
     //output.Color = float4(0.95, 0.95, 0.95, 1.0);
