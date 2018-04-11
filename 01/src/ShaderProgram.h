@@ -147,7 +147,7 @@ public:
         if (pixelShader_) pixelShader_->Release();
         if (geometryShader_) geometryShader_->Release();
         if (inputLayout_) inputLayout_->Release();
-        if (cbuffers_.size()) {
+        if (!cbuffers_.empty()) {
             for (auto cbuffer : cbuffers_) {
                 cbuffer->Release();
             }
@@ -157,19 +157,19 @@ public:
     void use(ID3D11DeviceContext* context) const {
         context->IASetInputLayout(inputLayout_);
         context->VSSetShader(vertexShader_, nullptr, 0);
-        if (cbuffers_.size()) {
+        if (!cbuffers_.empty()) {
             for (auto cbuffer : cbuffers_) {
                 context->VSSetConstantBuffers(0, 1, &cbuffer);
             }
         }
         context->GSSetShader(geometryShader_, nullptr, 0);
-        if (geometryShader_ && cbuffers_.size()) {
+        if (geometryShader_ && !cbuffers_.empty()) {
             for (auto cbuffer : cbuffers_) {
                 context->GSSetConstantBuffers(0, 1, &cbuffer);
             }
         }
         context->PSSetShader(pixelShader_, nullptr, 0);
-        if (cbuffers_.size()) {
+        if (!cbuffers_.empty()) {
             for (auto cbuffer : cbuffers_) {
                 context->PSSetConstantBuffers(0, 1, &cbuffer);
             }
@@ -247,7 +247,6 @@ private:
 namespace Shaders {
     using SolidShader = ShaderProgram<ConstantBuffers::SolidConstBuffer>;
     using PSolidShader = std::unique_ptr<SolidShader>;
-
     inline PSolidShader createSolidShader(const ContextWrapper& context) {
         return std::make_unique<SolidShader>(context.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
     }
