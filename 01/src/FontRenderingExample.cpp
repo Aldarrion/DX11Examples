@@ -3,7 +3,7 @@
 namespace FontRendering {
 
 std::string specString() {
-    return "To adjust specularity press K/L: ";
+    return "No way to adjust specularity here: ";
 }
 
 std::string frameTimeString(float time) {

@@ -16,6 +16,13 @@ HRESULT SpecularMapExample::setup() {
     sampler_ = Samplers::createAnisoSampler(context_);
     cube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
 
+    camera_.positionCamera(
+        XMFLOAT3(7.50966454f, -4.39316130f, -6.65817976f),
+        XMFLOAT3(0.0f, 0.1f, 0.0f),
+        -46.8005867f,
+        -25.4000607f
+    );
+
     return S_OK;
 }
 

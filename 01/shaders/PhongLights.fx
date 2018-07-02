@@ -41,9 +41,18 @@ float4 CalcDirLight(DirLight light, float3 normal, float4 fragColor, float3 view
     return finalColor;
 }
 
-float4 CalcPointLight(PointLight light, float3 normal, float3 fragPos, float4 fragColor, float3 viewDir, float4 specularity = 1.0, float exponent = SHININESS) {
+float4 CalcPointLight(
+    PointLight light,
+    float3 normal,
+    float3 fragPos,
+    float4 fragColor,
+    float3 viewDir,
+    float4 specularity = 1.0,
+    float exponent = SHININESS,
+    float ambientStr = 0.1
+) {
     // ambient
-    float ambientStrength = 0.1;
+    float ambientStrength = ambientStr;
     float3 ambient = mul(ambientStrength, light.Color);
 
     // diffuse

@@ -170,7 +170,7 @@ void ShadowsExample::render() {
         // ===========================
         // Draw the shadow map display
         // ===========================
-        float mapDisplaySize = 0.2f;
+        const float mapDisplaySize = 0.2f;
         Transform shadowMapDisplayTransform(
             XMFLOAT3(1 - mapDisplaySize, -1 + mapDisplaySize * context_.getAspectRatio(), 0),
             XMFLOAT3(0, 0, 0),
