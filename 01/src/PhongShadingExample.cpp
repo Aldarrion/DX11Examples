@@ -1,5 +1,5 @@
 #include "PhongShadingExample.h"
-#include <directxcolors.h>
+#include <DirectXColors.h>
 #include "WinKeyMap.h"
 
 using namespace DirectX;
@@ -162,5 +162,5 @@ void Phong::PhongShadingExample::handleInput() {
         shininess_ += step;
     }
 
-    shininess_ = max(1.f, min(shininess_, 256.0f));
+    shininess_ = std::max(1.f, std::min(shininess_, 256.0f));
 }

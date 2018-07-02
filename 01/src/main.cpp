@@ -1,5 +1,3 @@
-#include <windows.h>
-
 #include "Example.h"
 #include "BaseExample.h"
 #include "PhongShadingExample.h"

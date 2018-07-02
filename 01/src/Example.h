@@ -1,4 +1,6 @@
 #pragma once
+#define NOMINMAX // Disable Windows min() max() macros
+
 #include "ContextWrapper.h"
 
 #include "Mouse.h"
