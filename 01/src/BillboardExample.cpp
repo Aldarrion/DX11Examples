@@ -2,6 +2,7 @@
 #include <directxcolors.h>
 #include "Layouts.h"
 #include "Transform.h"
+#include "WinKeyMap.h"
 
 // Uncomment to see non instanced version
 // Recommended to run in Release mode
@@ -141,10 +142,19 @@ HRESULT BillboardExample::setup() {
     return S_OK;
 }
 
+void BillboardExample::handleInput() {
+    BaseExample::handleInput();
+    if (GetAsyncKeyState(WinKeyMap::E) & 1) {
+        isInstanced_ = !isInstanced_;
+    }
+}
+
 void BillboardExample::render() {
     BaseExample::render();
 
-    frameTimeText_->setText("Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000));
+    frameTimeText_->setText("Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000) + 
+        "\n E: toggle instanced rendering. Is instanced: " + std::to_string(isInstanced_)
+    );
 
     const Transform planeTransform(XMFLOAT3(0.0, -4.0f, 0.0f), XMFLOAT3(), XMFLOAT3(20.0f, 2.2f, 20.0f));
     const Transform grassTransform(XMFLOAT3(0.0, -1.3f, 0.0f));
@@ -170,17 +180,16 @@ void BillboardExample::render() {
         plane_->draw(context_.immediateContext_);
     }
 
-#if defined(BILLBOARD_EXAMPLE_NON_INSTANCED)
+    // Instanced rendering breaks out of this loop
     for (const auto& t : grassPositions_)
-#endif
     {
-#if defined(BILLBOARD_EXAMPLE_NON_INSTANCED)
-        cb.World = t;
-        cb.IsInstanced = 0;
-#else
-        cb.World = XMMatrixTranspose(grassTransform.generateModelMatrix());
-        cb.IsInstanced = 1;
-#endif
+        if (isInstanced_) {
+            cb.World = XMMatrixTranspose(grassTransform.generateModelMatrix());
+            cb.IsInstanced = 1;
+        } else {
+            cb.World = t;
+            cb.IsInstanced = 0;
+        }
         cb.NormalMatrix = computeNormalMatrix(cb.World);
         cb.GrassModels[0] = XMMatrixIdentity();
         cb.GrassModels[1] = XMMatrixTranspose(grass1Trasform.generateModelMatrix());
@@ -197,11 +206,12 @@ void BillboardExample::render() {
         UINT offset = 0;
         context_.immediateContext_->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
         context_.immediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-#if defined(BILLBOARD_EXAMPLE_NON_INSTANCED)
-        context_.immediateContext_->Draw(1, 0);
-#else
-        context_.immediateContext_->DrawInstanced(1, static_cast<UINT>(grassPositions_.size()), 0, 0);
-#endif
+        if (isInstanced_) {
+            context_.immediateContext_->DrawInstanced(1, static_cast<UINT>(grassPositions_.size()), 0, 0);
+            break; // Instanced rendering does not use the for loop
+        } else {
+            context_.immediateContext_->Draw(1, 0);
+        }
     }
 
     context_.swapChain_->Present(0, 0);

@@ -23,6 +23,8 @@ struct BillboardCBuffer {
 
 class BillboardExample : public BaseExample {
 protected:
+    bool isInstanced_ = false;
+
     using BillboardShader = ShaderProgram<BillboardCBuffer>;
     using TextureShader = ShaderProgram<BillboardCBuffer>;
 
@@ -38,6 +40,7 @@ protected:
     ID3D11Buffer* vertexBuffer_ = nullptr;
 
     HRESULT setup() override;
+    void handleInput() override;
     void render() override;
 };
 }
