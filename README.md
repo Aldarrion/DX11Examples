@@ -1,5 +1,7 @@
 # DirectX examples
-This repository serves as an introduction to DirectX 11 graphics API. First, basic "Hello World" triangle is introduced. Then, each example presents a certain technique and many of the previously explained API calls are abstracted away to our custom framework we build along the way.
+This repository serves as an introduction to DirectX 11 graphics API. It also provides a basic framework for fast prototyping of new examples and trying out new techniques.
+
+First, basic "Hello World" triangle is introduced. Then, each example presents a certain technique and many of the previously explained API calls are abstracted away to a custom framework we build along the way.
 
 ## Getting started
 The things you need
