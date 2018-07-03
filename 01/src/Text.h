@@ -22,6 +22,7 @@ private:
     Font font_;
     float sizeMultiplier_ = 1.0f;
     DirectX::XMFLOAT2 position_;
+    float lineSpacing_ = 0.2f;
 
 public:
     Text(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text)
@@ -45,6 +46,10 @@ public:
         position_ = position;
     }
 
+    void setLineSpacing(const float lineSpacing) {
+        lineSpacing_ = lineSpacing;
+    }
+
     float getAbsoluteWidth() const {
         return font_.getWidthSizeScale() * sizeMultiplier_;
     }
@@ -53,20 +58,20 @@ public:
         return font_.getHeightSizeScale() * sizeMultiplier_;
     }
 
-    void draw(ID3D11DeviceContext* context, float aspectRatio) {
+    void draw(ID3D11DeviceContext* context, const float aspectRatio) {
         using namespace DirectX;
         XMMATRIX aspectCorrection = XMMatrixScalingFromVector({ 1, aspectRatio, 1 });
         aspectCorrection = aspectCorrection * XMMatrixScalingFromVector({ 1, 1 / font_.getFontAspectRatio(), 1 });
 
-        float finalSizeScale = getAbsoluteWidth();
+        const float finalSizeScale = getAbsoluteWidth();
 
         font_.use(context);
         fontShader_.use(context);
 
         int column = 0;
         int row = 0;
-        for (int i = 0; i < text_.size(); ++i) {
-            if (text_[i] == '\n') {
+        for (const char i : text_) {
+            if (i == '\n') {
                 column = 0;
                 ++row;
                 continue;
@@ -77,13 +82,13 @@ public:
                 // Left + half letter width to align + which column in the text + position specified
                 -1.0f + getAbsoluteWidth() / 2.0f + column * getAbsoluteWidth() + position_.x,
                 // Top + half letter height to align + which row in the text + position specified
-                1.0f - getAbsoluteHeight() / 2.0f - row * getAbsoluteHeight() - position_.y,
+                1.0f - getAbsoluteHeight() / 2.0f - row * (getAbsoluteHeight() + (lineSpacing_ * getAbsoluteHeight())) - position_.y,
                 0
             });
 
-            GlyphCb cb;
+            GlyphCb cb{};
             cb.Model = XMMatrixTranspose(model);
-            cb.UVWH = font_.getUVWH(text_[i]);
+            cb.UVWH = font_.getUVWH(i);
 
             fontShader_.updateConstantBuffer(context, cb);
             
