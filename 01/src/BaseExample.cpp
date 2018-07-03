@@ -31,17 +31,17 @@ void BaseExample::handleInput() {
         camera_.ProcessKeyboard(CameraMovement::DOWN, deltaTime_);
     }
 
-	auto mouse = mouse_->GetState();
-	if (GetAsyncKeyState(WinKeyMap::M) & 1) {
-		if (mouse.positionMode == Mouse::MODE_RELATIVE)	{
-			mouse_->SetMode(Mouse::MODE_ABSOLUTE);
-		} else {
-			mouse_->SetMode(Mouse::MODE_RELATIVE);
-		}
-	}
-    
-    if (mouse.positionMode == Mouse::MODE_RELATIVE) {
-        camera_.ProcessMouseMovement(static_cast<float>(-mouse.x), static_cast<float>(mouse.y));
+    auto mouseState = mouse_->GetState();
+    if (GetAsyncKeyState(WinKeyMap::M) & 1) {
+        if (mouseState.positionMode == Mouse::MODE_RELATIVE) {
+            mouse_->SetMode(Mouse::MODE_ABSOLUTE);
+        } else {
+            mouse_->SetMode(Mouse::MODE_RELATIVE);
+        }
+    }
+
+    if (mouseState.positionMode == Mouse::MODE_RELATIVE) {
+        camera_.ProcessMouseMovement(static_cast<float>(-mouseState.x), static_cast<float>(mouseState.y));
     }
 }
 
