@@ -10,6 +10,7 @@
 #include "FontRenderingExample.h"
 #include "ModelLoadingExample.h"
 #include "DeferredRenderingExample.h"
+#include "SSAOExample.h"
 
 std::unique_ptr<Example> example;
 
@@ -24,7 +25,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     //example = std::make_unique<Specular::SpecularMapExample>();
     //example = std::make_unique<FontRendering::FontRenderingExample>();
     //example = std::make_unique<ModelLoading::ModelLoadingExample>();
-    example = std::make_unique<Deferred::DeferredRenderingExample>();
+    //example = std::make_unique<Deferred::DeferredRenderingExample>();
+    example = std::make_unique<SSAO::SSAOExample>();
 
     return example->run(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }

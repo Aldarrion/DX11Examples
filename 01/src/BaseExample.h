@@ -2,6 +2,7 @@
 #include "Example.h"
 #include "Camera.h"
 #include <directxcolors.h>
+#include <vector>
 
 class BaseExample : public Example {
 protected:
@@ -22,7 +23,15 @@ protected:
     void render() override;
 
     static DirectX::XMMATRIX computeNormalMatrix(const DirectX::XMMATRIX& model) {
-        return XMMatrixTranspose(XMMatrixInverse(nullptr, (model)));
+        return XMMatrixTranspose(XMMatrixInverse(nullptr, model));
+    }
+
+    static DirectX::XMMATRIX computeNormalMatrix(const std::vector<DirectX::XMMATRIX>& matrices) {
+        DirectX::XMMATRIX multiple = DirectX::XMMatrixIdentity();
+        for(const auto& matrix : matrices) {
+            multiple = XMMatrixMultiply(multiple, XMMatrixTranspose(matrix));
+        }
+        return XMMatrixTranspose(XMMatrixInverse(nullptr, multiple));
     }
 
     void clearViews() const {

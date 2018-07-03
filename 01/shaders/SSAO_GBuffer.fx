@@ -1,7 +1,3 @@
-Texture2D texDiffuse : register(t0);
-
-SamplerState txSampler : register(s0);
-
 cbuffer ConstantBuffer : register(b0) {
     matrix World;
     matrix View;
@@ -19,8 +15,7 @@ struct VS_INPUT {
 struct PS_INPUT {
     float4 Pos : SV_POSITION;
     float3 Norm : TEXCOORD0;
-    float3 FragWorldPos : POSITION;
-    float2 UV : TEXCOORD1;
+    float3 FragViewPos : POSITION;
 };
 
 
@@ -36,9 +31,8 @@ PS_INPUT VS(VS_INPUT input) {
 
     output.Norm = mul(float4(input.Norm, 0), NormalMatrix).xyz;
 
-    output.FragWorldPos = mul(input.Pos, World);
-
-    output.UV = input.UV;
+    float4 fragViewPos = mul(input.Pos, World);
+    output.FragViewPos = mul(fragViewPos, View);
 
     return output;
 }
@@ -54,11 +48,10 @@ struct PS_OUTPUT {
 // ============
 PS_OUTPUT PS(PS_INPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Position = float4(input.FragWorldPos.xyz, 1);
+    output.Position = float4(input.FragViewPos.xyz, 1);
     // Alpha (or w) has to be 1, otherwise we would read alpha blended normal values
     output.Normal = float4(normalize(input.Norm), 1);
-    output.Color = texDiffuse.Sample(txSampler, input.UV);
-    //output.Color = float4(0.95, 0.95, 0.95, 1.0);
+    output.Color = float4(0.95, 0.95, 0.95, 1.0);
 
     return output;
 }
