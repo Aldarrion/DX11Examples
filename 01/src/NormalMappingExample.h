@@ -30,7 +30,6 @@ private:
     Textures::PTexture wallDiffuse_;
     Textures::PTexture wallNormalMap_;
     Samplers::PAnisotropicSampler anisoSampler_;
-    Samplers::PPointWrapSampler pointWrapSampler_;
 
     std::unique_ptr<TexturedCube> cube_;
     std::unique_ptr<PlaneTangentBitangent> plane_;

@@ -56,7 +56,7 @@ void SpecularMapExample::render() {
         boxSpecular_->use(context_.immediateContext_, 1);
         sampler_->use(context_.immediateContext_, 0);
 
-        for (int i = 0; i < cubeTransforms.size(); ++i) {
+        for (size_t i = 0; i < cubeTransforms.size(); ++i) {
             cb.UseSpecular = i & 1;
             cb.World = XMMatrixTranspose(cubeTransforms[i].generateModelMatrix());
             cb.NormalMatrix = computeNormalMatrix(cb.World);
