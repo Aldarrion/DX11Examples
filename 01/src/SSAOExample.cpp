@@ -324,7 +324,7 @@ void SSAO::SSAOExample::render() {
     };
 
     // Set multiple rendering targets
-    context_.immediateContext_->OMSetRenderTargets(views.size(), views.data(), depthBufferDepthView_);
+    context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDepthView_);
     for (auto& view : views) {
         context_.immediateContext_->ClearRenderTargetView(view, Colors::Black);
     }

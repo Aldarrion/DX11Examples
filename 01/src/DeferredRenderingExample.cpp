@@ -146,9 +146,9 @@ HRESULT DeferredRenderingExample::setup() {
     srand(42);
     for (auto& light : lights_) {
         // calculate slightly random offsets
-        const float xPos = ((rand() % 100) / 100.0) * 32.0 - 16.0;
-        const float yPos = ((rand() % 100) / 100.0) * 32.0 - 10.0;
-        const float zPos = ((rand() % 100) / 100.0) * 32.0 - 16.0;
+        const float xPos = static_cast<float>(((rand() % 100) / 100.0) * 32.0 - 16.0);
+        const float yPos = static_cast<float>(((rand() % 100) / 100.0) * 32.0 - 10.0);
+        const float zPos = static_cast<float>(((rand() % 100) / 100.0) * 32.0 - 16.0);
         light.Position = XMFLOAT4(xPos, yPos, zPos, 1.0f);
         // also calculate random color
         const float rColor = ((rand() % 100) / 800.0f);// + 0.5; // between 0.5 and 1.0
@@ -159,7 +159,7 @@ HRESULT DeferredRenderingExample::setup() {
 
     for (int x = -3; x < 3; x++) {
         for (int z = -3; z < 3; z++) {
-            modelTransforms_.emplace_back(XMFLOAT3(x * 7, 0.0, z * 5));
+            modelTransforms_.emplace_back(XMFLOAT3(x * 7.0f, 0.0f, z * 5.0f));
         }
     }
 
@@ -253,7 +253,7 @@ void DeferredRenderingExample::renderDeferred() {
     };
     
     // Set multiple rendering targets
-    context_.immediateContext_->OMSetRenderTargets(views.size(), views.data(), depthBufferDepthView_);
+    context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDepthView_);
     for (auto& view : views) {
         context_.immediateContext_->ClearRenderTargetView(view, Colors::Black);
     }
