@@ -20,4 +20,8 @@ public:
         // DrawableObject will initialize all the buffers for us
         initialize(device, vertices, indices);
     }
+
+    Layouts::VertexLayout_t getVertexLayout() const override {
+        return Layouts::POS_LAYOUT;
+    }
 };

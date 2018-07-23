@@ -83,6 +83,12 @@
     <ClCompile Include="src\SSAOExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
+    <ClCompile Include="src\NormalMappingExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlaneTangentBitangent.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -220,6 +226,9 @@
     <ClInclude Include="src\SSAOExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
+    <ClInclude Include="src\NormalMappingExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">
@@ -294,5 +303,13 @@
     <FxCompile Include="shaders\SSAO_Light.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\NormalMap.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\PlaneTangentBitangent.h">
+      <Filter>Header Files\Objects</Filter>
+    </None>
   </ItemGroup>
 </Project>
