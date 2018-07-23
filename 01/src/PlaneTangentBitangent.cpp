@@ -3,109 +3,88 @@
 PlaneTangentBitangent::PlaneTangentBitangent(ID3D11Device* device) {
     using namespace DirectX;
 
+    // Data for the plane
+    // Surface normal, shared by all the vertices
     const auto normal = XMFLOAT3(0.0f, 0.0f, -1.0f);
 
-    const auto pos1 = XMFLOAT3(-1.0f, 1.0f, 0.0f);
-    const auto pos2 = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-    const auto pos3 = XMFLOAT3(1.0f, -1.0f, 0.0f);
-    const auto pos4 = XMFLOAT3(1.0f, 1.0f, 0.0f);
+    const auto position0 = XMFLOAT3(-1.0f, 1.0f, 0.0f);
+    const auto position1 = XMFLOAT3(-1.0f, -1.0f, 0.0f);
+    const auto position2 = XMFLOAT3(1.0f, -1.0f, 0.0f);
+    const auto position3 = XMFLOAT3(1.0f, 1.0f, 0.0f);
 
-    const auto uv1 = XMFLOAT2(0.0f, 0.0f);
-    const auto uv2 = XMFLOAT2(0.0f, 1.0f);
-    const auto uv3 = XMFLOAT2(1.0f, 1.0f);
-    const auto uv4 = XMFLOAT2(1.0f, 0.0f);
+    const auto uv0 = XMFLOAT2(0.0f, 0.0f);
+    const auto uv1 = XMFLOAT2(0.0f, 1.0f);
+    const auto uv2 = XMFLOAT2(1.0f, 1.0f);
+    const auto uv3 = XMFLOAT2(1.0f, 0.0f);
 
 
-    // ==========
-    // Triangle 1
-    // ==========
-    const auto edge1Vec = XMLoadFloat3(&pos2) - XMLoadFloat3(&pos1);
-    XMFLOAT3 edge1;
-    XMStoreFloat3(&edge1, edge1Vec);
+    /**
+     * Calculate edges. The goal is to be able to create a transformation matrix from the tangent to model space.
+     * To do this we need to calculate the tangent and bitangent vectors which in combination with the normal vector
+     * compose the transformation matrix.
+     * First we calculate tangent and bitangent vectors in model space.
+     * We have points in model space position1, 2, and 3 which we know how to express in terms of tangent and bitangent.
+     * (We know their UV coordinates - in the delta of uv0, uv1 the x is how much tangent we need, y is how much bitangent.)
+     */
+    const auto edge1Vec = XMLoadFloat3(&position1) - XMLoadFloat3(&position0);
+    XMFLOAT3 edge_1;
+    XMStoreFloat3(&edge_1, edge1Vec);
 
-    const auto edge2Vec = XMLoadFloat3(&pos3) - XMLoadFloat3(&pos1);
-    XMFLOAT3 edge2;
-    XMStoreFloat3(&edge2, edge2Vec);
+    const auto edge2Vec = XMLoadFloat3(&position2) - XMLoadFloat3(&position0);
+    XMFLOAT3 edge_2;
+    XMStoreFloat3(&edge_2, edge2Vec);
 
-    const auto deltaUV1Vec = XMLoadFloat2(&uv2) - XMLoadFloat2(&uv1);
-    XMFLOAT2 deltaUV1;
-    XMStoreFloat2(&deltaUV1, deltaUV1Vec);
+    const auto dUV_1Vec = XMLoadFloat2(&uv1) - XMLoadFloat2(&uv0);
+    XMFLOAT2 dUV_1;
+    XMStoreFloat2(&dUV_1, dUV_1Vec);
 
-    const auto deltaUV2Vec = XMLoadFloat2(&uv3) - XMLoadFloat2(&uv1);
-    XMFLOAT2 deltaUV2;
-    XMStoreFloat2(&deltaUV2, deltaUV2Vec);
+    const auto dUV_2Vec = XMLoadFloat2(&uv2) - XMLoadFloat2(&uv0);
+    XMFLOAT2 dUV_2;
+    XMStoreFloat2(&dUV_2, dUV_2Vec);
 
-    auto f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+    /**
+     * From here we just use a little bit of linear algebra to calculate the tangent and bitangent.
+     * E_1 = dUV_1.x * T + dUV_1.y * B
+     * E_2 = dUV_2.x * T + dUV_2.y * B
+     * 
+     * Using a matrix notation we get:
+     * 
+     * | E_1.x, E_1.y, E_1.z |  _  | dU_1, dV_1 |   | T.x, T.y, T.z |
+     * | E_2.x, E_2.y, E_2.z |  ‾  | dU_2, dV_2 | * | B.x, B.y, B.z |
+     * 
+     * By rewriting the matrices a bit we can get the following equations.
+     * For more details see https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+     */
+    const auto constant = 1.0f / (dUV_1.x * dUV_2.y - dUV_2.x * dUV_1.y);
 
-    // Tangent 1
+    // Tangent
     XMFLOAT3 tangent{
-        f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x),
-        f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
-        f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z)
+        constant * (dUV_2.y * edge_1.x - dUV_1.y * edge_2.x),
+        constant * (dUV_2.y * edge_1.y - dUV_1.y * edge_2.y),
+        constant * (dUV_2.y * edge_1.z - dUV_1.y * edge_2.z)
     };
 
     auto tangent1Vec = XMLoadFloat3(&tangent);
     tangent1Vec = XMVector3Normalize(tangent1Vec);
     XMStoreFloat3(&tangent, tangent1Vec);
 
-    // Bitangent 1
+    // Bitangent
     XMFLOAT3 bitangent{
-        f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x),
-        f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y),
-        f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z)
+        constant * (-dUV_2.x * edge_1.x + dUV_1.x * edge_2.x),
+        constant * (-dUV_2.x * edge_1.y + dUV_1.x * edge_2.y),
+        constant * (-dUV_2.x * edge_1.z + dUV_1.x * edge_2.z)
     };
 
     auto bitangent1Vec = XMLoadFloat3(&bitangent);
     bitangent1Vec = XMVector3Normalize(bitangent1Vec);
     XMStoreFloat3(&bitangent, bitangent1Vec);
 
-
-    // ==========
-    // Triangle 2
-    // ==========
-    const auto edge3Vec = XMLoadFloat3(&pos3) - XMLoadFloat3(&pos1);
-    XMFLOAT3 edge3;
-    XMStoreFloat3(&edge3, edge3Vec);
-
-    const auto edge4Vec = XMLoadFloat3(&pos4) - XMLoadFloat3(&pos1);
-    XMFLOAT3 edge4;
-    XMStoreFloat3(&edge4, edge4Vec);
-
-    const auto deltaUV3Vec = XMLoadFloat2(&uv3) - XMLoadFloat2(&uv1);
-    XMFLOAT2 deltaUV3;
-    XMStoreFloat2(&deltaUV3, deltaUV3Vec);
-
-    const auto deltaUV4Vec = XMLoadFloat2(&uv4) - XMLoadFloat2(&uv1);
-    XMFLOAT2 deltaUV4;
-    XMStoreFloat2(&deltaUV4, deltaUV4Vec);
-
-    f = 1.0f / (deltaUV3.x * deltaUV4.y - deltaUV4.x * deltaUV3.y);
-
-    // Tangent 2
-    XMFLOAT3 tangent2{
-        f * (deltaUV4.y * edge1.x - deltaUV3.y * edge2.x),
-        f * (deltaUV4.y * edge1.y - deltaUV3.y * edge2.y),
-        f * (deltaUV4.y * edge1.z - deltaUV3.y * edge2.z)
-    };
-    auto tangent2Vec = XMLoadFloat3(&tangent2);
-    tangent2Vec = XMVector3Normalize(tangent2Vec);
-    XMStoreFloat3(&tangent2, tangent2Vec);
-
-    // Bitangent 2
-    XMFLOAT3 bitangent2{
-        f * (-deltaUV4.x * edge1.x + deltaUV3.x * edge2.x),
-        f * (-deltaUV4.x * edge1.y + deltaUV3.x * edge2.y),
-        f * (-deltaUV4.x * edge1.z + deltaUV3.x * edge2.z)
-    };
-    auto bitangent2Vec = XMLoadFloat3(&bitangent2);
-    bitangent2Vec = XMVector3Normalize(bitangent2Vec);
-    XMStoreFloat3(&bitangent2, bitangent2Vec);
-
+    // Set calculated data to vertices
     const std::vector<VertexTypes::FullVertexTangentBitangent> vertices = {
-        {pos1, normal, XMFLOAT3(1.0f, 1.0f, 1.0f), uv1, tangent, bitangent},
-        {pos2, normal, XMFLOAT3(1.0f, 1.0f, 1.0f), uv2, tangent, bitangent},
-        {pos3, normal, XMFLOAT3(1.0f, 1.0f, 1.0f), uv3, tangent, bitangent},
-        {pos4, normal, XMFLOAT3(1.0f, 1.0f, 1.0f), uv4, tangent, bitangent}
+        {position0, normal, XMFLOAT3(1.0f, 1.0f, 1.0f), uv0, tangent, bitangent},
+        {position1, normal, XMFLOAT3(1.0f, 1.0f, 1.0f), uv1, tangent, bitangent},
+        {position2, normal, XMFLOAT3(1.0f, 1.0f, 1.0f), uv2, tangent, bitangent},
+        {position3, normal, XMFLOAT3(1.0f, 1.0f, 1.0f), uv3, tangent, bitangent}
     };
 
     const std::vector<WORD> indices = {

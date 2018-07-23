@@ -58,7 +58,11 @@ To improve the performance we also present instanced rendering which substitutes
 
 ### Specular map
 
-Shows usage of specular map to enhance material quality by making different parts of the object reflect light differently. The scene consists of 4 boxes where the first and third one (from left) use specular map (they are more shiny on the metal parts and less shiny on the wooden and rusty parts). To see the full effect try to move around the scene and play with the specular reflection.
+Shows usage of specular map to enhance material quality by making different parts of the object reflect light differently. The scene consists of 4 boxes where the first and third one (from the left) use specular map (they are more shiny on the metal parts and less shiny on the wooden and rusty parts). To see the full effect try to move around the scene and play with the specular reflection.
+
+### Normal mapping
+
+Shows usage of normal map to add details to geometry by altering the surface normal used for light calculations. There are 4 planes in the scene where, similar to the specular mapping example, the first and third one (from the left) use normal mapping. We can see the effect by observing added depth to the bricks especially when moving around the scene (the other two planes appear flat).
 
 ### Font rendering
 
