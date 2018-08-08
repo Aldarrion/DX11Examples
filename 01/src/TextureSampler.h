@@ -1,6 +1,6 @@
 #pragma once
-#include <d3d11.h>
 #include "ResourceHolder.h"
+#include <d3d11.h>
 #include <iostream>
 
 class TextureSampler : public ResourceHolder {

@@ -294,6 +294,7 @@
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\DeferredRenderingExample.cpp" />
     <ClCompile Include="src\Example.cpp" />
+    <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\FontRenderingExample.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
     <ClCompile Include="src\Layouts.cpp" />
@@ -306,6 +307,7 @@
     <ClCompile Include="src\ShadowsExample.cpp" />
     <ClCompile Include="src\SpecularMapExample.cpp" />
     <ClCompile Include="src\SSAOExample.cpp" />
+    <ClCompile Include="src\Text.cpp" />
     <ClCompile Include="src\TexturingExample.cpp" />
   </ItemGroup>
   <ItemGroup>

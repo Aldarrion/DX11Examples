@@ -1,6 +1,8 @@
 #pragma once
 #include "TextureSampler.h"
 
+#include "ContextWrapper.h"
+
 #include <memory>
 
 class PointWrapSampler : public TextureSampler {
