@@ -50,7 +50,7 @@ float4 PS(PS_INPUT input) : SV_Target {
     // Claculate lighting in view space
     // SSAO affects only ambient light (ambient occlusion) to simulate global illumination
     float3 ambient = float3(0.3 * albedo * ambientOcclusion);
-    float3 viewDir = normalize(-fragPos); // viewpos in view space is (0, 0, 0)
+    float3 viewDir = normalize(-fragPos); // Viewpos in view space is (0, 0, 0)
     
     // Diffuse
     float3 lightDir = normalize(LightPos.xyz - fragPos);

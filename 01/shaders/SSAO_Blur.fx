@@ -33,6 +33,7 @@ float4 PS(PS_INPUT input) : SV_Target {
     float2 texelSize = float2(1.0 / w, 1.0 / h);
     
     float result = 0.0;
+    // The noise texture is 4x4 - filter it by 4x4 blur
     for (int x = -2; x < 2; ++x) {
         for (int y = -2; y < 2; ++y) {
             float2 offset = float2(float(x), float(y)) * texelSize;
