@@ -1,5 +1,7 @@
 #include "PhongLights.fx"
 
+#define NUM_LIGHTS 2
+
 Texture2D DiffuseTexture : register(t0);
 Texture2D NormalMap : register(t1);
 
@@ -10,7 +12,7 @@ cbuffer ConstantBuffer : register(b0) {
     matrix View;
     matrix Projection;
     matrix NormalMatrix;
-    DirLight SunLight;
+    PointLight PointL[2];
     float3 ViewPos;
     int UseNormalMap;
 }
@@ -30,9 +32,9 @@ struct PS_INPUT {
     float3 Norm : TEXCOORD0;
     float3 FragPos : POSITION;
     float2 UV : TEXCOORD1;
-    float3 TangentLightPos : TEXCOORD2;
-    float3 TangentViewPos : TEXCOORD3;
-    float3 TangentFragPos : TEXCOORD4;
+    float3 TangentViewPos : TEXCOORD2;
+    float3 TangentFragPos : TEXCOORD3;
+    float3 TangentLightPos[NUM_LIGHTS] : TEXCOORD4;
 };
 
 
@@ -67,8 +69,9 @@ PS_INPUT VS(VS_INPUT input) {
     float3x3 worldToTangent = transpose(float3x3(T, B, N));
 
     // Transform all variables necessary for transform calculations to tangent space
-    float3 LightPos = -SunLight.Direction; // Directional light
-    output.TangentLightPos = mul(LightPos, worldToTangent);
+    for (int i = 0; i < NUM_LIGHTS; ++i) {
+        output.TangentLightPos[i] = mul(PointL[i].Position.xyz, worldToTangent);
+    }
     output.TangentViewPos = mul(ViewPos, worldToTangent);
     output.TangentFragPos = mul(output.FragPos, worldToTangent);
 
@@ -82,7 +85,7 @@ PS_INPUT VS(VS_INPUT input) {
 float4 PS(PS_INPUT input) : SV_Target {
     float4 diffuseColor = DiffuseTexture.Sample(DiffuseSampler, input.UV);
     
-    float4 finalColor;
+    float4 finalColor = float4(0, 0, 0, 0);
 
     if (UseNormalMap) { 
         // Normal mapping in tangent space
@@ -102,16 +105,21 @@ float4 PS(PS_INPUT input) : SV_Target {
 
         float3 viewDir = normalize(input.TangentViewPos - input.TangentFragPos);
 
-        DirLight tangentSun = SunLight;
-        tangentSun.Direction = float4(-input.TangentLightPos, 1);
+        //DirLight tangentSun = SunLight;
+        for (int i = 0; i < NUM_LIGHTS; ++i) {
+            PointLight tangentLight = PointL[i];
+            tangentLight.Position = float4(input.TangentLightPos[i], 1);
         
-        // Perform tangent space light calculation
-        finalColor = CalcDirLight(tangentSun, normal, diffuseColor, viewDir);
+            // Perform tangent space light calculation
+            finalColor += CalcPointLight(tangentLight, normal, input.TangentFragPos, diffuseColor, viewDir);
+        }
     } else { 
         // Usual shading in world space
         float3 normal = normalize(input.Norm);
         float3 viewDir = normalize(ViewPos - input.FragPos);
-        finalColor = CalcDirLight(SunLight, normal, diffuseColor, viewDir);
+        for (int i = 0; i < NUM_LIGHTS; ++i) {
+            finalColor += CalcPointLight(PointL[i], normal, input.FragPos, diffuseColor, viewDir);
+        }
     }
     
     finalColor.a = 1.0;

@@ -98,4 +98,9 @@ public:
         }
     }
 };
+
+using PText = std::unique_ptr<Text>;
+inline PText makeText(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text) {
+    return std::make_unique<Text>(device, context, text);
+}
 }

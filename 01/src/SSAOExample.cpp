@@ -358,7 +358,7 @@ void SSAO::SSAOExample::render() {
     for (int i = 0; i < 64; ++i) {
         ssaocb.Kernel[i] = ssaoKernel_[i];
     }
-    ssaocb.ScreenResolution = XMFLOAT4(context_.WIDTH, context_.HEIGHT, 0, 0);
+    ssaocb.ScreenResolution = XMFLOAT4(static_cast<float>(context_.WIDTH), static_cast<float>(context_.HEIGHT), 0, 0);
 
     ssaoShader_->updateConstantBuffer(context_.immediateContext_, ssaocb);
     ssaoShader_->use(context_.immediateContext_);

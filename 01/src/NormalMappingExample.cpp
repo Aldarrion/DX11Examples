@@ -26,28 +26,39 @@ HRESULT NormalMappingExample::setup() {
         -6.7f
     );
 
+    using std::to_string;
+    infoText_ = Text::makeText(context_.d3dDevice_, context_.immediateContext_, "\n " + to_string(toggleRotationKey_) + ": to toggle rotation.");
+
     return hr;
 }
 
 void NormalMappingExample::handleInput() {
     BaseExample::handleInput();
-}
 
-float rotation = 0.0f;
+    if (GetAsyncKeyState(toggleRotationKey_) & 1) {
+        isRotationOn_ = !isRotationOn_;
+    }
+}
 
 void NormalMappingExample::render() {
     BaseExample::render();
 
-    const Transform sunTrans = Transform(XMFLOAT3(-10.0f, 10.0f, -10.0f), XMFLOAT3(0, 0, 0), XMFLOAT3(0.2f, 0.2f, 0.2f));
-    const XMFLOAT4 lightColor = XMFLOAT4(1, 1, 1, 1);
+    const std::array<Transform, NUM_LIGHTS> plTrans = {
+        Transform(XMFLOAT3(5.0f, 2.0f, -0.0f), XMFLOAT3(0, 0, 0), XMFLOAT3(0.2f, 0.2f, 0.2f)),
+        Transform(XMFLOAT3(0.0f, 2.0f, -0.0f), XMFLOAT3(0, 0, 0), XMFLOAT3(0.2f, 0.2f, 0.2f))
+    };
+    constexpr float lightIntensity = 1.0f;
+    const XMFLOAT4 lightColor = XMFLOAT4(lightIntensity, lightIntensity, lightIntensity, 1);
 
-    rotation += deltaTime_ * XMConvertToRadians(20.0f);
+    if (isRotationOn_) {
+        rotation_ += deltaTime_ * XMConvertToRadians(20.0f);
+    }
 
     const std::vector<Transform> cubeTransforms = {
-        Transform(XMFLOAT3(0, 0, 0),     XMFLOAT3(XMConvertToRadians(20.0f), XMConvertToRadians(2.0f), rotation), XMFLOAT3(2, 2, 2)),
-        Transform(XMFLOAT3(5.0f, 0, 0),  XMFLOAT3(XMConvertToRadians(20.0f), XMConvertToRadians(2.0f), rotation), XMFLOAT3(2, 2, 2)),
-        Transform(XMFLOAT3(10.0f, 0, 0), XMFLOAT3(XMConvertToRadians(20.0f), XMConvertToRadians(2.0f), rotation), XMFLOAT3(2, 2, 2)),
-        Transform(XMFLOAT3(-5.0f, 0, 0), XMFLOAT3(XMConvertToRadians(20.0f), XMConvertToRadians(2.0f), rotation), XMFLOAT3(2, 2, 2))
+        Transform(XMFLOAT3(0, 0, 0),     XMFLOAT3(XMConvertToRadians(20.0f), XMConvertToRadians(2.0f), rotation_), XMFLOAT3(2, 2, 2)),
+        Transform(XMFLOAT3(5.0f, 0, 0),  XMFLOAT3(XMConvertToRadians(20.0f), XMConvertToRadians(2.0f), rotation_), XMFLOAT3(2, 2, 2)),
+        Transform(XMFLOAT3(10.0f, 0, 0), XMFLOAT3(XMConvertToRadians(20.0f), XMConvertToRadians(2.0f), rotation_), XMFLOAT3(2, 2, 2)),
+        Transform(XMFLOAT3(-5.0f, 0, 0), XMFLOAT3(XMConvertToRadians(20.0f), XMConvertToRadians(2.0f), rotation_), XMFLOAT3(2, 2, 2))
     };
 
     clearViews();
@@ -58,8 +69,11 @@ void NormalMappingExample::render() {
         cb.Projection = XMMatrixTranspose(projection_);
         cb.View = XMMatrixTranspose(camera_.getViewMatrix());
         cb.NormalMatrix = computeNormalMatrix(cb.World);
-        cb.SunLight.Color = lightColor;
-        cb.SunLight.Direction = XMFLOAT4(-sunTrans.Position.x, -sunTrans.Position.y, -sunTrans.Position.z, 1.0f);
+        for (size_t i = 0; i < plTrans.size(); ++i) {
+            const auto& light = plTrans[i];
+            cb.PointLight[i].Color = lightColor;
+            cb.PointLight[i].Position = XMFLOAT4(light.Position.x, light.Position.y, light.Position.z, 1);
+        }
         cb.ViewPos = camera_.Position;
 
         normalMapShader_->use(context_.immediateContext_);
@@ -77,18 +91,23 @@ void NormalMappingExample::render() {
         }
     }
 
-    // Draw sun
+    // Draw lights
     {
         ConstantBuffers::SolidConstBuffer cb{};
-        cb.World = XMMatrixTranspose(sunTrans.generateModelMatrix());
         cb.View = XMMatrixTranspose(camera_.getViewMatrix());
         cb.Projection = XMMatrixTranspose(projection_);
-        cb.OutputColor = lightColor;
-
         solidShader_->use(context_.immediateContext_);
-        solidShader_->updateConstantBuffer(context_.immediateContext_, cb);
-        cube_->draw(context_.immediateContext_);
+
+        for (const auto& light : plTrans) {
+            cb.World = XMMatrixTranspose(light.generateModelMatrix());
+            cb.OutputColor = lightColor;
+            solidShader_->updateConstantBuffer(context_.immediateContext_, cb);
+
+            cube_->draw(context_.immediateContext_);
+        }
     }
+
+    infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
 
     context_.swapChain_->Present(0, 0);
 }

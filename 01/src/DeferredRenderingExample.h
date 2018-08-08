@@ -26,7 +26,7 @@ struct UnlitCB {
     DirectX::XMMATRIX NormalMatrix;
 };
 
-#define NUM_LIGHTS 256
+constexpr size_t NUM_LIGHTS = 256;
 
 struct DeferredLightCB {
     PointLight Lights[NUM_LIGHTS];
