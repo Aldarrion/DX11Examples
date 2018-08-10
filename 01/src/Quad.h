@@ -24,5 +24,9 @@ public:
 
         initialize(device, vertices, indices);
     }
+
+    Layouts::VertexLayout_t getVertexLayout() const override {
+        return Layouts::POS_UV_LAYOUT;
+    }
 };
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
-#include <directxmath.h>
+#include <DirectXMath.h>
 #include "VertexTypes.h"
 #include "DrawableObject.h"
 
@@ -61,6 +61,10 @@ public:
             23,20,22
         };
         initialize(device, vertices, indices);
+    }
+
+    Layouts::VertexLayout_t getVertexLayout() const override {
+        return Layouts::TEXTURED_LAYOUT;
     }
 };
 

@@ -1,6 +1,10 @@
 #pragma once
 #include "TextureSampler.h"
 
+#include "ContextWrapper.h"
+
+#include <memory>
+
 class PointWrapSampler : public TextureSampler {
 public:
     explicit PointWrapSampler(ID3D11Device* device) {
@@ -17,3 +21,11 @@ public:
         sampler_ = createSampler(device, sampDesc);
     }
 };
+
+namespace Samplers {
+using PPointWrapSampler = std::unique_ptr<PointWrapSampler>;
+
+inline PPointWrapSampler createPointWrapSampler(const ContextWrapper& context) {
+    return std::make_unique<PointWrapSampler>(context.d3dDevice_);
+}
+}

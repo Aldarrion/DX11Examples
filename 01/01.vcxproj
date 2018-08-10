@@ -294,16 +294,20 @@
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\DeferredRenderingExample.cpp" />
     <ClCompile Include="src\Example.cpp" />
+    <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\FontRenderingExample.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
     <ClCompile Include="src\Layouts.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ModelLoadingExample.cpp" />
     <ClCompile Include="src\Mouse.cpp" />
+    <ClCompile Include="src\NormalMappingExample.cpp" />
     <ClCompile Include="src\PhongShadingExample.cpp" />
+    <ClCompile Include="src\PlaneTangentBitangent.cpp" />
     <ClCompile Include="src\ShadowsExample.cpp" />
     <ClCompile Include="src\SpecularMapExample.cpp" />
     <ClCompile Include="src\SSAOExample.cpp" />
+    <ClCompile Include="src\Text.cpp" />
     <ClCompile Include="src\TexturingExample.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -326,6 +330,7 @@
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\ModelLoadingExample.h" />
     <ClInclude Include="src\ModelTexture.h" />
+    <ClInclude Include="src\NormalMappingExample.h" />
     <ClInclude Include="src\Plane.h" />
     <ClInclude Include="src\PointWrapSampler.h" />
     <ClInclude Include="src\Quad.h" />
@@ -395,6 +400,10 @@
     <FxCompile Include="shaders\NormalGeomShader.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\NormalMap.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
@@ -474,6 +483,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\PlaneTangentBitangent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

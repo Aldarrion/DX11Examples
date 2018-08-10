@@ -19,7 +19,8 @@ struct GShaderCB {
 
 struct SSAOCB {
     DirectX::XMMATRIX Projection;
-    DirectX::XMFLOAT4 Samples[64];
+    DirectX::XMFLOAT4 Kernel[64];
+    DirectX::XMFLOAT4 ScreenResolution;
 };
 
 struct SSAOLightCB {

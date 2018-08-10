@@ -255,7 +255,7 @@ std::vector<XMFLOAT4> SSAO::SSAOExample::generateKernel() {
         sampleVector = XMVector3Normalize(sampleVector);
         sampleVector = XMVectorScale(sampleVector, randomFloats_(generator_));
 
-        // scale samples s.t. they're more aligned to center of kernel
+        // Scale samples - they're more aligned to the center of the kernel
         float scale = float(i) / 64.0f;
         scale = Util::lerp(0.1f, 1.0f, scale * scale);
         sampleVector = XMVectorScale(sampleVector, scale);
@@ -324,7 +324,7 @@ void SSAO::SSAOExample::render() {
     };
 
     // Set multiple rendering targets
-    context_.immediateContext_->OMSetRenderTargets(views.size(), views.data(), depthBufferDepthView_);
+    context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDepthView_);
     for (auto& view : views) {
         context_.immediateContext_->ClearRenderTargetView(view, Colors::Black);
     }
@@ -356,8 +356,9 @@ void SSAO::SSAOExample::render() {
     SSAOCB ssaocb{};
     ssaocb.Projection = XMMatrixTranspose(projection_);
     for (int i = 0; i < 64; ++i) {
-        ssaocb.Samples[i] = ssaoKernel_[i];
+        ssaocb.Kernel[i] = ssaoKernel_[i];
     }
+    ssaocb.ScreenResolution = XMFLOAT4(static_cast<float>(context_.WIDTH), static_cast<float>(context_.HEIGHT), 0, 0);
 
     ssaoShader_->updateConstantBuffer(context_.immediateContext_, ssaocb);
     ssaoShader_->use(context_.immediateContext_);

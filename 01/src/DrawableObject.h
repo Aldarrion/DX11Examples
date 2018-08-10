@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <vector>
 #include "ResourceHolder.h"
+#include "Layouts.h"
 
 /**
  * \brief Base class for simple objects specified by vertex and index buffers.
@@ -101,4 +102,9 @@ public:
         // Draw geometry in vertex buffer using index buffer
         context->DrawIndexed(indexCount_, 0, 0);
     }
+
+    /**
+     * \brief Returns layout of vertices for this drawable object. To be used in shader creation.
+     */
+    virtual Layouts::VertexLayout_t getVertexLayout() const = 0;
 };

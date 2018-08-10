@@ -20,9 +20,9 @@ public:
 };
 
 namespace Samplers {
-    using PAnisotropicSampler = std::unique_ptr<AnisotropicSampler>;
+using PAnisotropicSampler = std::unique_ptr<AnisotropicSampler>;
 
-    inline PAnisotropicSampler createAnisoSampler(const ContextWrapper& context) {
-        return std::make_unique<AnisotropicSampler>(context.d3dDevice_);
-    }
+inline PAnisotropicSampler createAnisoSampler(const ContextWrapper& context) {
+    return std::make_unique<AnisotropicSampler>(context.d3dDevice_);
+}
 }

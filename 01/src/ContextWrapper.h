@@ -303,6 +303,36 @@ private:
         float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
         immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
 
+        // ==================
+        // Setup face culling
+        // ==================
+        
+        D3D11_RASTERIZER_DESC wireframeDesc;
+        ZeroMemory(&wireframeDesc, sizeof D3D11_RASTERIZER_DESC);
+        wireframeDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
+        //wireframeDesc.FillMode = D3D11_FILL_WIREFRAME;
+
+        D3D11_RASTERIZER_DESC CurrentRasterizerState;
+        CurrentRasterizerState.FillMode = D3D11_FILL_SOLID;
+        CurrentRasterizerState.CullMode = D3D11_CULL_BACK;
+        CurrentRasterizerState.FrontCounterClockwise = false;
+        CurrentRasterizerState.DepthBias = false;
+        CurrentRasterizerState.DepthBiasClamp = 0;
+        CurrentRasterizerState.SlopeScaledDepthBias = 0;
+        CurrentRasterizerState.DepthClipEnable = true;
+        CurrentRasterizerState.ScissorEnable = false;
+        CurrentRasterizerState.MultisampleEnable = true;
+        CurrentRasterizerState.AntialiasedLineEnable = false;
+
+        ID3D11RasterizerState* state = nullptr;
+        hr = d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &state);
+        if (FAILED(hr)) {
+            MessageBox(nullptr, L"Failed to create rasterizer state", L"Error", MB_OK);
+            return hr;
+        }
+
+        immediateContext_->RSSetState(state);
+
         return S_OK;
     }
 

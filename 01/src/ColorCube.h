@@ -62,4 +62,8 @@ public:
 
         initialize(device, vertices, indices);
     }
+
+    Layouts::VertexLayout_t getVertexLayout() const override {
+        return Layouts::TEXTURED_LAYOUT;
+    }
 };
