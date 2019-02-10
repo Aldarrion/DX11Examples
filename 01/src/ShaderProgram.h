@@ -10,7 +10,7 @@
 
 
 template<typename ... TCBuffers>
-class ShaderProgram : ResourceHolder {
+class ShaderProgram : public ResourceHolder {
     typedef std::tuple<TCBuffers ...> types;
     typedef std::array<ID3D11Buffer*, sizeof...(TCBuffers)> buffer_array_t;
 

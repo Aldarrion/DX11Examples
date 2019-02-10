@@ -82,6 +82,10 @@ This example shows screen space ambient occlusion technique. We utilize concepts
 
 Note that the SSAO only influences the ambient component of the shading and this way simulates global illumination. The effect of SSAO on directly illuminated geometry is relatively small (although this can be tweaked). Also note that for performance reasons, this technique is performed in screen space and therefore is not perfectly visually accurate, i.e., depth (and occlusion) is dependant on the position of the viewer (see fingers on the model's hand). For more information see [John Chapman](http://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html) and [Joey de Vries](https://learnopengl.com/Advanced-Lighting/SSAO) tutorials which served as a base for this example.
 
+### Shader Change Performance
+
+This example explores how much does it cost to render using one shader versus render each odd triangle with another shader and switch back and forth. Both shaders are trivial to see only the swapping cost. Takeaway from this is that whenever possible we should batch the meshes using the same shader so we do not have to switch them. E.g. in our example it would be much better to draw all the even triangles first and then all the odd ones. (It would of course be even better to instantiate this to save draw calls). In my case the rendering with a single shader was on average 37% faster then swapping the 2 shaders when drawing 512 triangles.
+
 ## Where to go next
 
 For more tutorials and examples take a look at [DirectX SDK samples](https://github.com/walbourn/directx-sdk-samples).
