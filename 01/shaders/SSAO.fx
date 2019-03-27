@@ -8,6 +8,8 @@ cbuffer ConstantBuffer : register(b0) {
     matrix projection;
     float4 kernel[64];
     float4 screenResolution;
+	int kernelSize;
+	int randomRotation;
 }
 
 
@@ -37,26 +39,30 @@ PS_INPUT VS(VS_INPUT input) {
 // ============
 // Pixel shader
 // ============
-float4 PS(PS_INPUT input) : SV_Target {
-    int kernelSize = 64;
-    float radius = 0.5;
-    float bias = 0.025;
-    
-    // Control how fine will the noise be, the noise texture is 4x4, here we control how much
-    // scaled down it will be. We use fine noise to avoid aliasing.
-    float2 noiseScale = float2(screenResolution.x / 4.0, screenResolution.y / 4.0);
-    
-    // Retrieve data from the G-buffer
-    float3 fragPos = gPosition.Sample(pointSampler, input.UV).xyz;
-    float3 normal = normalize(gNormal.Sample(pointSampler, input.UV).xyz);
-    float3 randomVec = normalize(texNoise.Sample(pointSampler, input.UV * noiseScale).xyz);
-    
-    // Create TBN transformation matrix from tangent space to view space
-    // This matrix rotates the kernel by a random amount (randomVec) to 
-    // avoid artifacts and introduce noise to the SSAO result instead
-    float3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
-    float3 bitangent = normalize(cross(tangent, normal));
-    float3x3 TBN = float3x3(tangent, bitangent, normal);
+float4 PS(PS_INPUT input) : SV_Target{
+	//kernelSize = 64;
+	float radius = 0.5;
+	float bias = 0.025;
+
+	// Control how fine will the noise be, the noise texture is 4x4, here we control how much
+	// scaled down it will be. We use fine noise to avoid aliasing.
+	float2 noiseScale = float2(screenResolution.x / 4.0, screenResolution.y / 4.0);
+
+	// Retrieve data from the G-buffer
+	float3 fragPos = gPosition.Sample(pointSampler, input.UV).xyz;
+	float3 normal = normalize(gNormal.Sample(pointSampler, input.UV).xyz);
+	float3 randomVec = normalize(texNoise.Sample(pointSampler, input.UV * noiseScale).xyz);
+
+	// Create TBN transformation matrix from tangent space to view space
+	// This matrix rotates the kernel by a random amount (randomVec) to 
+	// avoid artifacts and introduce noise to the SSAO result instead
+	float3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+	float3 bitangent = normalize(cross(tangent, normal));
+	float3x3 TBN = float3x3(tangent, bitangent, normal);
+
+	if (randomRotation == 0) {
+		TBN = float3x3(float3(1, 0, 0), float3(0, 1, 0), float3(0, 0, 1));
+	}
     
     // Iterate over the sample kernel and calculate occlusion factor
     float occlusion = 0.0;

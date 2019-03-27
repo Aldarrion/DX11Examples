@@ -21,6 +21,13 @@ struct SSAOCB {
     DirectX::XMMATRIX Projection;
     DirectX::XMFLOAT4 Kernel[64];
     DirectX::XMFLOAT4 ScreenResolution;
+	int kernelSize;
+	int randomRotation;
+};
+
+struct SSAOBlurCB {
+	int blur;
+	DirectX::XMINT3 padding;
 };
 
 struct SSAOLightCB {
@@ -65,7 +72,7 @@ protected:
     using GBufferDisplayShader = ShaderProgram<Deferred::GBufferDisplayCB>;
     using PGBufferDisplayShader = std::unique_ptr<GBufferDisplayShader>;
     using PSSAOShader = std::unique_ptr<SSAOShader>;
-    using SSAOBlurShader = ShaderProgram<>;
+    using SSAOBlurShader = ShaderProgram<SSAOBlurCB>;
     using PSSAOBlurShader = std::unique_ptr<SSAOBlurShader>;
     using SSAOLightShader = ShaderProgram<SSAOLightCB>;
     using PSSAOLightShader = std::unique_ptr<SSAOLightShader>;
@@ -88,9 +95,16 @@ protected:
     std::default_random_engine generator_;
 
     WinKeyMap::WinKeyMap toggleSSAOKey_ = WinKeyMap::E;
+	WinKeyMap::WinKeyMap incSSAOKernelSize_ = WinKeyMap::Z;
+	WinKeyMap::WinKeyMap decSSAOKernelSize_ = WinKeyMap::X;
+	WinKeyMap::WinKeyMap toggleSSAOKernelRotation = WinKeyMap::R;
+	WinKeyMap::WinKeyMap toggleSSAOBlur = WinKeyMap::B;
     std::unique_ptr<Text::Text> infoText_;
 
     bool isSSAOOn_ = true;
+	int ssaoKernelSize = 64;
+	int randomRotation = 1;
+	int ssaoBlur = 1;
 
     HRESULT setup() override;
     std::vector<DirectX::XMFLOAT3> generateNoise();
