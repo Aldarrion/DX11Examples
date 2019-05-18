@@ -75,11 +75,6 @@ HRESULT BillboardExample::setup() {
     // Setup face culling
     // ==================
 
-    D3D11_RASTERIZER_DESC wireframeDesc;
-    ZeroMemory(&wireframeDesc, sizeof D3D11_RASTERIZER_DESC);
-    wireframeDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
-    //wireframeDesc.FillMode = D3D11_FILL_WIREFRAME;
-
     D3D11_RASTERIZER_DESC CurrentRasterizerState;
     CurrentRasterizerState.FillMode = D3D11_FILL_SOLID;
     CurrentRasterizerState.CullMode = D3D11_CULL_FRONT;
@@ -105,6 +100,7 @@ HRESULT BillboardExample::setup() {
 
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
+    blendDesc.AlphaToCoverageEnable = true;
     blendDesc.RenderTarget[0].BlendEnable = true;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -123,6 +119,8 @@ HRESULT BillboardExample::setup() {
 
     float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     context_.immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
+
+
 
 
     // =========================

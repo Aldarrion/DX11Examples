@@ -307,11 +307,6 @@ private:
         // Setup face culling
         // ==================
         
-        D3D11_RASTERIZER_DESC wireframeDesc;
-        ZeroMemory(&wireframeDesc, sizeof D3D11_RASTERIZER_DESC);
-        wireframeDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
-        //wireframeDesc.FillMode = D3D11_FILL_WIREFRAME;
-
         D3D11_RASTERIZER_DESC CurrentRasterizerState;
         CurrentRasterizerState.FillMode = D3D11_FILL_SOLID;
         CurrentRasterizerState.CullMode = D3D11_CULL_BACK;
