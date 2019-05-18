@@ -288,6 +288,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\AlphaToCoverageExample.cpp" />
     <ClCompile Include="src\BaseExample.cpp" />
     <ClCompile Include="src\BasicTriangleExample.cpp" />
     <ClCompile Include="src\BillboardExample.cpp" />
@@ -312,6 +313,7 @@
     <ClCompile Include="src\TexturingExample.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AlphaToCoverageExample.h" />
     <ClInclude Include="src\AnisotropicSampler.h" />
     <ClInclude Include="src\BaseExample.h" />
     <ClInclude Include="src\BasicTriangleExample.h" />
@@ -361,6 +363,12 @@
     <ClInclude Include="src\WinKeyMap.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaders\AlphaToCoverage.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="shaders\BasicTriangle.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
