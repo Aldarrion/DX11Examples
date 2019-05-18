@@ -98,6 +98,9 @@
     <ClCompile Include="src\ShaderChangePerfExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
+    <ClCompile Include="src\SignedDistanceFieldFontExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -240,6 +243,12 @@
     </ClInclude>
     <ClInclude Include="src\ShaderChangePerfExample.h">
       <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SignedDistanceFieldFontExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SDFText.h">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

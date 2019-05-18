@@ -306,6 +306,7 @@
     <ClCompile Include="src\PlaneTangentBitangent.cpp" />
     <ClCompile Include="src\ShaderChangePerfExample.cpp" />
     <ClCompile Include="src\ShadowsExample.cpp" />
+    <ClCompile Include="src\SignedDistanceFieldFontExample.cpp" />
     <ClCompile Include="src\SpecularMapExample.cpp" />
     <ClCompile Include="src\SSAOExample.cpp" />
     <ClCompile Include="src\Text.cpp" />
@@ -336,7 +337,9 @@
     <ClInclude Include="src\PointWrapSampler.h" />
     <ClInclude Include="src\Quad.h" />
     <ClInclude Include="src\ResourceHolder.h" />
+    <ClInclude Include="src\SDFText.h" />
     <ClInclude Include="src\ShaderChangePerfExample.h" />
+    <ClInclude Include="src\SignedDistanceFieldFontExample.h" />
     <ClInclude Include="src\SpecularMapExample.h" />
     <ClInclude Include="src\SSAOExample.h" />
     <ClInclude Include="src\Text.h" />
