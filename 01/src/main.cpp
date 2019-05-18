@@ -33,7 +33,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     //example = std::make_unique<SSAO::SSAOExample>();
 
     //example = std::make_unique<ShaderChangePerf::ShaderChangePerfExample>();
-	example = std::make_unique<AlphaToCoverage::AlphaToCoverageExample>();
+    example = std::make_unique<AlphaToCoverage::AlphaToCoverageExample>();
 
     return example->run(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }

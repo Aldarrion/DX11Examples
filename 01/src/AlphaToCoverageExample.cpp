@@ -27,7 +27,7 @@ HRESULT AlphaToCoverageExample::setup() {
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
     blendDesc.AlphaToCoverageEnable = true;
-    blendDesc.RenderTarget[0].BlendEnable = true;
+    blendDesc.RenderTarget[0].BlendEnable = false;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
     blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
@@ -43,6 +43,7 @@ HRESULT AlphaToCoverageExample::setup() {
     }
 
     blendDesc.AlphaToCoverageEnable = false;
+    blendDesc.RenderTarget[0].BlendEnable = true;
     hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &alphaBlendingBlendState_);
     if (FAILED(hr)) {
         MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
@@ -68,7 +69,7 @@ void AlphaToCoverageExample::handleInput() {
     BaseExample::handleInput();
     if (GetAsyncKeyState(WinKeyMap::E) & 1) {
         blendMode_ = BlendMode((blendMode_ + 1) % COUNT);
-
+        
         ID3D11BlendState* blendState;
         switch (blendMode_)
         {

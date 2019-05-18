@@ -101,7 +101,7 @@ HRESULT BillboardExample::setup() {
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
     blendDesc.AlphaToCoverageEnable = true;
-    blendDesc.RenderTarget[0].BlendEnable = true;
+    blendDesc.RenderTarget[0].BlendEnable = false;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
     blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
