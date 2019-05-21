@@ -7,6 +7,27 @@
 
 using namespace DirectX;
 
+namespace {
+std::string getNameOfMode(AlphaToCoverage::BlendMode mode) {
+    switch (mode)
+    {
+        case AlphaToCoverage::AlphaToCoverage:
+            return "Alpha to coverage";
+        case AlphaToCoverage::Blend:
+            return "Alpha blending";
+        case AlphaToCoverage::NoBlend:
+            return "No blending";
+        default:
+            return "Unknown";
+    }
+}
+
+std::string getHelperText(AlphaToCoverage::BlendMode mode) {
+    return "\nPress E to cycle modes\nMode: " + getNameOfMode(mode);
+}
+
+}
+
 namespace AlphaToCoverage {
 
 HRESULT AlphaToCoverageExample::setup() {
@@ -62,6 +83,9 @@ HRESULT AlphaToCoverageExample::setup() {
     float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     context_.immediateContext_->OMSetBlendState(alphaToCoverageBlendState_, bl, 0xffffffff);
 
+    text_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, getHelperText(blendMode_));
+    text_->setColor(DirectX::XMFLOAT4(0, 0, 0, 1));
+
     return hr;
 }
 
@@ -89,6 +113,8 @@ void AlphaToCoverageExample::handleInput() {
 
         float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
         context_.immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
+
+        text_->setText(getHelperText(blendMode_));
     }
 }
 
@@ -97,6 +123,8 @@ void AlphaToCoverageExample::render() {
 
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::Red);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    text_->draw(context_.immediateContext_, context_.getAspectRatio());
 
     shader_->use(context_.immediateContext_);
     texture_->use(context_.immediateContext_, 0);
