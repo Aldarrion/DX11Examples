@@ -9,11 +9,8 @@ struct ContextWrapper {
     D3D_DRIVER_TYPE         driverType_ = D3D_DRIVER_TYPE_NULL;
     D3D_FEATURE_LEVEL       featureLevel_ = D3D_FEATURE_LEVEL_11_0;
     ID3D11Device*           d3dDevice_ = nullptr;
-    ID3D11Device1*          d3dDevice1_ = nullptr;
     ID3D11DeviceContext*    immediateContext_ = nullptr;
-    ID3D11DeviceContext1*   immediateContext1_ = nullptr;
     IDXGISwapChain*         swapChain_ = nullptr;
-    IDXGISwapChain1*        swapChain1_ = nullptr;
     ID3D11RenderTargetView* renderTargetView_ = nullptr;
     ID3D11Texture2D*        depthStencil_ = nullptr;
     ID3D11DepthStencilView* depthStencilView_ = nullptr;
@@ -126,7 +123,6 @@ private:
 
         D3D_FEATURE_LEVEL featureLevels[] =
         {
-            D3D_FEATURE_LEVEL_11_1,
             D3D_FEATURE_LEVEL_11_0,
             D3D_FEATURE_LEVEL_10_1,
             D3D_FEATURE_LEVEL_10_0,
@@ -136,15 +132,18 @@ private:
         for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
         {
             driverType_ = driverTypes[driverTypeIndex];
-            hr = D3D11CreateDevice(nullptr, driverType_, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
-                D3D11_SDK_VERSION, &d3dDevice_, &featureLevel_, &immediateContext_);
-
-            if (hr == E_INVALIDARG)
-            {
-                // DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
-                hr = D3D11CreateDevice(nullptr, driverType_, nullptr, createDeviceFlags, &featureLevels[1], numFeatureLevels - 1,
-                    D3D11_SDK_VERSION, &d3dDevice_, &featureLevel_, &immediateContext_);
-            }
+            hr = D3D11CreateDevice(
+                nullptr, 
+                driverType_, 
+                nullptr, 
+                createDeviceFlags, 
+                featureLevels, 
+                numFeatureLevels,
+                D3D11_SDK_VERSION, 
+                &d3dDevice_, 
+                &featureLevel_, 
+                &immediateContext_
+            );
 
             if (SUCCEEDED(hr))
                 break;
@@ -175,34 +174,6 @@ private:
         constexpr UINT MULTISAMPLE_COUNT = 8;
 
         // Create swap chain
-        IDXGIFactory2* dxgiFactory2 = nullptr;
-        hr = dxgiFactory->QueryInterface(__uuidof(IDXGIFactory2), reinterpret_cast<void**>(&dxgiFactory2));
-        if (dxgiFactory2)
-        {
-            // DirectX 11.1 or later
-            hr = d3dDevice_->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&d3dDevice1_));
-            if (SUCCEEDED(hr)) {
-                (void)immediateContext_->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&immediateContext1_));
-            }
-
-            DXGI_SWAP_CHAIN_DESC1 sd;
-            ZeroMemory(&sd, sizeof(sd));
-            sd.Width = width;
-            sd.Height = height;
-            sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            sd.SampleDesc.Count = MULTISAMPLE_COUNT;
-            sd.SampleDesc.Quality = 0;
-            sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-            sd.BufferCount = 1;
-
-            hr = dxgiFactory2->CreateSwapChainForHwnd(d3dDevice_, hWnd_, &sd, nullptr, nullptr, &swapChain1_);
-            if (SUCCEEDED(hr)) {
-                hr = swapChain1_->QueryInterface(__uuidof(IDXGISwapChain), reinterpret_cast<void**>(&swapChain_));
-            }
-
-            dxgiFactory2->Release();
-        }
-        else
         {
             // DirectX 11.0 systems
             DXGI_SWAP_CHAIN_DESC sd;
@@ -338,11 +309,8 @@ private:
         if (depthStencil_) depthStencil_->Release();
         if (depthStencilView_) depthStencilView_->Release();
         if (renderTargetView_) renderTargetView_->Release();
-        if (swapChain1_) swapChain1_->Release();
         if (swapChain_) swapChain_->Release();
-        if (immediateContext1_) immediateContext1_->Release();
         if (immediateContext_) immediateContext_->Release();
-        if (d3dDevice1_) d3dDevice1_->Release();
         if (d3dDevice_) d3dDevice_->Release();
     }
 };
