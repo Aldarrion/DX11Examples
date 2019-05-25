@@ -3,6 +3,12 @@
 
 using namespace DirectX;
 
+XMVECTORF32 Util::srgbToLinear(const XMVECTORF32& color) {
+    XMVECTORF32 clearColor;
+    clearColor.v = XMColorSRGBToRGB(color);
+    return clearColor;
+}
+
 int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     AllocConsole();
     FILE *pCin, *pCout, *pCerr;

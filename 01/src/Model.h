@@ -36,8 +36,9 @@ private:
             std::string name(str.C_Str());
             const std::wstring textureFile(name.begin(), name.end());
             const std::wstring dir(directory_.begin(), directory_.end());
-            
-            Textures::PTexture texture = std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, (dir + L"/" + textureFile).c_str());
+            const bool isSRGB = type == aiTextureType_DIFFUSE;
+
+            Textures::PTexture texture = std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, (dir + L"/" + textureFile).c_str(), isSRGB);
             ModelTexture modelTexture(std::move(texture), mapTextureType(type));
             textures.push_back(std::move(modelTexture));
         }

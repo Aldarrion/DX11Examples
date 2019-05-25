@@ -29,8 +29,8 @@ HRESULT ShadowsExample::setup() {
     );
 
     // Textures
-    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds");
-    woodBoxTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds");
+    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", true);
+    woodBoxTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds", true);
 
     // Samplers
     anisoSampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
@@ -161,7 +161,7 @@ void ShadowsExample::render() {
     // ==============
     {
         context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
-        context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+        context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
         context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
         context_.immediateContext_->RSSetViewports(1, &context_.viewPort_);
 

@@ -35,7 +35,7 @@ protected:
     }
 
     void clearViews() const {
-        context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, DirectX::Colors::MidnightBlue);
+        context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
         context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
     }
 

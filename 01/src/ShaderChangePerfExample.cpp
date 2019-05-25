@@ -48,8 +48,7 @@ void ShaderChangePerfExample::render() {
         );
     }
 
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
-    context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    clearViews();
 
     frameTimeText_->draw(context_.immediateContext_, context_.getAspectRatio());
 

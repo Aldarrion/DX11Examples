@@ -255,7 +255,7 @@ void DeferredRenderingExample::renderDeferred() {
     // Set multiple rendering targets
     context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDepthView_);
     for (auto& view : views) {
-        context_.immediateContext_->ClearRenderTargetView(view, Colors::Black);
+        context_.immediateContext_->ClearRenderTargetView(view, Util::srgbToLinear(DirectX::Colors::Black));
     }
     context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 

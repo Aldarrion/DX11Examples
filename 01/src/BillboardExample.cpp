@@ -31,8 +31,8 @@ HRESULT BillboardExample::setup() {
     );
 
     plane_ = std::make_unique<Plane>(context_.d3dDevice_);
-    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds");
-    grassBillboard_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/grassBillboard.dds");
+    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", true);
+    grassBillboard_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/grassBillboard.dds", true);
     diffuseSampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
 
     std::vector<D3D11_INPUT_ELEMENT_DESC> posLayout = {
@@ -159,7 +159,7 @@ void BillboardExample::render() {
     const Transform grass1Trasform(XMFLOAT3(0, 0.0, 0), XMFLOAT3(0, XMConvertToRadians(90.0), 0));
     const Transform grass2Trasform(XMFLOAT3(0, 0, 0), XMFLOAT3(0, XMConvertToRadians(45.0), 0));
 
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     frameTimeText_->draw(context_.immediateContext_, context_.getAspectRatio());

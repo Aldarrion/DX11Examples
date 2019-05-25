@@ -33,7 +33,7 @@ namespace AlphaToCoverage {
 HRESULT AlphaToCoverageExample::setup() {
     auto hr = BaseExample::setup();
 
-    texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/AlphaToCoverage.dds");
+    texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/AlphaToCoverage.dds", true);
     sampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
 
     quad_ = std::make_unique<Quad>(context_.d3dDevice_);
@@ -121,7 +121,7 @@ void AlphaToCoverageExample::handleInput() {
 void AlphaToCoverageExample::render() {
     BaseExample::render();
 
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::Red);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::Red));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     text_->draw(context_.immediateContext_, context_.getAspectRatio());

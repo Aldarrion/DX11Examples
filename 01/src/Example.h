@@ -7,6 +7,11 @@
 #include <windows.h>
 #include <memory>
 
+namespace Util {
+DirectX::XMVECTORF32 srgbToLinear(const DirectX::XMVECTORF32& color);
+}
+
+
 /**
  * \brief Abstract base class for all examples. Creates only the very minimal update loop with a window.
  */

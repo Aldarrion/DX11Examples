@@ -14,8 +14,8 @@ HRESULT NormalMappingExample::setup() {
     normalMapShader_ = std::make_unique<NormalMapShader>(context_.d3dDevice_, L"shaders/NormalMap.fx", "VS", L"shaders/NormalMap.fx", "PS", plane_->getVertexLayout());
     solidShader_ = Shaders::createSolidShader(context_);
 
-    wallDiffuse_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/brickwall.dds");
-    wallNormalMap_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/brickwall_normal.dds");
+    wallDiffuse_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/brickwall.dds", true);
+    wallNormalMap_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/brickwall_normal.dds", false);
 
     anisoSampler_ = Samplers::createAnisoSampler(context_);
 

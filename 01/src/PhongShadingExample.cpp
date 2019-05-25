@@ -56,7 +56,7 @@ void Phong::PhongShadingExample::render() {
 
     infoText_->setText("\n To adjust specularity press K/L\n Specularity: " + std::to_string(shininess_));
 
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     infoText_->draw(context_.immediateContext_, context_.getAspectRatio());

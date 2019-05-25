@@ -25,7 +25,7 @@ HRESULT TexturingExample::setup() {
     // ========================
     // Create sea floor texture
     // ========================
-    auto hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
+    auto hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", true, nullptr, &seaFloorTexture_);
     
     /* Uncomment following to allow mipmap generation */
     //hr = CreateDDSTextureFromFile(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
@@ -37,7 +37,7 @@ HRESULT TexturingExample::setup() {
     // =======================
     // Create box wood texture
     // =======================
-    hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/container2.dds", nullptr, &boxTexture_);
+    hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/container2.dds", true, nullptr, &boxTexture_);
 
     /* Uncomment following to allow mipmap generation */
     //hr = CreateDDSTextureFromFile(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
@@ -76,7 +76,7 @@ HRESULT TexturingExample::setup() {
 void TexturingExample::render() {
     BaseExample::render();
 
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     // =========
@@ -100,9 +100,9 @@ void TexturingExample::render() {
     context_.immediateContext_->PSSetSamplers(0, 1, &textureSampler_);
     texturedCube_->draw(context_.immediateContext_);
 
-    // =========
+    // ==========
     // Draw floor
-    // =========
+    // ==========
     XMFLOAT4 planePos = XMFLOAT4(0.0, -2.0f, 0.0f, 1.0f);
     const XMMATRIX planeScale = XMMatrixScaling(20.0f, 0.2f, 20.0f);
     cb.World = XMMatrixTranspose(planeScale * XMMatrixTranslationFromVector(XMLoadFloat4(&planePos)));

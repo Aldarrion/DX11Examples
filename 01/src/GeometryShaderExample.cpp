@@ -26,7 +26,7 @@ HRESULT GeometryShaderExample::setup() {
         Layouts::TEXTURED_LAYOUT
     );
 
-    texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds");
+    texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds", true);
     sampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
     cube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
 
@@ -36,7 +36,7 @@ HRESULT GeometryShaderExample::setup() {
 void GeometryShaderExample::render() {
     BaseExample::render();
 
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     ConstantBuffer cb;
