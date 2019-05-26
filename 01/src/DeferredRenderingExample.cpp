@@ -10,6 +10,18 @@ using namespace DirectX;
  * All ligths and objects in this example are considered dynamic. For static objects and lights we could bake the lighting.
  */
 
+
+ContextSettings DeferredRenderingExample::getSettings() const {
+    ContextSettings settings = BaseExample::getSettings();
+    
+    // Disable multisampling in deferred rendering, it makes no sense there
+    // and we would have to take care to always use the same multisampling 
+    // settings for render/depth buffers which are used together
+    settings.MultisampleCount = 1;
+    
+    return settings;
+}
+
 HRESULT DeferredRenderingExample::setup() {
     BaseExample::setup();
 

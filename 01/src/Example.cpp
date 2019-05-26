@@ -9,6 +9,10 @@ XMVECTORF32 Util::srgbToLinear(const XMVECTORF32& color) {
     return clearColor;
 }
 
+ContextSettings Example::getSettings() const {
+    return ContextSettings{};
+}
+
 int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     AllocConsole();
     FILE *pCin, *pCout, *pCerr;
@@ -19,7 +23,9 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    auto hr = context_.Init(hInstance, nCmdShow);
+    const ContextSettings settings = getSettings();
+
+    auto hr = context_.init(hInstance, nCmdShow, settings);
     if (FAILED(hr)) {
         MessageBox(nullptr, L"Failed to init context wrapper", L"Error", MB_OK);
         return 0;
@@ -70,3 +76,4 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
 
     return static_cast<int>(msg.wParam);
 }
+

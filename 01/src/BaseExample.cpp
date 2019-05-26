@@ -45,6 +45,11 @@ void BaseExample::handleInput() {
     }
 }
 
+HRESULT BaseExample::setup() {
+    projection_ = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, context_.WIDTH / static_cast<FLOAT>(context_.HEIGHT), 0.01f, 100.0f);
+    return S_OK;
+}
+
 std::chrono::steady_clock::time_point lastFrame = std::chrono::high_resolution_clock::now();
 void BaseExample::render() {
     ++frameCount_;
@@ -63,4 +68,25 @@ void BaseExample::render() {
     }
 
     handleInput();
+}
+
+DirectX::XMMATRIX BaseExample::computeNormalMatrix(const DirectX::XMMATRIX & model) {
+    return XMMatrixTranspose(XMMatrixInverse(nullptr, model));
+}
+
+DirectX::XMMATRIX BaseExample::computeNormalMatrix(const std::vector<DirectX::XMMATRIX>& matrices) {
+    DirectX::XMMATRIX multiple = DirectX::XMMatrixIdentity();
+    for (const auto& matrix : matrices) {
+        multiple = XMMatrixMultiply(multiple, XMMatrixTranspose(matrix));
+    }
+    return XMMatrixTranspose(XMMatrixInverse(nullptr, multiple));
+}
+
+void BaseExample::clearViews() const {
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
+    context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+BaseExample::BaseExample() 
+    : camera_(DirectX::XMFLOAT3(0.0f, 0.0f, -10.0f)) {
 }

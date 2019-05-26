@@ -292,6 +292,7 @@
     <ClCompile Include="src\BaseExample.cpp" />
     <ClCompile Include="src\BasicTriangleExample.cpp" />
     <ClCompile Include="src\BillboardExample.cpp" />
+    <ClCompile Include="src\ContextWrapper.cpp" />
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\DeferredRenderingExample.cpp" />
     <ClCompile Include="src\Example.cpp" />
