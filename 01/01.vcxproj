@@ -298,6 +298,7 @@
     <ClCompile Include="src\Example.cpp" />
     <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\FontRenderingExample.cpp" />
+    <ClCompile Include="src\GammaCorrectionExample.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
     <ClCompile Include="src\Layouts.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -329,6 +330,7 @@
     <ClInclude Include="src\Exceptions.h" />
     <ClInclude Include="src\Font.h" />
     <ClInclude Include="src\FontRenderingExample.h" />
+    <ClInclude Include="src\GammaCorrectionExample.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
@@ -397,6 +399,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\ForwardShader.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\GammaCorrectionShowcase.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>

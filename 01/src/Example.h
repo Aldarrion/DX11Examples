@@ -9,6 +9,7 @@
 
 namespace Util {
 DirectX::XMVECTORF32 srgbToLinear(const DirectX::XMVECTORF32& color);
+DirectX::XMFLOAT4 srgbToLinearVec(const DirectX::XMVECTORF32& color);
 }
 
 

@@ -9,6 +9,13 @@ XMVECTORF32 Util::srgbToLinear(const XMVECTORF32& color) {
     return clearColor;
 }
 
+DirectX::XMFLOAT4 Util::srgbToLinearVec(const DirectX::XMVECTORF32& color) {
+    XMVECTORF32 clearColor;
+    clearColor.v = XMColorSRGBToRGB(color);
+    XMFLOAT4 vec(clearColor.f[0], clearColor.f[1], clearColor.f[2], clearColor.f[3]);
+    return vec;
+}
+
 ContextSettings Example::getSettings() const {
     return ContextSettings{};
 }

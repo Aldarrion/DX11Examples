@@ -43,7 +43,7 @@ HRESULT AlphaToCoverageExample::setup() {
         L"shaders/AlphaToCoverage.fx", "VS",
         L"shaders/AlphaToCoverage.fx", "PS",
         quad_->getVertexLayout()
-        );
+    );
 
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
