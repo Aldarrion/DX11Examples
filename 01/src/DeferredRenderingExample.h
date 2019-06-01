@@ -99,7 +99,9 @@ protected:
     WinKeyMap::WinKeyMap switchRenderingModeKey_ = WinKeyMap::R;
     std::unique_ptr<Text::Text> infoText_;
 
+    ContextSettings getSettings() const override;
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void handleInput() override;
     void render() override;
 

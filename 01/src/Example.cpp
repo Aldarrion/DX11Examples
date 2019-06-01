@@ -3,6 +3,23 @@
 
 using namespace DirectX;
 
+XMVECTORF32 Util::srgbToLinear(const XMVECTORF32& color) {
+    XMVECTORF32 clearColor;
+    clearColor.v = XMColorSRGBToRGB(color);
+    return clearColor;
+}
+
+DirectX::XMFLOAT4 Util::srgbToLinearVec(const DirectX::XMVECTORF32& color) {
+    XMVECTORF32 clearColor;
+    clearColor.v = XMColorSRGBToRGB(color);
+    XMFLOAT4 vec(clearColor.f[0], clearColor.f[1], clearColor.f[2], clearColor.f[3]);
+    return vec;
+}
+
+ContextSettings Example::getSettings() const {
+    return ContextSettings{};
+}
+
 int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     AllocConsole();
     FILE *pCin, *pCout, *pCerr;
@@ -13,7 +30,9 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    auto hr = context_.Init(hInstance, nCmdShow);
+    const ContextSettings settings = getSettings();
+
+    auto hr = context_.init(hInstance, nCmdShow, settings);
     if (FAILED(hr)) {
         MessageBox(nullptr, L"Failed to init context wrapper", L"Error", MB_OK);
         return 0;
@@ -21,8 +40,8 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
 
     hr = setup();
     if (FAILED(hr)) {
-        std::cout << "Failed to init device " << hr << std::endl;
-        MessageBox(nullptr, L"Failed to init device", L"Error", MB_OK);
+        std::cout << "Failed to setup the example " << hr << std::endl;
+        MessageBox(nullptr, L"Failed to setup the example", L"Error", MB_OK);
         return 0;
     }
 
@@ -64,3 +83,4 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
 
     return static_cast<int>(msg.wParam);
 }
+

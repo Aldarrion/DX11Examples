@@ -10,6 +10,18 @@ using namespace DirectX;
  * All ligths and objects in this example are considered dynamic. For static objects and lights we could bake the lighting.
  */
 
+
+ContextSettings DeferredRenderingExample::getSettings() const {
+    ContextSettings settings = BaseExample::getSettings();
+    
+    // Disable multisampling in deferred rendering, it makes no sense there
+    // and we would have to take care to always use the same multisampling 
+    // settings for render/depth buffers which are used together
+    settings.MultisampleCount = 1;
+    
+    return settings;
+}
+
 HRESULT DeferredRenderingExample::setup() {
     BaseExample::setup();
 
@@ -132,11 +144,9 @@ HRESULT DeferredRenderingExample::setup() {
     model_ = std::make_unique<Models::Model>(context_, path);
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
-    gShader_ = std::make_unique<GShader>(context_.d3dDevice_, L"shaders/DeferredGBuffer.fx", "VS", L"shaders/DeferredGBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
-    defferedLightShader_ = std::make_unique<DefferedShader>(context_.d3dDevice_, L"shaders/DeferredShader.fx", "VS", L"shaders/DeferredShader.fx", "PS", Layouts::POS_UV_LAYOUT);
-    forwardShader_ = std::make_unique<ForwardShader>(context_.d3dDevice_, L"shaders/ForwardShader.fx", "VS", L"shaders/ForwardShader.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
-    lightShader_ = Shaders::createSolidShader(context_);
-    gBufferDisplayShader_ = std::make_unique<GBufferDisplayShader>(context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
     anisoSampler_ = Samplers::createAnisoSampler(context_);
     pointSampler_ = std::make_unique<PointWrapSampler>(context_.d3dDevice_);
@@ -171,6 +181,15 @@ HRESULT DeferredRenderingExample::setup() {
     );
 
     return S_OK;
+}
+
+bool DeferredRenderingExample::reloadShadersInternal() {
+    return
+        Shaders::makeShader<GShader>(gShader_, context_.d3dDevice_, L"shaders/DeferredGBuffer.fx", "VS", L"shaders/DeferredGBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
+        && Shaders::makeShader<DefferedShader>(defferedLightShader_, context_.d3dDevice_, L"shaders/DeferredShader.fx", "VS", L"shaders/DeferredShader.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<ForwardShader>(forwardShader_, context_.d3dDevice_, L"shaders/ForwardShader.fx", "VS", L"shaders/ForwardShader.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
+        && Shaders::makeSolidShader(lightShader_, context_)
+        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 void DeferredRenderingExample::handleInput() {
@@ -255,7 +274,7 @@ void DeferredRenderingExample::renderDeferred() {
     // Set multiple rendering targets
     context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDepthView_);
     for (auto& view : views) {
-        context_.immediateContext_->ClearRenderTargetView(view, Colors::Black);
+        context_.immediateContext_->ClearRenderTargetView(view, Util::srgbToLinear(DirectX::Colors::Black));
     }
     context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 

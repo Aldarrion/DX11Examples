@@ -17,7 +17,7 @@ HRESULT BasicTriangleExample::setup() {
 
 void BasicTriangleExample::render() {
     // Clear the backbuffer with blue color
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, DirectX::Colors::MidnightBlue);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     // Clear the depth and stencil buffer
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 

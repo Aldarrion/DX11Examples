@@ -95,6 +95,21 @@
     <ClCompile Include="src\Font.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ShaderChangePerfExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AlphaToCoverageExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ContextWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GammaCorrectionExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -235,6 +250,15 @@
     <ClInclude Include="src\NormalMappingExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
+    <ClInclude Include="src\ShaderChangePerfExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AlphaToCoverageExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GammaCorrectionExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Phong.fx">
@@ -310,6 +334,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\NormalMap.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\AlphaToCoverage.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\GammaCorrectionShowcase.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

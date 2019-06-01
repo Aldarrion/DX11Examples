@@ -214,11 +214,9 @@ HRESULT SSAO::SSAOExample::setup() {
     std::string path = "models/nanosuit/nanosuit.obj";
     model_ = std::make_unique<Models::Model>(context_, path);
 
-    gShader_ = std::make_unique<GShader>(context_.d3dDevice_, L"shaders/SSAO_GBuffer.fx", "VS", L"shaders/SSAO_GBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
-    gBufferDisplayShader_ = std::make_unique<GBufferDisplayShader>(context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
-    ssaoShader_ = std::make_unique<SSAOShader>(context_.d3dDevice_, L"shaders/SSAO.fx", "VS", L"shaders/SSAO.fx", "PS", Layouts::POS_UV_LAYOUT);
-    ssaoBlurShader_ = std::make_unique<SSAOBlurShader>(context_.d3dDevice_, L"shaders/SSAO_Blur.fx", "VS", L"shaders/SSAO_Blur.fx", "PS", Layouts::POS_UV_LAYOUT);
-    ssaoLightShader_ = std::make_unique<SSAOLightShader>(context_.d3dDevice_, L"shaders/SSAO_Light.fx", "VS", L"shaders/SSAO_Light.fx", "PS", Layouts::POS_UV_LAYOUT);
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
     pointSampler_ = std::make_unique<PointWrapSampler>(context_.d3dDevice_);
 
@@ -236,6 +234,15 @@ HRESULT SSAO::SSAOExample::setup() {
     infoText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "PLACEHOLDER TEXT");
 
     return S_OK;
+}
+
+bool SSAO::SSAOExample::reloadShadersInternal() {
+    return
+        Shaders::makeShader<GShader>(gShader_, context_.d3dDevice_, L"shaders/SSAO_GBuffer.fx", "VS", L"shaders/SSAO_GBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
+        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOShader>(ssaoShader_, context_.d3dDevice_, L"shaders/SSAO.fx", "VS", L"shaders/SSAO.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOBlurShader>(ssaoBlurShader_, context_.d3dDevice_, L"shaders/SSAO_Blur.fx", "VS", L"shaders/SSAO_Blur.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOLightShader>(ssaoLightShader_, context_.d3dDevice_, L"shaders/SSAO_Light.fx", "VS", L"shaders/SSAO_Light.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 std::vector<XMFLOAT3> SSAO::SSAOExample::generateNoise() {

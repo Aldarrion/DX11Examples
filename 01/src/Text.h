@@ -12,6 +12,7 @@ namespace Text {
 struct GlyphCb {
     DirectX::XMMATRIX Model;
     DirectX::XMFLOAT4 UVWH;
+    DirectX::XMFLOAT4 TextColor;
 };
 
 class Text {
@@ -20,8 +21,9 @@ private:
     Quad quad_;
     ShaderProgram<GlyphCb> fontShader_;
     Font font_;
-    float sizeMultiplier_ = 1.0f;
+    DirectX::XMFLOAT4 textColor_;
     DirectX::XMFLOAT2 position_;
+    float sizeMultiplier_ = 1.0f;
     float lineSpacing_ = 0.2f;
 
 public:
@@ -29,6 +31,7 @@ public:
 
     void setText(const std::string& newText);
     void setSize(float size);
+    void setColor(const DirectX::XMFLOAT4& color);
     void setPosition(const DirectX::XMFLOAT2& position);
     void setLineSpacing(float lineSpacing);
 

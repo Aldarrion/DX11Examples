@@ -107,12 +107,13 @@ void GS(point GSPS_INPUT input[1], inout TriangleStream<GSPS_INPUT> triangleStre
 // Pixel shader
 // ============
 float4 PS(GSPS_INPUT input) : SV_Target {
-    float4 col = saturate(diffuseTexture.Sample(diffuseSampler, input.UV));
+    float4 col = diffuseTexture.Sample(diffuseSampler, input.UV);
     
-    // Different thresholds will produce differently sharp cutouts
-    const float alphaDiscardThold = 0.2;
-    if (col.a < alphaDiscardThold)
-        discard; // Disacard so depth is not written
+    //const float alphaDiscardThold = 0.5;
+    //clip(col.a - alphaDiscardThold);
+    //col.a = 1.0;
+
+    col.a = (col.a - 0.5) / max(fwidth(col.a), 0.0001) + 0.5;
     
-    return col;
+    return saturate(col);
 }
