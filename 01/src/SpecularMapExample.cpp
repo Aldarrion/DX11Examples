@@ -6,10 +6,14 @@ namespace Specular {
 using namespace DirectX;
 
 HRESULT SpecularMapExample::setup() {
-    BaseExample::setup();
+    auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
 
-    shader_ = std::make_unique<SpecularShader>(context_.d3dDevice_, L"shaders/Specular.fx", "VS", L"shaders/Specular.fx", "PS", Layouts::TEXTURED_LAYOUT);
-    solidShader_ = Shaders::createSolidShader(context_);
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
+
     seaFloorTexture_ = Textures::createSeaFloorTexture(context_);
     boxDiffuse_ = Textures::createBoxDiffuse(context_);
     boxSpecular_ = Textures::createBoxSpecular(context_);
@@ -24,6 +28,12 @@ HRESULT SpecularMapExample::setup() {
     );
 
     return S_OK;
+}
+
+bool SpecularMapExample::reloadShadersInternal() {
+    return
+        Shaders::makeShader<SpecularShader>(shader_, context_.d3dDevice_, L"shaders/Specular.fx", "VS", L"shaders/Specular.fx", "PS", Layouts::TEXTURED_LAYOUT)
+        && Shaders::makeSolidShader(solidShader_, context_);
 }
 
 void SpecularMapExample::render() {

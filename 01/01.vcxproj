@@ -308,6 +308,7 @@
     <ClCompile Include="src\PhongShadingExample.cpp" />
     <ClCompile Include="src\PlaneTangentBitangent.cpp" />
     <ClCompile Include="src\ShaderChangePerfExample.cpp" />
+    <ClCompile Include="src\ShaderProgram.cpp" />
     <ClCompile Include="src\ShadowsExample.cpp" />
     <ClCompile Include="src\SpecularMapExample.cpp" />
     <ClCompile Include="src\SSAOExample.cpp" />

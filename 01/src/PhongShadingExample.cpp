@@ -4,25 +4,20 @@
 
 using namespace DirectX;
 
-HRESULT Phong::PhongShadingExample::setup() {
-    BaseExample::setup();
+namespace Phong {
 
-    // Define the input layout
-    std::vector<D3D11_INPUT_ELEMENT_DESC> layout = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    };
+HRESULT PhongShadingExample::setup() {
+    auto hr = BaseExample::setup();
+    if (FAILED(hr)) return hr;
 
-    // Create shaders
-	phongShader_ = std::make_unique<PhongShader>(context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout);
-    solidShader_ = std::make_unique<SolidShader>(context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
+    hr = reloadShaders();
+    if (FAILED(hr)) return hr;
 
     // Create object to draw
-	// We will use this CUBE model to actually render everything
-	//   1) the cube in the middle, which is lit
-	//   2) the plane under the cube (it's just going to be a big cube)
-	//   3) each light will be also rendered as an unlit white cube (with solidShader)
+    // We will use this CUBE model to actually render everything
+    //   1) the cube in the middle, which is lit
+    //   2) the plane under the cube (it's just going to be a big cube)
+    //   3) each light will be also rendered as an unlit white cube (with solidShader)
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     // Create info text with hint to render on screen
@@ -31,7 +26,21 @@ HRESULT Phong::PhongShadingExample::setup() {
     return S_OK;
 }
 
-void Phong::PhongShadingExample::render() {
+bool PhongShadingExample::reloadShadersInternal() {
+    // Define the input layout
+    std::vector<D3D11_INPUT_ELEMENT_DESC> layout = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+
+    // Create shaders
+    return
+        Shaders::makeShader<PhongShader>(phongShader_, context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout)
+        && Shaders::makeShader<SolidShader>(solidShader_, context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
+}
+
+void PhongShadingExample::render() {
     BaseExample::render();
 
     // Setup our lighting parameters
@@ -111,7 +120,7 @@ void Phong::PhongShadingExample::render() {
         const XMMATRIX lightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
         for (int m = 0; m < 1; m++) {
             XMMATRIX lightModelMatrix = XMMatrixTranslationFromVector(XMLoadFloat4(&pointLightPositions[m]));
-            
+
             lightModelMatrix = lightScale * lightModelMatrix;
 
             // Update the world variable to reflect the current light
@@ -150,7 +159,7 @@ void Phong::PhongShadingExample::render() {
     context_.swapChain_->Present(0, 0);
 }
 
-void Phong::PhongShadingExample::handleInput() {
+void PhongShadingExample::handleInput() {
     BaseExample::handleInput();
 
     float step = 1.f;
@@ -163,4 +172,6 @@ void Phong::PhongShadingExample::handleInput() {
     }
 
     shininess_ = std::max(1.f, std::min(shininess_, 256.0f));
+}
+
 }

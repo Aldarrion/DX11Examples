@@ -7,12 +7,19 @@
 #include <iostream>
 #include "Layouts.h"
 #include "ConstantBuffers.h"
+#include "ContextWrapper.h"
 
+namespace Shaders {
+
+extern bool isLastCompileOK;
+
+}
 
 template<typename ... TCBuffers>
 class ShaderProgram : public ResourceHolder {
     typedef std::tuple<TCBuffers ...> types;
     typedef std::array<ID3D11Buffer*, sizeof...(TCBuffers)> buffer_array_t;
+
 
     buffer_array_t cbuffers_;
     ID3D11VertexShader* vertexShader_;
@@ -60,23 +67,24 @@ public:
     ) {
         // Compile vertex shader
         ID3DBlob* VSBlob = nullptr;
+
         auto hr = CompileShaderFromFile(vertexPath, vertexStart, "vs_5_0", &VSBlob);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"The FX file cannot be compiled (VS). See errors in console.", L"Error", MB_OK);
+            //MessageBox(nullptr, L"The FX file cannot be compiled (VS). See errors in console.", L"Error", MB_OK);
             return;
         }
         // Create vertex shader
         hr = device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), nullptr, &vertexShader_);
         if (FAILED(hr)) {
             VSBlob->Release();
-            MessageBox(nullptr, L"Failed to create vertex shader", L"Error", MB_OK);
+            //MessageBox(nullptr, L"Failed to create vertex shader", L"Error", MB_OK);
             return;
         }
         // Create input layout
         hr = device->CreateInputLayout(layout.data(), static_cast<UINT>(layout.size()), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), &inputLayout_);
         VSBlob->Release();
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"Failed to create input layout", L"Error", MB_OK);
+            //MessageBox(nullptr, L"Failed to create input layout", L"Error", MB_OK);
             return;
         }
 
@@ -84,7 +92,7 @@ public:
         ID3DBlob* PSBlob = nullptr;
         hr = CompileShaderFromFile(pixelPath, pixelStart, "ps_5_0", &PSBlob);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"The FX file cannot be compiled (PS). See errors in console.", L"Error", MB_OK);
+            //MessageBox(nullptr, L"The FX file cannot be compiled (PS). See errors in console.", L"Error", MB_OK);
             return;
         }
 
@@ -92,7 +100,7 @@ public:
         hr = device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), nullptr, &pixelShader_);
         PSBlob->Release();
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"Failed to create pixel shader", L"Error", MB_OK);
+            //MessageBox(nullptr, L"Failed to create pixel shader", L"Error", MB_OK);
             return;
         }
 
@@ -101,7 +109,7 @@ public:
             ID3DBlob* GSBlob = nullptr;
             hr = CompileShaderFromFile(geomPath, geomStart, "gs_5_0", &GSBlob);
             if (FAILED(hr)) {
-                MessageBox(nullptr, L"The FX file cannot be compiled (GS). See errors in console.", L"Error", MB_OK);
+                //MessageBox(nullptr, L"The FX file cannot be compiled (GS). See errors in console.", L"Error", MB_OK);
                 return;
             }
 
@@ -132,7 +140,7 @@ public:
             GSBlob->Release();
             if (FAILED(hr)) {
                 std::cout << hr << std::endl;
-                MessageBox(nullptr, L"Failed to create geometry shader", L"Error", MB_OK);
+                //MessageBox(nullptr, L"Failed to create geometry shader", L"Error", MB_OK);
                 return;
             }
         } else {
@@ -226,6 +234,7 @@ private:
 #endif
 
         ID3DBlob* pErrorBlob = nullptr;
+        std::wcout << "Compiling: " << szFileName << " | " << szEntryPoint << std::endl;
         hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
         if (FAILED(hr)) {
             if (pErrorBlob) {
@@ -234,12 +243,15 @@ private:
                 OutputDebugStringA(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
                 pErrorBlob->Release();
             }
+            Shaders::isLastCompileOK = false;
             return hr;
         }
         if (pErrorBlob) {
             pErrorBlob->Release();
         }
 
+        Shaders::isLastCompileOK = true;
+        std::cout << "Success!" << std::endl;
         return S_OK;
     }
 };
@@ -249,5 +261,30 @@ namespace Shaders {
     using PSolidShader = std::unique_ptr<SolidShader>;
     inline PSolidShader createSolidShader(const ContextWrapper& context) {
         return std::make_unique<SolidShader>(context.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
+    }
+
+    template<typename ShaderT>
+    inline bool makeShader(
+        std::unique_ptr<ShaderT>& oldShader,
+        ID3D11Device* device,
+        const WCHAR* vertexPath,
+        const char* vertexStart,
+        const WCHAR* pixelPath,
+        const char* pixelStart,
+        const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout,
+        const WCHAR* geomPath = nullptr,
+        const char* geomStart = nullptr
+    ) {
+        auto shader = std::make_unique<ShaderT>(device, vertexPath, vertexStart, pixelPath, pixelStart, layout, geomPath, geomStart);
+        if (Shaders::isLastCompileOK) {
+            oldShader = std::move(shader);
+            return true;
+        }
+        
+        return false;
+    }
+
+    inline bool makeSolidShader(PSolidShader& oldShader, const ContextWrapper& context) {
+        return makeShader<SolidShader>(oldShader, context.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
     }
 }

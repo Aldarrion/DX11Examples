@@ -21,6 +21,7 @@ protected:
     float shininess_ = 32.0f;
 
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void render() override;
     void handleInput() override;
 

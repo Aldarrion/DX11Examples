@@ -6,17 +6,29 @@ namespace ModelLoading {
 using namespace DirectX;
 
 HRESULT ModelLoadingExample::setup() {
-    BaseExample::setup();
+    auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
+
     //std::string path = "models/rock/rock.obj";
     //std::string path = "models/cyborg/cyborg.obj";
     std::string path = "models/nanosuit/nanosuit.obj";
     //std::string path = "models/planet/planet.obj";
 
     model_ = std::make_unique<Models::Model>(context_, path);
-    shader_ = std::make_unique<ShaderProgram<SpecularCB>>(context_.d3dDevice_, L"shaders/ModelPhong.fx", "VS", L"shaders/ModelPhong.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
+
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
+    
     sampler_ = Samplers::createAnisoSampler(context_);
 
     return S_OK;
+}
+
+bool ModelLoadingExample::reloadShadersInternal() {
+    return
+        Shaders::makeShader<ShaderProgram<SpecularCB>>(shader_, context_.d3dDevice_, L"shaders/ModelPhong.fx", "VS", L"shaders/ModelPhong.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
 }
 
 void ModelLoadingExample::render() {

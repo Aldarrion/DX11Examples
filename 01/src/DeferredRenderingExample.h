@@ -101,6 +101,7 @@ protected:
 
     ContextSettings getSettings() const override;
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void handleInput() override;
     void render() override;
 

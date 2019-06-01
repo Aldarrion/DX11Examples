@@ -32,18 +32,17 @@ namespace AlphaToCoverage {
 
 HRESULT AlphaToCoverageExample::setup() {
     auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
 
     texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/AlphaToCoverage.dds", true);
     sampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
 
     quad_ = std::make_unique<Quad>(context_.d3dDevice_);
 
-    shader_ = std::make_unique<AtoCShader>(
-        context_.d3dDevice_,
-        L"shaders/AlphaToCoverage.fx", "VS",
-        L"shaders/AlphaToCoverage.fx", "PS",
-        quad_->getVertexLayout()
-    );
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
@@ -87,6 +86,16 @@ HRESULT AlphaToCoverageExample::setup() {
     text_->setColor(DirectX::XMFLOAT4(0, 0, 0, 1));
 
     return hr;
+}
+
+bool AlphaToCoverageExample::reloadShadersInternal() {
+    return Shaders::makeShader<AtoCShader>(
+        shader_,
+        context_.d3dDevice_,
+        L"shaders/AlphaToCoverage.fx", "VS",
+        L"shaders/AlphaToCoverage.fx", "PS",
+        quad_->getVertexLayout()
+    );
 }
 
 void AlphaToCoverageExample::handleInput() {

@@ -19,33 +19,20 @@ struct PosVertex {
 ID3D11RasterizerState* state = nullptr;
 
 HRESULT BillboardExample::setup() {
-    BaseExample::setup();
+    auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
 
     frameTimeText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
-
-    textureShader_ = std::make_unique<TextureShader>(
-        context_.d3dDevice_,
-        L"shaders/UnlitGeom.fx", "VS",
-        L"shaders/UnlitGeom.fx", "PS",
-        Layouts::TEXTURED_LAYOUT
-    );
 
     plane_ = std::make_unique<Plane>(context_.d3dDevice_);
     seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", true);
     grassBillboard_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/grassBillboard.dds", true);
     diffuseSampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
 
-    std::vector<D3D11_INPUT_ELEMENT_DESC> posLayout = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
-
-    billboardShader_ = std::make_unique<BillboardShader>(
-        context_.d3dDevice_, 
-        L"shaders/Billboard.fx", "VS",
-        L"shaders/Billboard.fx", "PS",
-        posLayout,
-        L"shaders/Billboard.fx", "GS"
-    );
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
     // ==============================
     // Setup point for grass position
@@ -64,7 +51,7 @@ HRESULT BillboardExample::setup() {
     D3D11_SUBRESOURCE_DATA InitData;
     ZeroMemory(&InitData, sizeof(InitData));
     InitData.pSysMem = vertices.data();
-    auto hr = context_.d3dDevice_->CreateBuffer(&bd, &InitData, &vertexBuffer_);
+    hr = context_.d3dDevice_->CreateBuffer(&bd, &InitData, &vertexBuffer_);
     if (FAILED(hr)) {
         MessageBox(nullptr, L"Failed to create vertex buffer", L"Error", MB_OK);
         return hr;
@@ -138,6 +125,29 @@ HRESULT BillboardExample::setup() {
     }
 
     return S_OK;
+}
+
+bool BillboardExample::reloadShadersInternal() {
+    std::vector<D3D11_INPUT_ELEMENT_DESC> posLayout = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    return
+        Shaders::makeShader<TextureShader>(
+        textureShader_,
+        context_.d3dDevice_,
+        L"shaders/UnlitGeom.fx", "VS",
+        L"shaders/UnlitGeom.fx", "PS",
+        Layouts::TEXTURED_LAYOUT)
+
+    && Shaders::makeShader<BillboardShader>(
+        billboardShader_,
+        context_.d3dDevice_,
+        L"shaders/Billboard.fx", "VS",
+        L"shaders/Billboard.fx", "PS",
+        posLayout,
+        L"shaders/Billboard.fx", "GS"
+    );
 }
 
 void BillboardExample::handleInput() {

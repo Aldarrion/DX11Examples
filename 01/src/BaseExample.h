@@ -18,6 +18,8 @@ protected:
     float deltaTimeSMA_ = 0.0f;
     size_t frameCount_ = 0;
 
+    HRESULT reloadShaders();
+    virtual bool reloadShadersInternal() { return true; }
     virtual void handleInput();
     HRESULT setup() override;
     void render() override;

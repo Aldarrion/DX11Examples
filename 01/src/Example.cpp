@@ -40,8 +40,8 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
 
     hr = setup();
     if (FAILED(hr)) {
-        std::cout << "Failed to init device " << hr << std::endl;
-        MessageBox(nullptr, L"Failed to init device", L"Error", MB_OK);
+        std::cout << "Failed to setup the example " << hr << std::endl;
+        MessageBox(nullptr, L"Failed to setup the example", L"Error", MB_OK);
         return 0;
     }
 

@@ -17,12 +17,14 @@ protected:
     using GammaCorrectionShader = ShaderProgram<GammaCorrectionCb>;
 
     std::unique_ptr<GammaCorrectionShader> shader_;
+
     std::unique_ptr<Quad> quad_;
     std::unique_ptr<Text::Text> caption_;
 
     bool isGammaCorrectionEnabled_{ true };
 
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void handleInput() override;
     void render() override;
 };

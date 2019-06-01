@@ -93,6 +93,7 @@ protected:
     bool isSSAOOn_ = true;
 
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     std::vector<DirectX::XMFLOAT3> generateNoise();
     std::vector<DirectX::XMFLOAT4> generateKernel();
     void handleInput() override;

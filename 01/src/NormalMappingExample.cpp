@@ -7,12 +7,15 @@ using namespace DirectX;
 
 HRESULT NormalMappingExample::setup() {
     auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
 
     cube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
     plane_ = std::make_unique<PlaneTangentBitangent>(context_.d3dDevice_);
 
-    normalMapShader_ = std::make_unique<NormalMapShader>(context_.d3dDevice_, L"shaders/NormalMap.fx", "VS", L"shaders/NormalMap.fx", "PS", plane_->getVertexLayout());
-    solidShader_ = Shaders::createSolidShader(context_);
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
     wallDiffuse_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/brickwall.dds", true);
     wallNormalMap_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/brickwall_normal.dds", false);
@@ -30,6 +33,12 @@ HRESULT NormalMappingExample::setup() {
     infoText_ = Text::makeText(context_.d3dDevice_, context_.immediateContext_, "\n " + to_string(toggleRotationKey_) + ": to toggle rotation.");
 
     return hr;
+}
+
+bool NormalMappingExample::reloadShadersInternal() {
+    return 
+        Shaders::makeShader<NormalMapShader>(normalMapShader_, context_.d3dDevice_, L"shaders/NormalMap.fx", "VS", L"shaders/NormalMap.fx", "PS", plane_->getVertexLayout())
+        && Shaders::makeSolidShader(solidShader_, context_);
 }
 
 void NormalMappingExample::handleInput() {

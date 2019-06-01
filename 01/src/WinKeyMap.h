@@ -1,5 +1,7 @@
 #pragma once
 
+#include <WinUser.h>
+
 namespace WinKeyMap {
 enum WinKeyMap {
     A = 0x41, // Set A, other keys are always + 1
@@ -27,7 +29,20 @@ enum WinKeyMap {
     W,
     X,
     Y,
-    Z
+    Z,
+
+    F1 = VK_F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12,
 };
 
 inline std::string to_string(const WinKeyMap keyCode) {

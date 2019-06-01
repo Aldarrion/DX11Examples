@@ -5,6 +5,12 @@
 
 using namespace DirectX;
 
+HRESULT BaseExample::reloadShaders() {
+    if (reloadShadersInternal())
+        return S_OK;
+    return E_FAIL;
+}
+
 void BaseExample::handleInput() {
     if (GetActiveWindow() != context_.hWnd_)
         return;
@@ -43,10 +49,18 @@ void BaseExample::handleInput() {
     if (mouseState.positionMode == Mouse::MODE_RELATIVE) {
         camera_.ProcessMouseMovement(static_cast<float>(-mouseState.x), static_cast<float>(mouseState.y));
     }
+
+    if (GetAsyncKeyState(WinKeyMap::F5) & 1) {
+        std::cout << "+++ Reloading shaders" << std::endl;
+        if (FAILED(reloadShaders()))
+            std::cout << "--- Reload failed" << std::endl;
+        else
+            std::cout << "--- Reload successful" << std::endl;
+    }
 }
 
 HRESULT BaseExample::setup() {
-    projection_ = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, context_.WIDTH / static_cast<FLOAT>(context_.HEIGHT), 0.01f, 100.0f);
+    projection_ = DirectX::XMMatrixPerspectiveFovLH(XM_PIDIV4, context_.WIDTH / static_cast<FLOAT>(context_.HEIGHT), 0.01f, 100.0f);
     return S_OK;
 }
 
@@ -70,12 +84,12 @@ void BaseExample::render() {
     handleInput();
 }
 
-DirectX::XMMATRIX BaseExample::computeNormalMatrix(const DirectX::XMMATRIX & model) {
+XMMATRIX BaseExample::computeNormalMatrix(const DirectX::XMMATRIX & model) {
     return XMMatrixTranspose(XMMatrixInverse(nullptr, model));
 }
 
-DirectX::XMMATRIX BaseExample::computeNormalMatrix(const std::vector<DirectX::XMMATRIX>& matrices) {
-    DirectX::XMMATRIX multiple = DirectX::XMMatrixIdentity();
+XMMATRIX BaseExample::computeNormalMatrix(const std::vector<DirectX::XMMATRIX>& matrices) {
+    XMMATRIX multiple = DirectX::XMMatrixIdentity();
     for (const auto& matrix : matrices) {
         multiple = XMMatrixMultiply(multiple, XMMatrixTranspose(matrix));
     }
@@ -88,5 +102,5 @@ void BaseExample::clearViews() const {
 }
 
 BaseExample::BaseExample() 
-    : camera_(DirectX::XMFLOAT3(0.0f, 0.0f, -10.0f)) {
+    : camera_(XMFLOAT3(0.0f, 0.0f, -10.0f)) {
 }

@@ -10,19 +10,29 @@ namespace ShaderChangePerf {
 using namespace DirectX;
 
 HRESULT ShaderChangePerfExample::setup() {
-    auto result = BaseExample::setup();
+    auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
 
     frameTimeText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
 
-    shader1_ = std::make_unique<Shader1>(context_.d3dDevice_, L"shaders/ChangePerf_1.fx", "VS", L"shaders/ChangePerf_1.fx", "PS", Layouts::POS_LAYOUT);
-    shader2_ = std::make_unique<Shader2>(context_.d3dDevice_, L"shaders/ChangePerf_2.fx", "VS", L"shaders/ChangePerf_2.fx", "PS", Layouts::POS_LAYOUT);
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
+    
     triangle_ = std::make_unique<Triangle>(context_.d3dDevice_);
 
     for (int i = 0; i < MODEL_COUNT; ++i) {
         modelTransforms_.emplace_back(XMFLOAT3(0, -2, i / 2.0f));
     }
 
-    return result;
+    return S_OK;
+}
+
+bool ShaderChangePerfExample::reloadShadersInternal() {
+    return 
+        Shaders::makeShader<Shader1>(shader1_, context_.d3dDevice_, L"shaders/ChangePerf_1.fx", "VS", L"shaders/ChangePerf_1.fx", "PS", Layouts::POS_LAYOUT)
+        && Shaders::makeShader<Shader2>(shader2_, context_.d3dDevice_, L"shaders/ChangePerf_2.fx", "VS", L"shaders/ChangePerf_2.fx", "PS", Layouts::POS_LAYOUT);
 }
 
 void ShaderChangePerfExample::handleInput() {

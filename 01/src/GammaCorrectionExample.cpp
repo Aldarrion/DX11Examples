@@ -13,20 +13,29 @@ std::string makeCaption(bool isGammaCorrectionEnabled) {
 
 HRESULT GammaCorrectionExample::setup() {
     auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
 
     quad_ = std::make_unique<Quad>(context_.d3dDevice_);
 
-    shader_ = std::make_unique<GammaCorrectionShader>(
-        context_.d3dDevice_,
-        L"shaders/GammaCorrectionShowcase.fx", "VS",
-        L"shaders/GammaCorrectionShowcase.fx", "PS",
-        quad_->getVertexLayout()
-    );
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
     caption_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, makeCaption(isGammaCorrectionEnabled_));
     caption_->setColor(Util::srgbToLinearVec(Colors::Aqua));
 
     return hr;
+}
+
+bool GammaCorrectionExample::reloadShadersInternal() {
+    return Shaders::makeShader<GammaCorrectionShader>(
+        shader_,
+        context_.d3dDevice_,
+        L"shaders/GammaCorrectionShowcase.fx", "VS",
+        L"shaders/GammaCorrectionShowcase.fx", "PS",
+        quad_->getVertexLayout()
+    );
 }
 
 void GammaCorrectionExample::handleInput() {

@@ -34,6 +34,7 @@ protected:
     BlendMode blendMode_;
 
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void handleInput() override;
     void render() override;
 };

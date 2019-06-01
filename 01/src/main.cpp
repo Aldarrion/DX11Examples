@@ -16,9 +16,9 @@
 #include "AlphaToCoverageExample.h"
 #include "GammaCorrectionExample.h"
 
-std::unique_ptr<Example> example;
-
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
+    std::unique_ptr<Example> example;
+
     //example = std::make_unique<BasicTriangleExample>();
     //example = std::make_unique<Phong::PhongShadingExample>();
     //example = std::make_unique<Texturing::TexturingExample>();

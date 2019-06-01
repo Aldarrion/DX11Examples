@@ -7,16 +7,14 @@ namespace Texturing {
 using namespace DirectX;
 
 HRESULT TexturingExample::setup() {
-    BaseExample::setup();
+    auto hr = BaseExample::setup();
+    if (FAILED(hr)) 
+        return hr;
 
-    std::vector<D3D11_INPUT_ELEMENT_DESC> texturedLayout = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
-    texturedPhong_ = std::make_unique<ShaderProgram<ConstantBuffer>>(context_.d3dDevice_, L"shaders/Textured.fx", "VS", L"shaders/Textured.fx", "PS", texturedLayout);
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
     texturedPlane_ = std::make_unique<Plane>(context_.d3dDevice_);
     solidShader_ = Shaders::createSolidShader(context_);
@@ -25,7 +23,7 @@ HRESULT TexturingExample::setup() {
     // ========================
     // Create sea floor texture
     // ========================
-    auto hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", true, nullptr, &seaFloorTexture_);
+    hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", true, nullptr, &seaFloorTexture_);
     
     /* Uncomment following to allow mipmap generation */
     //hr = CreateDDSTextureFromFile(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
@@ -71,6 +69,17 @@ HRESULT TexturingExample::setup() {
         return hr;
 
     return S_OK;
+}
+
+bool TexturingExample::reloadShadersInternal() {
+    std::vector<D3D11_INPUT_ELEMENT_DESC> texturedLayout = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    return Shaders::makeShader<TextureShader>(texturedPhong_, context_.d3dDevice_, L"shaders/Textured.fx", "VS", L"shaders/Textured.fx", "PS", texturedLayout);
 }
 
 void TexturingExample::render() {

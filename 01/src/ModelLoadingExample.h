@@ -23,9 +23,7 @@ protected:
     std::unique_ptr<ShaderProgram<SpecularCB>> shader_;
     
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void render() override;
-
-public:
-    virtual ~ModelLoadingExample() = default;
 };
 }
