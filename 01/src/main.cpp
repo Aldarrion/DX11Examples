@@ -26,7 +26,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     //example = std::make_unique<GeometryShader::GeometryShaderExample>();
     //example = std::make_unique<Billboard::BillboardExample>();
     //example = std::make_unique<Specular::SpecularMapExample>();
-    //example = std::make_unique<NormalMap::NormalMappingExample>();
+    example = std::make_unique<NormalMap::NormalMappingExample>();
     //example = std::make_unique<FontRendering::FontRenderingExample>();
     //example = std::make_unique<ModelLoading::ModelLoadingExample>();
     //example = std::make_unique<Deferred::DeferredRenderingExample>();
@@ -34,7 +34,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     //example = std::make_unique<ShaderChangePerf::ShaderChangePerfExample>();
     //example = std::make_unique<AlphaToCoverage::AlphaToCoverageExample>();
-    example = std::make_unique<GammaCorrection::GammaCorrectionExample>();
+    //example = std::make_unique<GammaCorrection::GammaCorrectionExample>();
 
     return example->run(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }
