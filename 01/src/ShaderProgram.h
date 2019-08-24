@@ -21,11 +21,11 @@ class ShaderProgram : public ResourceHolder {
     typedef std::array<ID3D11Buffer*, sizeof...(TCBuffers)> buffer_array_t;
 
 
-    buffer_array_t cbuffers_;
-    ID3D11VertexShader* vertexShader_;
-    ID3D11GeometryShader* geometryShader_;
-    ID3D11PixelShader* pixelShader_;
-    ID3D11InputLayout* inputLayout_;
+    buffer_array_t cbuffers_{};
+    ID3D11VertexShader* vertexShader_{};
+    ID3D11GeometryShader* geometryShader_{};
+    ID3D11PixelShader* pixelShader_{};
+    ID3D11InputLayout* inputLayout_{};
 
     template<int ArrSize, int N>
     struct InitCb {
@@ -157,7 +157,8 @@ public:
         if (inputLayout_) inputLayout_->Release();
         if (!cbuffers_.empty()) {
             for (auto cbuffer : cbuffers_) {
-                cbuffer->Release();
+                if (cbuffer)
+                    cbuffer->Release();
             }
         }
     }
