@@ -261,6 +261,7 @@
     </ClInclude>
     <ClInclude Include="src\GammaCorrectionExample.h">
       <Filter>Header Files\Examples</Filter>
+    </ClInclude>
     <ClInclude Include="src\SignedDistanceFieldFontExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
