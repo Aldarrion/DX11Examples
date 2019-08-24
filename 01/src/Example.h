@@ -40,4 +40,6 @@ protected:
      * \brief Called every frame. Use to update and render your example.
      */
     virtual void render() = 0;
+
+    virtual DirectX::Mouse::Mode getInitialMouseMode();
 };

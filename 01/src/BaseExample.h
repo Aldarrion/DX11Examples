@@ -28,4 +28,6 @@ protected:
     static DirectX::XMMATRIX computeNormalMatrix(const std::vector<DirectX::XMMATRIX>& matrices);
 
     void clearViews() const;
+
+    void showMouse();
 };

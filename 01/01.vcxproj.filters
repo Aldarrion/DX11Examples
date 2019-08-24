@@ -351,6 +351,9 @@
     <FxCompile Include="shaders\GammaCorrectionShowcase.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\SDFFont.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\PlaneTangentBitangent.h">

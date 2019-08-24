@@ -20,6 +20,10 @@ ContextSettings Example::getSettings() const {
     return ContextSettings{};
 }
 
+Mouse::Mode Example::getInitialMouseMode() {
+    return Mouse::MODE_RELATIVE;
+}
+
 int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     AllocConsole();
     FILE *pCin, *pCout, *pCerr;
@@ -38,6 +42,11 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
         return 0;
     }
 
+    mouse_ = std::make_unique<Mouse>();
+    mouse_->SetWindow(context_.hWnd_);
+    mouse_->SetMode(getInitialMouseMode());
+
+
     hr = setup();
     if (FAILED(hr)) {
         std::cout << "Failed to setup the example " << hr << std::endl;
@@ -45,9 +54,6 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
         return 0;
     }
 
-    mouse_ = std::make_unique<Mouse>();
-    mouse_->SetWindow(context_.hWnd_);
-    mouse_->SetMode(Mouse::MODE_RELATIVE);
 
     // Main message loop
     MSG msg = { 0 };

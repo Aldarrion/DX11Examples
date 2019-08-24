@@ -101,6 +101,10 @@ void BaseExample::clearViews() const {
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
+void BaseExample::showMouse() {
+    mouse_->SetMode(Mouse::MODE_ABSOLUTE);
+}
+
 BaseExample::BaseExample() 
     : camera_(XMFLOAT3(0.0f, 0.0f, -10.0f)) {
 }

@@ -4,28 +4,29 @@
 #include "ResourceHolder.h"
 
 class Texture : public ResourceHolder {
-private:
-    ID3D11ShaderResourceView* texture_;
-
 public:
     Texture(ID3D11Device* device, ID3D11DeviceContext* context, const WCHAR* pathToDDS, bool isSRGB) {
-        auto hr = DirectX::CreateDDSTextureFromFile(device, context, pathToDDS, isSRGB, nullptr, &texture_);
+        auto hr = DirectX::CreateDDSTextureFromFile(device, context, pathToDDS, isSRGB, &textureResource_, &texture_);
         if (FAILED(hr)) {
             MessageBox(nullptr, L"Texture could not have been loaded", L"Error", MB_OK);
         }
     }
     ~Texture() {
         if (texture_) texture_->Release();
+        if (textureResource_) textureResource_->Release();
     }
 
     Texture(Texture&& other) noexcept {
         texture_ = other.texture_;
         other.texture_ = nullptr;
+
+        textureResource_ = other.textureResource_;
+        other.textureResource_ = nullptr;
     }
 
     Texture& operator=(Texture&& other) noexcept {
-        texture_ = other.texture_;
-        other.texture_ = nullptr;
+        std::swap(texture_, other.texture_);
+        std::swap(textureResource_, other.textureResource_);
         
         return *this;
     }
@@ -33,6 +34,10 @@ public:
     void use(ID3D11DeviceContext* context, const UINT slot) const {
         context->PSSetShaderResources(slot, 1, &texture_);
     }
+
+private:
+    ID3D11ShaderResourceView* texture_;
+    ID3D11Resource* textureResource_;
 };
 
 namespace Textures {
