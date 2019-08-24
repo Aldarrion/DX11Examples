@@ -11,8 +11,5 @@ protected:
     
     HRESULT setup() override;
     void render() override;
-
-public:
-    virtual ~FontRenderingExample() = default;
 };
 }

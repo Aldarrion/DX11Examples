@@ -9,7 +9,7 @@ Font::Font(
     int glyphPxWidth, int glyphPxHeight,
     int texturePxWidth, int texturePxHeight
 )
-        : fontMap_(device, context, fontMap.c_str())
+        : fontMap_(device, context, fontMap.c_str(), true)
         , sampler_(device)
         , glyphs_(glyphs)
         , xCount_(xCount)

@@ -5,6 +5,7 @@ SamplerState diffuseSampler : register(s0);
 cbuffer ConstantBuffer : register(b0) {
     matrix Model;
     float4 UVWH;
+    float4 TextColor;
 }
 
 struct VS_INPUT {
@@ -49,7 +50,8 @@ PS_INPUT VS(VS_INPUT input) {
 // ============
 float4 PS(PS_INPUT input) : SV_Target {
     float4 outColor = saturate(txDiffuse.Sample(diffuseSampler, input.Tex));
-    if (outColor.a < 0.01)
-        discard;
-    return float4(outColor.r, outColor.g, outColor.b, outColor.a);
+    clip(outColor.a - 0.01);
+
+    outColor *= TextColor;
+    return outColor;
 }

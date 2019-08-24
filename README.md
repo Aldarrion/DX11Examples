@@ -18,7 +18,9 @@ Rest of the libraries are included in the repository.
 
 The first two examples are taken directly from MSDN and show how a window is created and how do we output a basic triangle to the window with all the calls necessary. These are in projects `Tutorial01` and `Tutorial02`. The rest of the examples are in project `Examples`. To run different examples simply go to the `main.cpp` and set the variable `example` to whichever one you want. Some of the examples are adapted from [learnopengl.com](https://learnopengl.com/) by Joey de Vries, which is by the way a great resource if you want to learn OpenGL or some other graphics techniques.
 
-In most of the examples you can move around the scene as in FPS game. Use mouse to look around and WASD to move. To detach the mouse from the window press M, to attach it again (enable camera) press the M again.
+**Controls**
+
+In most of the examples you can move around the scene as in FPS game. Use mouse to look around and *WASD* to move, *Ctrl* to go down, *Space* to go up. To detach the mouse from the window press *M*, to attach it again (enable camera) press the *M* again. Most examples also support reloading shaders at runtime by pressing *F5* to improve iteration times and encourage experimentation.
 
 To change parameters of the shading simply follow the on screen instructions (if any).
 
@@ -85,6 +87,29 @@ Note that the SSAO only influences the ambient component of the shading and this
 ### Shader Change Performance
 
 This example explores how much does it cost to render using one shader versus render each odd triangle with another shader and switch back and forth. Both shaders are trivial to see only the swapping cost. Takeaway from this is that whenever possible we should batch the meshes using the same shader so we do not have to switch them. E.g. in our example it would be much better to draw all the even triangles first and then all the odd ones. (It would of course be even better to instantiate this to save draw calls). In my case the rendering with a single shader was on average 37% faster then swapping the 2 shaders when drawing 512 triangles.
+
+### Alpha to Coverage
+
+This is a showcase of the *Alpha to Coverage* (AtC) antialiasing technique. Full supersampling works by rendering the image in higher resolution (for example double = 4 times the number of pixels) and then taking an average of these pixels which is then written to the resulting buffer. This approach is way too slow and can be optimized by skipping pixels which belong to the same polygon and only multisample pixels on triangle edges which is a technique called *Multisampling antialiasing* (MSAA). This works well for opaque fragments but not so much for semi-transparent ones. AtC handles the case where we would like to perform multisampling even inside the triangle because we have some semi-transparent pixels. If we used alpha blending we would be forced to sort the triangles from back to front and render them in order. AtC takes a different approach where the alpha value of a pixel determines how many samples in multisampling it covers. If the alpha is zero, the pixel is discarded. If the alpha is 1 no additional multisampling is done (the pixel is fully opaque). For alpha between 0 and 1, we determine how many MSAA samples are covered and then write these to the appropriate MSAA buffer. Since multisampling itself takes care of the potential blending of several overlapping pixels, there is no need to sort the geometry.
+
+### Gamma Correction
+
+Most of the tutorials use SRGB back buffer and perfom gamma correct rendering. In this example we show how gamma correction works and what effect it has on the result image.
+
+Some good resources to learn about gamma corection are for example:
+
+* http://blog.johnnovak.net/2016/09/21/what-every-coder-should-know-about-gamma/
+* https://www.cambridgeincolour.com/tutorials/gamma-correction.htm
+
+Gamma correction has nowadays nothing to do with CRT monitors. It is used purely to optimally utilize the memory (most of the time 8-bits in each channel).
+As humans we see much more detail in the dark shades than in the light ones. Therefore, if we encoded and image linearly, we would waste many bits to light shades no one can really tell apart and we would have not enough bits for the dark shades.
+
+The most important thing about gamma correction is that to have *physically* correct lighting, when doing operations on colors such as multiplication and addition we need to work in a linear space, if we had unlimited precission (32-bits per channel) we could get away with storing these linear colors to buffers and image files. However, to optimally utilize the back buffers we display on monitors (mostly 8-bits per channel), the monitors assume, that the buffers are gamma corrected (don't contain linear colors) - more bits are used for the dark shades (monitors simply darken all the colors).
+That means that if we would use linear back buffer, the colors we save there would be darker than we wanted. We, therefore, use SRGB back buffer (or do conversion in shader), to compensate (and utilize the 8-bits well). E.g., we want to display linear colors - we brighten them, send them to the monitor, it darkens them and the result is our original colors.
+
+The same rules apply for cameras and textures. A camera captures linear (physical) world and saves it to 8-bit per channel image and for best space utilization performes gamma correction (discards some of the highligts in favor of the shadows). Most textures (except for normal maps and such) are in SRGB (not linear) color space. If we wanted just to display them, we could simply take the pixels and send them to monitor as they are. However, if we want to perform any operations (lighting) we need to convert the texture to linear space, do the operations and then convert again.
+
+The whole chain is: **Physical world** (linear) -> **Image** (limited 8 bits, not linear) -> **Shader** (unlimited 32-bits, linear) -> **Back buffer** (limited 8 bits, not linear) -> **Monitor** (performs gamma correction, to end up with linear result - that's what we want since we started with it).
 
 ## Where to go next
 

@@ -5,8 +5,6 @@
 
 class BasicTriangleExample : public Example {
 protected:
-    // Typedef shader. void* since we do not want to use constant buffer
-    // and false to indicate this fact to the shader.
     using SimpleShader = ShaderProgram<>;
     
     // In examples we usually use unique pointers

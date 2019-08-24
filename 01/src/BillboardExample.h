@@ -40,6 +40,7 @@ protected:
     ID3D11Buffer* vertexBuffer_ = nullptr;
 
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void handleInput() override;
     void render() override;
 };

@@ -70,6 +70,7 @@ namespace DirectX
 
     HRESULT CreateDDSTextureFromFile( _In_ ID3D11Device* d3dDevice,
                                       _In_z_ const wchar_t* szFileName,
+                                      _In_ bool isSRGB,
                                       _Outptr_opt_ ID3D11Resource** texture,
                                       _Outptr_opt_ ID3D11ShaderResourceView** textureView,
                                       _In_ size_t maxsize = 0,
@@ -90,6 +91,7 @@ namespace DirectX
     HRESULT CreateDDSTextureFromFile( _In_ ID3D11Device* d3dDevice,
                                       _In_opt_ ID3D11DeviceContext* d3dContext,
                                       _In_z_ const wchar_t* szFileName,
+                                      _In_ bool isSRGB,
                                       _Outptr_opt_ ID3D11Resource** texture,
                                       _Outptr_opt_ ID3D11ShaderResourceView** textureView,
                                       _In_ size_t maxsize = 0,

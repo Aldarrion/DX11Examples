@@ -9,13 +9,9 @@ using namespace DirectX;
 
 namespace Shadows {
 HRESULT ShadowsExample::setup() {
-    BaseExample::setup();
-
-    // Shaders
-    shadowShader_ = std::make_unique<ShadowShader>(context_.d3dDevice_, L"shaders/Shadows.fx", "VS_Shadow", L"shaders/Shadows.fx", "PS_Shadow", Layouts::TEXTURED_LAYOUT);
-    texturedPhong_ = std::make_unique<TextureShader>(context_.d3dDevice_, L"shaders/PhongShadows.fx", "VS", L"shaders/PhongShadows.fx", "PS", Layouts::TEXTURED_LAYOUT);
-    solidShader_ = Shaders::createSolidShader(context_);
-    shadowMapDisplayShader_ = std::make_unique<ShadowDisplayShader>(context_.d3dDevice_, L"shaders/ShadowMapQuadShader.fx", "VS", L"shaders/ShadowMapQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
+    auto hr = BaseExample::setup();
+    if (FAILED(hr)) 
+        return hr;
 
     // Objects
     texturedCube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
@@ -28,9 +24,13 @@ HRESULT ShadowsExample::setup() {
         "\n E: toggle rendering cube at camera's position\n Q: toggle rendering scene from light's position"
     );
 
+    hr = reloadShaders();
+    if (FAILED(hr)) 
+        return hr;
+
     // Textures
-    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds");
-    woodBoxTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds");
+    seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", true);
+    woodBoxTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds", true);
 
     // Samplers
     anisoSampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
@@ -66,7 +66,7 @@ HRESULT ShadowsExample::setup() {
     texDesc.CPUAccessFlags = 0;
     texDesc.MiscFlags = 0;
 
-    auto hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &shadowMap_);
+    hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &shadowMap_);
     if (FAILED(hr)) 
         return hr;
 
@@ -94,6 +94,14 @@ HRESULT ShadowsExample::setup() {
         return hr;
 
     return S_OK;
+}
+
+bool ShadowsExample::reloadShadersInternal() {
+    return
+        Shaders::makeShader<ShadowShader>(shadowShader_, context_.d3dDevice_, L"shaders/Shadows.fx", "VS_Shadow", L"shaders/Shadows.fx", "PS_Shadow", Layouts::TEXTURED_LAYOUT)
+        && Shaders::makeShader<TextureShader>(texturedPhong_, context_.d3dDevice_, L"shaders/PhongShadows.fx", "VS", L"shaders/PhongShadows.fx", "PS", Layouts::TEXTURED_LAYOUT)
+        && Shaders::makeSolidShader(solidShader_, context_)
+        && Shaders::makeShader<ShadowDisplayShader>(shadowMapDisplayShader_, context_.d3dDevice_, L"shaders/ShadowMapQuadShader.fx", "VS", L"shaders/ShadowMapQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 void ShadowsExample::handleInput() {
@@ -161,7 +169,7 @@ void ShadowsExample::render() {
     // ==============
     {
         context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
-        context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+        context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
         context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
         context_.immediateContext_->RSSetViewports(1, &context_.viewPort_);
 

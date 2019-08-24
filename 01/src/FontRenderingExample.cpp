@@ -11,7 +11,9 @@ std::string frameTimeString(float time) {
 }
 
 HRESULT FontRenderingExample::setup() {
-    BaseExample::setup();
+    auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
 
     fpsText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, frameTimeString(0));
     text_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, specString());

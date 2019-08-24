@@ -288,14 +288,17 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\AlphaToCoverageExample.cpp" />
     <ClCompile Include="src\BaseExample.cpp" />
     <ClCompile Include="src\BasicTriangleExample.cpp" />
     <ClCompile Include="src\BillboardExample.cpp" />
+    <ClCompile Include="src\ContextWrapper.cpp" />
     <ClCompile Include="src\DDSTextureLoader.cpp" />
     <ClCompile Include="src\DeferredRenderingExample.cpp" />
     <ClCompile Include="src\Example.cpp" />
     <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\FontRenderingExample.cpp" />
+    <ClCompile Include="src\GammaCorrectionExample.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
     <ClCompile Include="src\Layouts.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -305,6 +308,7 @@
     <ClCompile Include="src\PhongShadingExample.cpp" />
     <ClCompile Include="src\PlaneTangentBitangent.cpp" />
     <ClCompile Include="src\ShaderChangePerfExample.cpp" />
+    <ClCompile Include="src\ShaderProgram.cpp" />
     <ClCompile Include="src\ShadowsExample.cpp" />
     <ClCompile Include="src\SignedDistanceFieldFontExample.cpp" />
     <ClCompile Include="src\SpecularMapExample.cpp" />
@@ -313,6 +317,7 @@
     <ClCompile Include="src\TexturingExample.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AlphaToCoverageExample.h" />
     <ClInclude Include="src\AnisotropicSampler.h" />
     <ClInclude Include="src\BaseExample.h" />
     <ClInclude Include="src\BasicTriangleExample.h" />
@@ -327,6 +332,7 @@
     <ClInclude Include="src\Exceptions.h" />
     <ClInclude Include="src\Font.h" />
     <ClInclude Include="src\FontRenderingExample.h" />
+    <ClInclude Include="src\GammaCorrectionExample.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
@@ -364,6 +370,12 @@
     <ClInclude Include="src\WinKeyMap.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaders\AlphaToCoverage.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="shaders\BasicTriangle.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -391,6 +403,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\ForwardShader.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\GammaCorrectionShowcase.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>

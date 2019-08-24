@@ -35,6 +35,7 @@ protected:
     std::unique_ptr<ColorCube> colorCube_;
 
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void render() override;
 };
 }

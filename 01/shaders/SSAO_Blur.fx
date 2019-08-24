@@ -1,3 +1,8 @@
+cbuffer ConstantBuffer : register(b0) {
+	int blur;
+	int3 padding;
+}
+
 Texture2D texSSAO : register(t0);
 
 SamplerState txSampler : register(s0);
@@ -34,7 +39,8 @@ float4 PS(PS_INPUT input) : SV_Target {
     
     float result = 0.0;
     // The noise texture is 4x4 - filter it by 4x4 blur
-    for (int x = -2; x < 2; ++x) {
+
+	for (int x = -2; x < 2; ++x) {
         for (int y = -2; y < 2; ++y) {
             float2 offset = float2(float(x), float(y)) * texelSize;
             result += texSSAO.Sample(txSampler, input.Tex + offset).r;
@@ -42,5 +48,10 @@ float4 PS(PS_INPUT input) : SV_Target {
     }
 
     float final = result / (4.0 * 4.0);
+	
+	if (blur == 0) {
+		final = texSSAO.Sample(txSampler, input.Tex);
+	}
+
     return float4(final, final, final, 1.0);
 }

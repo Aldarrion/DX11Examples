@@ -8,8 +8,8 @@ private:
     ID3D11ShaderResourceView* texture_;
 
 public:
-    Texture(ID3D11Device* device, ID3D11DeviceContext* context, const WCHAR* pathToDDS) {
-        auto hr = DirectX::CreateDDSTextureFromFile(device, context, pathToDDS, nullptr, &texture_);
+    Texture(ID3D11Device* device, ID3D11DeviceContext* context, const WCHAR* pathToDDS, bool isSRGB) {
+        auto hr = DirectX::CreateDDSTextureFromFile(device, context, pathToDDS, isSRGB, nullptr, &texture_);
         if (FAILED(hr)) {
             MessageBox(nullptr, L"Texture could not have been loaded", L"Error", MB_OK);
         }
@@ -39,14 +39,14 @@ namespace Textures {
     using PTexture = std::unique_ptr<Texture>;
     
     inline PTexture createSeaFloorTexture(const ContextWrapper& context) {
-        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/seafloor.dds");
+        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/seafloor.dds", true);
     }
 
     inline PTexture createBoxDiffuse(const ContextWrapper& context) {
-        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/container2.dds");
+        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/container2.dds", true);
     }
 
     inline PTexture createBoxSpecular(const ContextWrapper& context) {
-        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/container2_specular.dds");
+        return std::make_unique<Texture>(context.d3dDevice_, context.immediateContext_, L"textures/container2_specular.dds", false);
     }
 }

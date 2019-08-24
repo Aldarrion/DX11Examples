@@ -9,34 +9,42 @@ namespace GeometryShader {
 using namespace DirectX;
 
 HRESULT GeometryShaderExample::setup() {
-    BaseExample::setup();
+    auto hr = BaseExample::setup();
+    if (FAILED(hr))
+        return hr;
 
-    normalShader_ = std::make_unique<GeomShader>(
-        context_.d3dDevice_, 
-        L"shaders/NormalGeomShader.fx", "VS", 
-        L"shaders/NormalGeomShader.fx", "PS", 
-        Layouts::TEXTURED_LAYOUT 
-        , L"shaders/NormalGeomShader.fx", "GS"
-    );
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
-    standardShader_ = std::make_unique<StdShader>(
-        context_.d3dDevice_,
-        L"shaders/UnlitGeom.fx", "VS",
-        L"shaders/UnlitGeom.fx", "PS",
-        Layouts::TEXTURED_LAYOUT
-    );
-
-    texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds");
+    texture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/container2.dds", true);
     sampler_ = std::make_unique<AnisotropicSampler>(context_.d3dDevice_);
     cube_ = std::make_unique<TexturedCube>(context_.d3dDevice_);
 
     return S_OK;
 }
 
+bool GeometryShaderExample::reloadShadersInternal() {
+    return 
+        Shaders::makeShader<GeomShader>(
+            normalShader_,
+            context_.d3dDevice_,
+            L"shaders/NormalGeomShader.fx", "VS",
+            L"shaders/NormalGeomShader.fx", "PS",
+            Layouts::TEXTURED_LAYOUT
+            , L"shaders/NormalGeomShader.fx", "GS")
+        &&  Shaders::makeShader<StdShader>(
+            standardShader_,
+            context_.d3dDevice_,
+            L"shaders/UnlitGeom.fx", "VS",
+            L"shaders/UnlitGeom.fx", "PS",
+            Layouts::TEXTURED_LAYOUT);
+}
+
 void GeometryShaderExample::render() {
     BaseExample::render();
 
-    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::MidnightBlue);
+    context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     ConstantBuffer cb;

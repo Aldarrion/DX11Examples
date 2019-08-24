@@ -214,11 +214,9 @@ HRESULT SSAO::SSAOExample::setup() {
     std::string path = "models/nanosuit/nanosuit.obj";
     model_ = std::make_unique<Models::Model>(context_, path);
 
-    gShader_ = std::make_unique<GShader>(context_.d3dDevice_, L"shaders/SSAO_GBuffer.fx", "VS", L"shaders/SSAO_GBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
-    gBufferDisplayShader_ = std::make_unique<GBufferDisplayShader>(context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
-    ssaoShader_ = std::make_unique<SSAOShader>(context_.d3dDevice_, L"shaders/SSAO.fx", "VS", L"shaders/SSAO.fx", "PS", Layouts::POS_UV_LAYOUT);
-    ssaoBlurShader_ = std::make_unique<SSAOBlurShader>(context_.d3dDevice_, L"shaders/SSAO_Blur.fx", "VS", L"shaders/SSAO_Blur.fx", "PS", Layouts::POS_UV_LAYOUT);
-    ssaoLightShader_ = std::make_unique<SSAOLightShader>(context_.d3dDevice_, L"shaders/SSAO_Light.fx", "VS", L"shaders/SSAO_Light.fx", "PS", Layouts::POS_UV_LAYOUT);
+    hr = reloadShaders();
+    if (FAILED(hr))
+        return hr;
 
     pointSampler_ = std::make_unique<PointWrapSampler>(context_.d3dDevice_);
 
@@ -236,6 +234,15 @@ HRESULT SSAO::SSAOExample::setup() {
     infoText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "PLACEHOLDER TEXT");
 
     return S_OK;
+}
+
+bool SSAO::SSAOExample::reloadShadersInternal() {
+    return
+        Shaders::makeShader<GShader>(gShader_, context_.d3dDevice_, L"shaders/SSAO_GBuffer.fx", "VS", L"shaders/SSAO_GBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
+        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOShader>(ssaoShader_, context_.d3dDevice_, L"shaders/SSAO.fx", "VS", L"shaders/SSAO.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOBlurShader>(ssaoBlurShader_, context_.d3dDevice_, L"shaders/SSAO_Blur.fx", "VS", L"shaders/SSAO_Blur.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOLightShader>(ssaoLightShader_, context_.d3dDevice_, L"shaders/SSAO_Light.fx", "VS", L"shaders/SSAO_Light.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 std::vector<XMFLOAT3> SSAO::SSAOExample::generateNoise() {
@@ -272,6 +279,25 @@ void SSAO::SSAOExample::handleInput() {
     if (GetAsyncKeyState(toggleSSAOKey_) & 1) {
         isSSAOOn_ = !isSSAOOn_;
     }
+
+	if (GetAsyncKeyState(incSSAOKernelSize_) & 1) {
+		ssaoKernelSize += 4;
+		if (ssaoKernelSize > 64) ssaoKernelSize = 64;
+	}
+
+	if (GetAsyncKeyState(decSSAOKernelSize_) & 1) {
+		ssaoKernelSize -= 4;
+		if (ssaoKernelSize < 4) ssaoKernelSize = 4;
+	}
+
+	if (GetAsyncKeyState(toggleSSAOKernelRotation) & 1) {
+		randomRotation = (randomRotation + 1) % 2;
+	}
+
+	if (GetAsyncKeyState(toggleSSAOBlur) & 1) {
+		ssaoBlur = (ssaoBlur + 1) % 2;
+	}
+
 }
 
 void SSAO::SSAOExample::updateInfoText() const {
@@ -279,7 +305,13 @@ void SSAO::SSAOExample::updateInfoText() const {
     infoText_->setText(
         "\n Displayed render targets from top:\n SSAO filtered, SSAO, Albedo, Normal in view space, Position in view space\n " 
         + to_string(toggleSSAOKey_) + ": toggle SSAO"
+		+ "\n " + to_string(toggleSSAOKernelRotation) + ": toggle random kernel rotation"
+		+ "\n " + to_string(incSSAOKernelSize_) + " / " + to_string(decSSAOKernelSize_) + ": +/- SSAO kernel size"
+		+ "\n " + to_string(toggleSSAOBlur) + ": toggle SSAO blur"
+		+ "\n"
         + "\n SSAO is " + (isSSAOOn_ ? "on" : "off")
+		+ "\n SSAO Kernel rotation is " + (randomRotation == 1 ? "on" : "off") + "; SSAO blur is " + (ssaoBlur == 1 ? "on" : "off")
+		+ "\n SSAO Kernel size: " + to_string(ssaoKernelSize)
     );
 }
 
@@ -359,6 +391,8 @@ void SSAO::SSAOExample::render() {
         ssaocb.Kernel[i] = ssaoKernel_[i];
     }
     ssaocb.ScreenResolution = XMFLOAT4(static_cast<float>(context_.WIDTH), static_cast<float>(context_.HEIGHT), 0, 0);
+	ssaocb.kernelSize = ssaoKernelSize;
+	ssaocb.randomRotation = randomRotation;
 
     ssaoShader_->updateConstantBuffer(context_.immediateContext_, ssaocb);
     ssaoShader_->use(context_.immediateContext_);
@@ -368,16 +402,20 @@ void SSAO::SSAOExample::render() {
     // ======================
     // Filter the SSAO buffer
     // ======================
-    context_.immediateContext_->OMSetRenderTargets(1, &ssaoBlurRTView_, depthBufferDepthView_);
-    context_.immediateContext_->ClearRenderTargetView(ssaoBlurRTView_, Colors::Black);
-    context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
-    
-    context_.immediateContext_->PSSetShaderResources(0, 1, &ssaoRV_);
-    pointSampler_->use(context_.immediateContext_, 0);
+	context_.immediateContext_->OMSetRenderTargets(1, &ssaoBlurRTView_, depthBufferDepthView_);
+	context_.immediateContext_->ClearRenderTargetView(ssaoBlurRTView_, Colors::Black);
+	context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    ssaoBlurShader_->use(context_.immediateContext_);
-    quad_->draw(context_.immediateContext_);
+	SSAOBlurCB ssaobcb;
+	ssaobcb.blur = ssaoBlur;
 
+	context_.immediateContext_->PSSetShaderResources(0, 1, &ssaoRV_);
+	pointSampler_->use(context_.immediateContext_, 0);
+
+	ssaoBlurShader_->updateConstantBuffer(context_.immediateContext_, ssaobcb);
+	ssaoBlurShader_->use(context_.immediateContext_);
+	quad_->draw(context_.immediateContext_);
+	
 
     // =================
     // Render final quad

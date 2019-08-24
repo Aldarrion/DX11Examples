@@ -8,7 +8,8 @@ Text::Text(ID3D11Device* device, ID3D11DeviceContext* context, const std::string
     , fontShader_(device, L"shaders/FontShader.fx", "VS", L"shaders/FontShader.fx", "PS", Layouts::POS_UV_LAYOUT)
     , font_(makeInconsolata(device, context))
     , sizeMultiplier_(10.0f)
-    , position_({ 0, 0 }) {
+    , position_({ 0, 0 })
+    , textColor_(1, 1, 1, 1) {
 }
 
 void Text::setText(const std::string& newText) {
@@ -17,6 +18,10 @@ void Text::setText(const std::string& newText) {
 
 void Text::setSize(float size) {
     sizeMultiplier_ = size;
+}
+
+void Text::setColor(const DirectX::XMFLOAT4& color) {
+    textColor_ = color;
 }
 
 void Text::setPosition(const DirectX::XMFLOAT2& position) {
@@ -68,6 +73,7 @@ void Text::draw(ID3D11DeviceContext* context, const float aspectRatio) {
         GlyphCb cb{};
         cb.Model = XMMatrixTranspose(model);
         cb.UVWH = font_.getUVWH(i);
+        cb.TextColor = textColor_;
 
         fontShader_.updateConstantBuffer(context, cb);
 

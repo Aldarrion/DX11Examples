@@ -26,6 +26,7 @@ protected:
     std::unique_ptr<TexturedCube> cube_;
     
     HRESULT setup() override;
+    bool reloadShadersInternal() override;
     void render() override;
 
 public:

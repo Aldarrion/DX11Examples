@@ -55,7 +55,7 @@ float4 PS(PS_INPUT input) : SV_Target {
     float3 normal = normalize(input.Norm);
     float3 viewDir = normalize(ViewPos - input.FragPos);
     float4 fragColor = txDiffuse.Sample(samLinear, input.UV);
-    
+
     float4 finalColor = float4(0.0, 0.0, 0.0, 0.0);
     for (int i = 0; i < DirLightCount; ++i) {
         finalColor += CalcDirLight(DirLights[i], normal, fragColor, viewDir);

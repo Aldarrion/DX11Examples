@@ -98,6 +98,18 @@
     <ClCompile Include="src\ShaderChangePerfExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
+    <ClCompile Include="src\AlphaToCoverageExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ContextWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GammaCorrectionExample.cpp">
+      <Filter>Source Files\Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\SignedDistanceFieldFontExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
@@ -244,6 +256,11 @@
     <ClInclude Include="src\ShaderChangePerfExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
+    <ClInclude Include="src\AlphaToCoverageExample.h">
+      <Filter>Header Files\Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GammaCorrectionExample.h">
+      <Filter>Header Files\Examples</Filter>
     <ClInclude Include="src\SignedDistanceFieldFontExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
@@ -325,6 +342,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\NormalMap.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\AlphaToCoverage.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\GammaCorrectionShowcase.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
