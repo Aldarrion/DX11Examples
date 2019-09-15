@@ -36,8 +36,8 @@ public:
     }
 
 private:
-    ID3D11ShaderResourceView* texture_;
-    ID3D11Resource* textureResource_;
+    ID3D11ShaderResourceView* texture_{};
+    ID3D11Resource* textureResource_{};
 };
 
 namespace Textures {

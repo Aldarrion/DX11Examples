@@ -5,6 +5,7 @@ SamplerState diffuseSampler : register(s0);
 cbuffer ConstantBuffer : register(b0)
 {
     matrix Model;
+    float4 UVAdjust;
 }
 
 struct VS_INPUT {
@@ -24,7 +25,7 @@ PS_INPUT VS(VS_INPUT input) {
     PS_INPUT output = (PS_INPUT) 0;
     
     output.Pos = mul(input.Pos, Model);
-    output.UV = input.UV;
+    output.UV = UVAdjust.xy + input.UV * UVAdjust.zw;
 
     return output;
 }
@@ -55,16 +56,16 @@ float4 PS(PS_INPUT input) : SV_Target {
         result = float4(1.0, 1.0, 1.0, 1.0);*/
 
 
-    //float alpha = smoothstep(0.35, 0.55, sigDist);
+    float alpha = smoothstep(0.2, 0.25, distance);
 
     //float distance = median(col.r, col.g, col.b);
     //sigDist *= dot(msdfUnit, 0.5 / fwidth(pos));
     //float alpha = clamp(sigDist + 0.5, 0.0, 1.0);
     float smoothWidth = fwidth(distance);
     //distance *= dot(msdfUnit, 0.5 / fwidth(input.UV));
-    float alpha = smoothstep(0.5 - smoothWidth, 0.5 + smoothWidth, distance);
+    //float alpha = smoothstep(0.5 - smoothWidth, 0.5 + smoothWidth, distance);
 
-    alpha = getAlpha(input.UV * 2, distance, 0.5);
+    alpha = getAlpha(input.UV * 2, distance, 0.2);
 
     result = float4(1.0, 1.0, 1.0, alpha);
 

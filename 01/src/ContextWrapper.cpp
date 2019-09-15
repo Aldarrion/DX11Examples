@@ -21,6 +21,69 @@ ContextWrapper::~ContextWrapper() {
     cleanupDevice();
 }
 
+HRESULT ContextWrapper::enableBlending() {
+    D3D11_BLEND_DESC blendDesc;
+    ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
+    blendDesc.AlphaToCoverageEnable = false;
+    blendDesc.RenderTarget[0].BlendEnable = true;
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    ID3D11BlendState* blendState;
+    auto hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
+    if (FAILED(hr)) {
+        MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
+        return hr;
+    }
+
+    float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
+
+    return S_OK;
+}
+
+HRESULT ContextWrapper::disableDepthTest() {
+    D3D11_DEPTH_STENCIL_DESC dsDesc;
+
+    // Depth test parameters
+    dsDesc.DepthEnable = false;
+    dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+    // Stencil test parameters
+    dsDesc.StencilEnable = true;
+    dsDesc.StencilReadMask = 0xFF;
+    dsDesc.StencilWriteMask = 0xFF;
+
+    // Stencil operations if pixel is front-facing
+    dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+    dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    // Stencil operations if pixel is back-facing
+    dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+    dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    // Create depth stencil state
+    ID3D11DepthStencilState * pDSState;
+    auto hr = d3dDevice_->CreateDepthStencilState(&dsDesc, &pDSState);
+    if (FAILED(hr)) {
+        MessageBox(nullptr, L"Failed to create depth stencil desc", L"Error", MB_OK);
+        return hr;
+    }
+
+    immediateContext_->OMSetDepthStencilState(pDSState, 1);
+    return S_OK;
+}
+
 LRESULT ContextWrapper::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     PAINTSTRUCT ps;
     HDC hdc;

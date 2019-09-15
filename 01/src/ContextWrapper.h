@@ -29,6 +29,9 @@ struct ContextWrapper {
 
     ~ContextWrapper();
 
+    HRESULT enableBlending();
+    HRESULT disableDepthTest();
+
 private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
