@@ -21,7 +21,7 @@ ContextWrapper::~ContextWrapper() {
     cleanupDevice();
 }
 
-HRESULT ContextWrapper::enableBlending() {
+HRESULT ContextWrapper::enableBlending() const {
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
     blendDesc.AlphaToCoverageEnable = false;
@@ -47,7 +47,7 @@ HRESULT ContextWrapper::enableBlending() {
     return S_OK;
 }
 
-HRESULT ContextWrapper::disableDepthTest() {
+HRESULT ContextWrapper::disableDepthTest() const {
     D3D11_DEPTH_STENCIL_DESC dsDesc;
 
     // Depth test parameters

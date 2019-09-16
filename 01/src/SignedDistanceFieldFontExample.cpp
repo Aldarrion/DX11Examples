@@ -2,7 +2,11 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ONLY_PNG
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#pragma warning(disable: 4505)
 #include "stb/stb_image.h"
+#pragma warning(pop)
 
 #include <fstream>
 
@@ -10,26 +14,82 @@ using namespace DirectX;
 
 namespace SDF {
 
-SignedDistanceFieldFontExample::~SignedDistanceFieldFontExample() {
+HRESULT SignedDistanceFieldFontExample::setup() {
+    auto result = BaseExample::setup();
+
+    if (!SUCCEEDED(result))
+        return result;
+
+    result = text_.load(context_, "Hello from signed distance field font", "fonts/RobotoMono-Regular");
+    if (!SUCCEEDED(result))
+        return result;
+
+    text_.setPosition(XMFLOAT2(32, 32));
+
+    result = reloadShaders();
+    if (FAILED(result))
+        return result;
+
+    showMouse();
+
+    return result;
+}
+
+Mouse::Mode SignedDistanceFieldFontExample::getInitialMouseMode() {
+    // Make mouse visible
+    return Mouse::MODE_ABSOLUTE;
+}
+
+bool SignedDistanceFieldFontExample::reloadShadersInternal() {
+    return text_.reloadShaders(context_.d3dDevice_);
+}
+
+void SignedDistanceFieldFontExample::handleInput() {
+    BaseExample::handleInput();
+}
+
+XMFLOAT2 pxToScreen(const ContextWrapper& context, XMFLOAT2 pixels) {
+    return XMFLOAT2(
+        pixels.x * 0.5f / context.WIDTH,
+        pixels.y * 0.5f / context.HEIGHT
+    );
+}
+
+XMFLOAT2 pxToPos(const ContextWrapper& context, XMFLOAT2 pixelPos) {
+    XMFLOAT2 screen(pxToScreen(context, pixelPos));
+    return XMFLOAT2(
+        -1.0f + screen.x,
+        1.0f - screen.y
+    );
+}
+
+void SignedDistanceFieldFontExample::render() {
+    BaseExample::render();
+
+    clearViews();
+
+    text_.render(context_);
+
+    context_.swapChain_->Present(0, 0);
+}
+
+
+FontSDF::~FontSDF() {
     if (texture_) texture_->Release();
     if (textureResource_) textureResource_->Release();
 }
 
-HRESULT SignedDistanceFieldFontExample::setup() {
-    auto result = BaseExample::setup();
+HRESULT FontSDF::load(const ContextWrapper& context, const std::string& fontPath) {
+    sampler_ = std::make_unique<Sampler_t>(context.d3dDevice_);
+    quad_ = std::make_unique<Quad>(context.d3dDevice_);
 
-    //msdfImage_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L, true);
-    sampler_ = std::make_unique<Sampler_t>(context_.d3dDevice_);
-    quad_ = std::make_unique<Quad>(context_.d3dDevice_);
-    
-
+    // ---------------
+    // Load font texture
     int x, y, n;
-    unsigned char *data = stbi_load("fonts/RobotoMono-Regular.png", &x, &y, &n, 4);
+    unsigned char *data = stbi_load(std::string(fontPath + ".png").c_str(), &x, &y, &n, 4);
 
     if (!data)
         return S_FALSE;
-
-    font_ = FontSDF("fonts/RobotoMono-Regular.hsf");
 
     D3D11_SUBRESOURCE_DATA subResourceData{};
     subResourceData.pSysMem = data;
@@ -48,8 +108,8 @@ HRESULT SignedDistanceFieldFontExample::setup() {
     texDesc.CPUAccessFlags = 0;
     texDesc.MiscFlags = 0;
 
-    result = context_.d3dDevice_->CreateTexture2D(&texDesc, &subResourceData, &textureResource_);
-    if (!SUCCEEDED(result))
+    auto result = context.d3dDevice_->CreateTexture2D(&texDesc, &subResourceData, &textureResource_);
+    if (FAILED(result))
         return result;
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -58,91 +118,18 @@ HRESULT SignedDistanceFieldFontExample::setup() {
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
 
-    result = context_.d3dDevice_->CreateShaderResourceView(textureResource_, &srvDesc, &texture_);
-    if (!SUCCEEDED(result))
+    result = context.d3dDevice_->CreateShaderResourceView(textureResource_, &srvDesc, &texture_);
+    if (FAILED(result))
         return result;
 
 
     stbi_image_free(data);
 
-    context_.enableBlending();
-    context_.disableDepthTest();
 
-    reloadShaders();
-    showMouse();
+    // ---------------
+    // Load font description
+    std::string descriptionPath(fontPath + ".hsf");
 
-    return result;
-}
-
-Mouse::Mode SignedDistanceFieldFontExample::getInitialMouseMode() {
-    // Make mouse visible
-    return Mouse::MODE_ABSOLUTE;
-}
-
-bool SignedDistanceFieldFontExample::reloadShadersInternal() {
-    return Shaders::makeShader<SDFFontShader_t>(
-        sdfShader_,
-        context_.d3dDevice_,
-        L"shaders/SDFFont.fx", "VS",
-        L"shaders/SDFFont.fx", "PS",
-        quad_->getVertexLayout()
-    );
-}
-
-void SignedDistanceFieldFontExample::handleInput() {
-    BaseExample::handleInput();
-}
-
-XMFLOAT2 pxToScreen(XMFLOAT2 pixels) {
-    return XMFLOAT2(
-        pixels.x * 0.5f / 1280.0f,
-        pixels.y * 0.5f / 720.0f
-    );
-}
-
-XMFLOAT2 pxToPos(XMFLOAT2 pixelPos) {
-    XMFLOAT2 screen(pxToScreen(pixelPos));
-    return XMFLOAT2(
-        -1.0f + screen.x,
-        1.0f - screen.y
-    );
-}
-
-void SignedDistanceFieldFontExample::render() {
-    BaseExample::render();
-
-    clearViews();
-
-    const float aspectRatio = context_.getAspectRatio();
-    //const float scale = 0.015f;
-    const float fontSize = 36.0f;
-    const float scale = fontSize / 1280.0f;
-    XMMATRIX aspectCorrection = XMMatrixScalingFromVector({ scale / aspectRatio, scale, scale });
-
-
-    SDFCbuffer cb{};
-
-    sdfShader_->use(context_.immediateContext_);
-    context_.immediateContext_->PSSetShaderResources(0, 1, &texture_);
-    sampler_->use(context_.immediateContext_, 0);
-
-    int i = 0;
-    for (auto c : "Hello") {
-        XMFLOAT2 screenPos = pxToPos(XMFLOAT2(2 * fontSize, 2 * fontSize));
-        XMMATRIX move = XMMatrixTranslation(screenPos.x + pxToScreen(XMFLOAT2(fontSize, fontSize)).x * i, screenPos.y, 0);
-        cb.Model = XMMatrixTranspose(aspectCorrection * move);
-        cb.UVMul = font_.getUV(c);
-        sdfShader_->updateConstantBuffer(context_.immediateContext_, cb);
-
-        quad_->draw(context_.immediateContext_);
-        ++i;
-    }
-
-    context_.swapChain_->Present(0, 0);
-}
-
-
-FontSDF::FontSDF(const char* descriptionPath) {
     std::ifstream descFile(descriptionPath);
 
     descFile >> glyphSize_;
@@ -161,6 +148,18 @@ FontSDF::FontSDF(const char* descriptionPath) {
         descFile >> glyph >> coords.x >> coords.y;
         charCoords_[static_cast<char>(glyph)] = coords;
     }
+
+    return S_OK;
+}
+
+bool FontSDF::reloadShaders(ID3D11Device* device) {
+    return Shaders::makeShader<SDFFontShader_t>(
+        sdfShader_,
+        device,
+        L"shaders/SDFFont.fx", "VS",
+        L"shaders/SDFFont.fx", "PS",
+        quad_->getVertexLayout()
+    );
 }
 
 XMFLOAT4 FontSDF::getUV(char c) const {
@@ -168,12 +167,72 @@ XMFLOAT4 FontSDF::getUV(char c) const {
     if (coords == charCoords_.end()) {
         return XMFLOAT4(0, 0, uvPerGlyph_.x, uvPerGlyph_.y);
     }
+
     return XMFLOAT4(
         coords->second.x * uvPerGlyph_.x,
         coords->second.y * uvPerGlyph_.y,
         uvPerGlyph_.x,
         uvPerGlyph_.y
     );
+}
+
+void FontSDF::render(const ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size) {
+    context.enableBlending();
+    context.disableDepthTest();
+
+    const float aspectRatio = context.getAspectRatio();
+    const float fontSize = size;
+    const float scale = fontSize / context.WIDTH;
+    XMMATRIX aspectCorrection = XMMatrixScalingFromVector({ scale / aspectRatio, scale, scale });
+    
+    SDFCbuffer cb{};
+
+    sdfShader_->use(context.immediateContext_);
+    context.immediateContext_->PSSetShaderResources(0, 1, &texture_);
+    sampler_->use(context.immediateContext_, 0);
+
+    XMFLOAT2 posScreen(pxToPos(context, position));
+
+    int i = 0;
+    for (auto c : text) {
+        XMMATRIX move = XMMatrixTranslation(posScreen.x + pxToScreen(context, XMFLOAT2(fontSize, fontSize)).x * i, posScreen.y, 0);
+        cb.Model = XMMatrixTranspose(aspectCorrection * move);
+        cb.UVMul = getUV(c);
+        sdfShader_->updateConstantBuffer(context.immediateContext_, cb);
+
+        quad_->draw(context.immediateContext_);
+        ++i;
+    }
+}
+
+HRESULT TextSDF::load(const ContextWrapper& context, std::string text, const std::string& font) {
+    auto hr = font_.load(context, font);
+    if (FAILED(hr))
+        return hr;
+
+    text_ = std::move(text);
+    
+    return S_OK;
+}
+
+bool TextSDF::reloadShaders(ID3D11Device* device) {
+    return font_.reloadShaders(device);
+}
+
+void TextSDF::setText(std::string text) {
+    text_ = std::move(text);
+}
+
+void TextSDF::setPosition(XMFLOAT2 position) {
+    position_ = position;
+}
+
+void TextSDF::setSize(float size) {
+    size_ = size;
+}
+
+void TextSDF::render(const ContextWrapper& context) {
+    font_.render(context, text_, position_, size_);
 }
 
 }
