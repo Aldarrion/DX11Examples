@@ -150,6 +150,12 @@ void FontSDF::render(const ContextWrapper& context, const std::string& text, Dir
 
     int i = 0;
     for (auto c : text) {
+        if (c == '\n') {
+            posScreen.y -= pxToScreen(context, XMFLOAT2(fontSize, fontSize)).y * 1.5f;
+            i = 0;
+            continue;
+        }
+
         XMMATRIX move = XMMatrixTranslation(posScreen.x + pxToScreen(context, XMFLOAT2(fontSize, fontSize)).x * i, posScreen.y, 0);
         cb.Model = XMMatrixTranspose(aspectCorrection * move);
         cb.UVMul = getUV(c);
