@@ -1,7 +1,11 @@
 #pragma once
-#include <d3d11.h>
 #include "DDSTextureLoader.h"
 #include "ResourceHolder.h"
+#include "ContextWrapper.h"
+
+#include <memory>
+#include <utility>
+#include <d3d11.h>
 
 class Texture : public ResourceHolder {
 public:

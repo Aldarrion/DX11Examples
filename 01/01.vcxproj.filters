@@ -113,6 +113,12 @@
     <ClCompile Include="src\SignedDistanceFieldFontExample.cpp">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
+    <ClCompile Include="src\TextSDF.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FontSDF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -265,8 +271,11 @@
     <ClInclude Include="src\SignedDistanceFieldFontExample.h">
       <Filter>Header Files\Examples</Filter>
     </ClInclude>
-    <ClInclude Include="src\SDFText.h">
+    <ClInclude Include="src\TextSDF.h">
       <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FontSDF.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

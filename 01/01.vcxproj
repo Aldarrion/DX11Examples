@@ -298,6 +298,7 @@
     <ClCompile Include="src\Example.cpp" />
     <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\FontRenderingExample.cpp" />
+    <ClCompile Include="src\FontSDF.cpp" />
     <ClCompile Include="src\GammaCorrectionExample.cpp" />
     <ClCompile Include="src\GeometryShaderExample.cpp" />
     <ClCompile Include="src\Layouts.cpp" />
@@ -314,6 +315,7 @@
     <ClCompile Include="src\SpecularMapExample.cpp" />
     <ClCompile Include="src\SSAOExample.cpp" />
     <ClCompile Include="src\Text.cpp" />
+    <ClCompile Include="src\TextSDF.cpp" />
     <ClCompile Include="src\TexturingExample.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -332,6 +334,7 @@
     <ClInclude Include="src\Exceptions.h" />
     <ClInclude Include="src\Font.h" />
     <ClInclude Include="src\FontRenderingExample.h" />
+    <ClInclude Include="src\FontSDF.h" />
     <ClInclude Include="src\GammaCorrectionExample.h" />
     <ClInclude Include="src\GeometryShaderExample.h" />
     <ClInclude Include="src\Mesh.h" />
@@ -343,7 +346,7 @@
     <ClInclude Include="src\PointWrapSampler.h" />
     <ClInclude Include="src\Quad.h" />
     <ClInclude Include="src\ResourceHolder.h" />
-    <ClInclude Include="src\SDFText.h" />
+    <ClInclude Include="src\TextSDF.h" />
     <ClInclude Include="src\ShaderChangePerfExample.h" />
     <ClInclude Include="src\SignedDistanceFieldFontExample.h" />
     <ClInclude Include="src\SpecularMapExample.h" />
