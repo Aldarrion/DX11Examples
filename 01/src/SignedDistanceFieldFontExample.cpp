@@ -19,7 +19,13 @@ HRESULT SignedDistanceFieldFontExample::setup() {
         return result;
 
     {
-        auto txt = Text::TextSDF("Hello from signed distance field font.\nEven we only have 32x32 texture for each glyph,\nthe font is capable of rendering very small and even more impressively very large.", &font_);
+        auto txt = Text::TextSDF(
+            "Hello from signed distance field font.\n"
+            "Even though we only have 32x32 texture for each glyph,\n"
+            "the technology is capable of rendering relatively small\n"
+            "and probably even more impressively very large glyphs.\n"
+            "To get even sharper glyphs we may use other channels in the texture\nto store multiple distances.\n"
+            , &font_);
         txt.setPosition(XMFLOAT2(16, 32));
         texts_.push_back(txt);
     }
@@ -27,7 +33,19 @@ HRESULT SignedDistanceFieldFontExample::setup() {
     {
         auto txt = Text::TextSDF("Big text", &font_);
         txt.setPosition(XMFLOAT2(90, 360));
-        txt.setSize(200);
+        txt.setSize(256);
+        texts_.push_back(txt);
+    }
+
+    {
+        auto txt = Text::TextSDF(
+            "Source (the original Valve paper):\n"
+            "Green, Chris.\n"
+            "\"Improved alpha - tested magnification for vector textures and special effects.\"\n"
+            "ACM SIGGRAPH 2007 courses. ACM, 2007."
+            , &font_);
+        txt.setPosition(XMFLOAT2(10, 550));
+        txt.setSize(20);
         texts_.push_back(txt);
     }
 
