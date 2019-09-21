@@ -25,7 +25,7 @@ PS_INPUT VS(VS_INPUT input) {
     PS_INPUT output = (PS_INPUT) 0;
     
     output.Pos = mul(input.Pos, Model);
-    output.UV = UVAdjust.xy + input.UV * UVAdjust.zw;
+    output.UV = (UVAdjust.xy + 0.0015) + input.UV * (UVAdjust.zw - 0.003);
 
     return output;
 }
@@ -34,6 +34,7 @@ float median(float r, float g, float b) {
     return max(min(r, g), min(max(r, g), b));
 }
 
+// Anti-aliasing as discussed at https://github.com/Chlumsky/msdfgen/issues/22
 float getAlpha(half2 tc, float mdn, float alpha) {
     int2 sz = int2(64, 64);
     float dx = ddx(tc.x) * sz.x;
@@ -49,25 +50,14 @@ float getAlpha(half2 tc, float mdn, float alpha) {
 // ============
 float4 PS(PS_INPUT input) : SV_Target {
     float4 col = diffuseTexture.Sample(diffuseSampler, input.UV);
-    float distance = col.r;
 
-    float4 result = float4(0.0, 0.0, 0.0, 0.0);
-    /*if (distance > 0.5)
-        result = float4(1.0, 1.0, 1.0, 1.0);*/
+    float distance = median(col.r, col.g, col.b);
+    float alpha = smoothstep(0.2, 0.22, distance);
+    
+    // For sharper results uncomment the following line
+    //alpha = getAlpha(input.UV * 2, distance, 0.2);
 
-
-    float alpha = smoothstep(0.2, 0.25, distance);
-
-    //float distance = median(col.r, col.g, col.b);
-    //sigDist *= dot(msdfUnit, 0.5 / fwidth(pos));
-    //float alpha = clamp(sigDist + 0.5, 0.0, 1.0);
-    float smoothWidth = fwidth(distance);
-    //distance *= dot(msdfUnit, 0.5 / fwidth(input.UV));
-    //float alpha = smoothstep(0.5 - smoothWidth, 0.5 + smoothWidth, distance);
-
-    alpha = getAlpha(input.UV * 2, distance, 0.2);
-
-    result = float4(1.0, 1.0, 1.0, alpha);
+    float4 result = float4(1.0, 1.0, 1.0, alpha);
 
     return result;
 }

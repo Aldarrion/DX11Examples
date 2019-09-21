@@ -140,14 +140,13 @@ void FontSDF::render(const ContextWrapper& context, const std::string& text, Dir
     const float scale = fontSize / context.HEIGHT;
     XMMATRIX aspectCorrection = XMMatrixScalingFromVector({ scale / aspectRatio, scale, scale });
 
-    SDFCbuffer cb{};
-
     sdfShader_->use(context.immediateContext_);
     context.immediateContext_->PSSetShaderResources(0, 1, &texture_);
     sampler_->use(context.immediateContext_, 0);
 
     XMFLOAT2 posScreen(pxToPos(context, position));
 
+    SDFCbuffer cb{};
     int i = 0;
     for (auto c : text) {
         if (c == '\n') {

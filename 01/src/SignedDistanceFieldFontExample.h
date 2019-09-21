@@ -15,7 +15,9 @@ protected:
     void render() override;
 
     Text::FontSDF font_;
+    Text::FontSDF fontMsdf_;
     std::vector<Text::TextSDF> texts_;
+    bool isMsdf_{ false };
 };
 
 }
