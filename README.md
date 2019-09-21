@@ -111,6 +111,12 @@ The same rules apply for cameras and textures. A camera captures linear (physica
 
 The whole chain is: **Physical world** (linear) -> **Image** (limited 8 bits, not linear) -> **Shader** (unlimited 32-bits, linear) -> **Back buffer** (limited 8 bits, not linear) -> **Monitor** (performs gamma correction, to end up with linear result - that's what we want since we started with it).
 
+### Signed distance field font rendering
+
+Industry standard font rendering technique from a Valve article from 2007.
+
+`GREEN, Chris. Improved alpha-tested magnification for vector textures and special effects. In: ACM SIGGRAPH 2007 courses. ACM, 2007. p. 9-18.`
+
 ## Where to go next
 
 For more tutorials and examples take a look at [DirectX SDK samples](https://github.com/walbourn/directx-sdk-samples).
