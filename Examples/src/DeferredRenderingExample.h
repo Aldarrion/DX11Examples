@@ -9,6 +9,7 @@
 #include "Text.h"
 #include "ColorCube.h"
 #include "WinKeyMap.h"
+#include "PhongLights.h"
 
 namespace Deferred {
 

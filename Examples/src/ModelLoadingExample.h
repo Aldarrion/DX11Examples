@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "ShaderProgram.h"
 #include "AnisotropicSampler.h"
+#include "PhongLights.h"
 
 namespace ModelLoading {
 
