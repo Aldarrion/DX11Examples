@@ -39,7 +39,7 @@ class ShaderProgram : public ResourceHolder {
             bufferDesc.CPUAccessFlags = 0;
             auto hr = device->CreateBuffer(&bufferDesc, nullptr, &arr[N]);
             if (FAILED(hr)) {
-                MessageBox(nullptr, L"Failed to create constant buffer", L"Error", MB_OK);
+                MessageBoxA(nullptr, "Failed to create constant buffer", "Error", MB_OK);
                 return;
             }
 

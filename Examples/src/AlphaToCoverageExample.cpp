@@ -58,7 +58,7 @@ HRESULT AlphaToCoverageExample::setup() {
 
     hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &alphaToCoverageBlendState_);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
         return hr;
     }
 
@@ -66,7 +66,7 @@ HRESULT AlphaToCoverageExample::setup() {
     blendDesc.RenderTarget[0].BlendEnable = true;
     hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &alphaBlendingBlendState_);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
         return hr;
     }
 
@@ -74,7 +74,7 @@ HRESULT AlphaToCoverageExample::setup() {
     blendDesc.RenderTarget[0].BlendEnable = false;
     hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &noBlendingBlendState_);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
         return hr;
     }
 

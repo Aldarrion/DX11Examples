@@ -38,7 +38,7 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
 
     auto hr = context_.init(hInstance, nCmdShow, settings);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to init context wrapper", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to init context wrapper", "Error", MB_OK);
         return 0;
     }
 
@@ -50,7 +50,7 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
     hr = setup();
     if (FAILED(hr)) {
         std::cout << "Failed to setup the example " << hr << std::endl;
-        MessageBox(nullptr, L"Failed to setup the example", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to setup the example", "Error", MB_OK);
         return 0;
     }
 

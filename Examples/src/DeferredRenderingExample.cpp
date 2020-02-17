@@ -177,7 +177,7 @@ HRESULT DeferredRenderingExample::setup() {
         XMFLOAT3(17.8f, 18.3f, -18.2f),
         XMFLOAT3(0.0f, 1.0f, 0.0f),
         -40.6000977f,
-        17.0000191
+        17.0000191f
     );
 
     return S_OK;

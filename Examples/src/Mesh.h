@@ -42,7 +42,7 @@ public:
         InitData.pSysMem = vertices.data();
         auto hr = device->CreateBuffer(&bd, &InitData, &vertexBuffer_);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"Failed to create vertex buffer", L"Error", MB_OK);
+            MessageBoxA(nullptr, "Failed to create vertex buffer", "Error", MB_OK);
             return;
         }
 
@@ -54,7 +54,7 @@ public:
         InitData.pSysMem = indices.data();
         hr = device->CreateBuffer(&bd, &InitData, &indexBuffer_);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"Failed to create index buffer", L"Error", MB_OK);
+            MessageBoxA(nullptr, "Failed to create index buffer", "Error", MB_OK);
             return;
         }
         indexCount_ = static_cast<UINT>(indices.size());

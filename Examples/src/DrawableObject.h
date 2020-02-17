@@ -47,7 +47,7 @@ protected:
         // Try to create vertex buffer using given device and description
         auto hr = device->CreateBuffer(&vertexBuffDesc, &vertexData, &vertexBuffer_);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"Failed to create vertex buffer", L"Error", MB_OK);
+            MessageBoxA(nullptr, "Failed to create vertex buffer", "Error", MB_OK);
             return;
         }
 
@@ -70,7 +70,7 @@ protected:
         // Try to create index buffer using given device and description
         hr = device->CreateBuffer(&indexBuffDesc, &indexData, &indexBuffer_);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"Failed to create index buffer", L"Error", MB_OK);
+            MessageBoxA(nullptr, "Failed to create index buffer", "Error", MB_OK);
             return;
         }
 

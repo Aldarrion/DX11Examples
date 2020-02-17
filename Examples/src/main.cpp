@@ -37,6 +37,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     //example = std::make_unique<AlphaToCoverage::AlphaToCoverageExample>();
     //example = std::make_unique<GammaCorrection::GammaCorrectionExample>();
     example = std::make_unique<SDF::SignedDistanceFieldFontExample>();
-
+     
     return example->run(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }

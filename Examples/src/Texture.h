@@ -12,7 +12,7 @@ public:
     Texture(ID3D11Device* device, ID3D11DeviceContext* context, const WCHAR* pathToDDS, bool isSRGB) {
         auto hr = DirectX::CreateDDSTextureFromFile(device, context, pathToDDS, isSRGB, &textureResource_, &texture_);
         if (FAILED(hr)) {
-            MessageBox(nullptr, L"Texture could not have been loaded", L"Error", MB_OK);
+            MessageBoxA(nullptr, "Texture could not have been loaded", "Error", MB_OK);
         }
     }
     ~Texture() {

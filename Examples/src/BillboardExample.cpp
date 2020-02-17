@@ -53,7 +53,7 @@ HRESULT BillboardExample::setup() {
     InitData.pSysMem = vertices.data();
     hr = context_.d3dDevice_->CreateBuffer(&bd, &InitData, &vertexBuffer_);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create vertex buffer", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create vertex buffer", "Error", MB_OK);
         return hr;
     }
 
@@ -76,7 +76,7 @@ HRESULT BillboardExample::setup() {
     
     hr = context_.d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &state);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create rasterizer state", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create rasterizer state", "Error", MB_OK);
         return hr;
     }
     context_.immediateContext_->RSSetState(state);
@@ -100,7 +100,7 @@ HRESULT BillboardExample::setup() {
     ID3D11BlendState* blendState;
     hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &blendState);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
         return hr;
     }
 

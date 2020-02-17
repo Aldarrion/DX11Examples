@@ -6,12 +6,12 @@ float ContextWrapper::getAspectRatio() const {
 
 HRESULT ContextWrapper::init(HINSTANCE hInstance, int nCmdShow, const ContextSettings& settings) {
     if (FAILED(initWindow(hInstance, nCmdShow, settings))) {
-        MessageBox(nullptr, L"Failed to window", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to window", "Error", MB_OK);
         return -1;
     }
 
     if (FAILED(initDevice(settings))) {
-        MessageBox(nullptr, L"Failed to init wrapper device", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to init wrapper device", "Error", MB_OK);
         return -1;
     }
     return 0;
@@ -37,7 +37,7 @@ HRESULT ContextWrapper::enableBlending() const {
     ID3D11BlendState* blendState;
     auto hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
         return hr;
     }
 
@@ -76,7 +76,7 @@ HRESULT ContextWrapper::disableDepthTest() const {
     ID3D11DepthStencilState * pDSState;
     auto hr = d3dDevice_->CreateDepthStencilState(&dsDesc, &pDSState);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create depth stencil desc", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create depth stencil desc", "Error", MB_OK);
         return hr;
     }
 
@@ -121,7 +121,7 @@ HRESULT ContextWrapper::initWindow(HINSTANCE hInstance, int nCmdShow, const Cont
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
-    wcex.lpszClassName = L"TutorialWindowClass";
+    wcex.lpszClassName = "TutorialWindowClass";
     if (!RegisterClassEx(&wcex))
         return E_FAIL;
 
@@ -129,7 +129,7 @@ HRESULT ContextWrapper::initWindow(HINSTANCE hInstance, int nCmdShow, const Cont
     hInst_ = hInstance;
     RECT rc = { 0, 0, WIDTH, HEIGHT };
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-    hWnd_ = CreateWindow(L"TutorialWindowClass", L"Direct3D 11 Tutorial",
+    hWnd_ = CreateWindowA("TutorialWindowClass", "Direct3D 11 Examples",
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
         nullptr);
@@ -308,7 +308,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     ID3D11BlendState* blendState;
     hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create blend state", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
         return hr;
     }
 
@@ -334,7 +334,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     ID3D11RasterizerState* state = nullptr;
     hr = d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &state);
     if (FAILED(hr)) {
-        MessageBox(nullptr, L"Failed to create rasterizer state", L"Error", MB_OK);
+        MessageBoxA(nullptr, "Failed to create rasterizer state", "Error", MB_OK);
         return hr;
     }
 
