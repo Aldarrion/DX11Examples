@@ -17,7 +17,6 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <directxcolors.h>
-#include "resource.h"
 
 using namespace DirectX;
 
@@ -105,19 +104,17 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 HRESULT InitWindow( HINSTANCE hInstance, int nCmdShow )
 {
     // Register class
-    WNDCLASSEX wcex;
+    WNDCLASSEX wcex{};
     wcex.cbSize = sizeof( WNDCLASSEX );
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = WndProc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon( hInstance, ( LPCTSTR )IDI_TUTORIAL1 );
     wcex.hCursor = LoadCursor( nullptr, IDC_ARROW );
     wcex.hbrBackground = ( HBRUSH )( COLOR_WINDOW + 1 );
     wcex.lpszMenuName = nullptr;
-    wcex.lpszClassName = L"TutorialWindowClass";
-    wcex.hIconSm = LoadIcon( wcex.hInstance, ( LPCTSTR )IDI_TUTORIAL1 );
+    wcex.lpszClassName = "TutorialWindowClass";
     if( !RegisterClassEx( &wcex ) )
         return E_FAIL;
 
@@ -125,7 +122,7 @@ HRESULT InitWindow( HINSTANCE hInstance, int nCmdShow )
     g_hInst = hInstance;
     RECT rc = { 0, 0, 800, 600 };
     AdjustWindowRect( &rc, WS_OVERLAPPEDWINDOW, FALSE );
-    g_hWnd = CreateWindow( L"TutorialWindowClass", L"Direct3D 11 Tutorial 2: Rendering a Triangle",
+    g_hWnd = CreateWindowA( "TutorialWindowClass", "Direct3D 11 Tutorial 2: Rendering a Triangle",
                            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
                            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
                            nullptr );
@@ -336,8 +333,8 @@ HRESULT InitDevice()
     hr = CompileShaderFromFile( L"Tutorial02.fx", "VS", "vs_4_0", &pVSBlob );
     if( FAILED( hr ) )
     {
-        MessageBox( nullptr,
-                    L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK );
+        MessageBoxA( nullptr,
+                    "The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", "Error", MB_OK );
         return hr;
     }
 
@@ -371,8 +368,8 @@ HRESULT InitDevice()
     hr = CompileShaderFromFile( L"Tutorial02.fx", "PS", "ps_4_0", &pPSBlob );
     if( FAILED( hr ) )
     {
-        MessageBox( nullptr,
-                    L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK );
+        MessageBoxA( nullptr,
+                    "The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", "Error", MB_OK );
         return hr;
     }
 

@@ -322,4 +322,4 @@ ASALocalRun/
 *.binlog
 
 !01/models/**/*.obj
-
+/build/
