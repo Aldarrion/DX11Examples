@@ -1,4 +1,4 @@
-# DirectX examples
+# DirectX 11 Examples
 
 This repository serves as an introduction to DirectX 11 graphics API. It also provides a basic framework for fast prototyping of new examples and trying out new techniques.
 
@@ -8,11 +8,11 @@ First, basic "Hello World" triangle is introduced. Then, each example presents a
 
 The things you need
 
-* Visual studio 2017 (community version should suffice)
-* Compatible Windows SDK with DX11 (10.0.16299.0 works)
-* [Git LFS](https://git-lfs.github.com/)
+* [CMake](https://cmake.org/) 
+* C++ compiler and build tools - Visual Studio 2017/2019 work fine 
+* Compatible Windows SDK with DX11 (10.0.16299.0 works, 8.1 should be fine as well)
 
-Rest of the libraries are included in the repository.
+The rest of the libraries are included in the repository.
 
 ## Examples
 
