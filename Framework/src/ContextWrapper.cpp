@@ -23,7 +23,7 @@ ContextWrapper::~ContextWrapper() {
 
 HRESULT ContextWrapper::enableBlending() const {
     D3D11_BLEND_DESC blendDesc;
-    ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
+    ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
     blendDesc.AlphaToCoverageEnable = false;
     blendDesc.RenderTarget[0].BlendEnable = true;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
@@ -111,7 +111,7 @@ LRESULT ContextWrapper::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 HRESULT ContextWrapper::initWindow(HINSTANCE hInstance, int nCmdShow, const ContextSettings&) {
     // Register class
     WNDCLASSEX wcex;
-    ZeroMemory(&wcex, sizeof wcex);
+    ZeroMemory(&wcex, sizeof(wcex));
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = WndProc;
@@ -295,7 +295,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     // =====================
 
     D3D11_BLEND_DESC blendDesc;
-    ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
+    ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
     blendDesc.RenderTarget[0].BlendEnable = true;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;

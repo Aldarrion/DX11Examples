@@ -42,8 +42,8 @@ float Text::getAbsoluteHeight() const {
 
 void Text::draw(ID3D11DeviceContext* context, const float aspectRatio) {
     using namespace DirectX;
-    XMMATRIX aspectCorrection = XMMatrixScalingFromVector({1, aspectRatio, 1});
-    aspectCorrection = aspectCorrection * XMMatrixScalingFromVector({1, 1 / font_.getFontAspectRatio(), 1});
+    XMMATRIX aspectCorrection = XMMatrixScalingFromVector(XMVectorSet(1, aspectRatio, 1, 0));
+    aspectCorrection = aspectCorrection * XMMatrixScalingFromVector(XMVectorSet(1, 1 / font_.getFontAspectRatio(), 1, 0));
 
     const float finalSizeScale = getAbsoluteWidth();
 
@@ -60,15 +60,16 @@ void Text::draw(ID3D11DeviceContext* context, const float aspectRatio) {
         }
 
         XMMATRIX model = aspectCorrection *
-            XMMatrixScalingFromVector({finalSizeScale / 2.0f, finalSizeScale / 2.0f, 1});
-        model = model * XMMatrixTranslationFromVector({
+            XMMatrixScalingFromVector(XMVectorSet(finalSizeScale / 2.0f, finalSizeScale / 2.0f, 1, 0));
+        model = model * XMMatrixTranslationFromVector(XMVectorSet(
             // Left + half letter width to align + which column in the text + position specified
             -1.0f + getAbsoluteWidth() / 2.0f + column * getAbsoluteWidth() + position_.x,
             // Top + half letter height to align + which row in the text + position specified
             1.0f - getAbsoluteHeight() / 2.0f - row * (getAbsoluteHeight() + (lineSpacing_ * getAbsoluteHeight())) -
             position_.y,
+            0,
             0
-        });
+        ));
 
         GlyphCb cb{};
         cb.Model = XMMatrixTranspose(model);

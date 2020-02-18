@@ -45,7 +45,7 @@ HRESULT AlphaToCoverageExample::setup() {
         return hr;
 
     D3D11_BLEND_DESC blendDesc;
-    ZeroMemory(&blendDesc, sizeof D3D11_BLEND_DESC);
+    ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
     blendDesc.AlphaToCoverageEnable = true;
     blendDesc.RenderTarget[0].BlendEnable = false;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;

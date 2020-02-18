@@ -138,7 +138,7 @@ void FontSDF::render(const ContextWrapper& context, const std::string& text, Dir
     const float aspectRatio = context.getAspectRatio();
     const float fontSize = size;
     const float scale = fontSize / context.HEIGHT;
-    XMMATRIX aspectCorrection = XMMatrixScalingFromVector({ scale / aspectRatio, scale, scale });
+    XMMATRIX aspectCorrection = XMMatrixScalingFromVector(XMVectorSet(scale / aspectRatio, scale, scale, 0));
 
     sdfShader_->use(context.immediateContext_);
     context.immediateContext_->PSSetShaderResources(0, 1, &texture_);
