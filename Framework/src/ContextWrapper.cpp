@@ -47,11 +47,11 @@ HRESULT ContextWrapper::enableBlending() const {
     return S_OK;
 }
 
-HRESULT ContextWrapper::disableDepthTest() const {
+HRESULT ContextWrapper::enableDepthTest(bool enable) const {
     D3D11_DEPTH_STENCIL_DESC dsDesc;
 
     // Depth test parameters
-    dsDesc.DepthEnable = false;
+    dsDesc.DepthEnable = enable;
     dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
     dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
 

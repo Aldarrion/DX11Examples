@@ -8,7 +8,7 @@
 #include <string>
 
 namespace Text {
-class Font {
+class FontBitmap {
     Texture fontMap_;
     PointWrapSampler sampler_;
     std::string glyphs_;
@@ -21,7 +21,7 @@ class Font {
     float sizeScale_;
 
 public:
-    Font(
+    FontBitmap(
         ID3D11Device* device, ID3D11DeviceContext* context,
         const std::wstring& fontMap,
         const std::string& glyphs,
@@ -43,5 +43,5 @@ public:
 // ======================
 // Font factory functions
 // ======================
-Font makeInconsolata(ID3D11Device* device, ID3D11DeviceContext* context);
+FontBitmap makeInconsolata(ID3D11Device* device, ID3D11DeviceContext* context);
 }

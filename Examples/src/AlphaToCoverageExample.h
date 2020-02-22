@@ -5,7 +5,7 @@
 #include "Texture.h"
 #include "AnisotropicSampler.h"
 #include "Quad.h"
-#include "Text.h"
+#include "TextSDF.h"
 
 namespace AlphaToCoverage {
 
@@ -25,7 +25,8 @@ protected:
     std::unique_ptr<AnisotropicSampler> sampler_;
     std::unique_ptr<Quad> quad_;
 
-    std::unique_ptr<Text::Text> text_;
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> text_;
 
     ID3D11BlendState* alphaToCoverageBlendState_;
     ID3D11BlendState* alphaBlendingBlendState_;

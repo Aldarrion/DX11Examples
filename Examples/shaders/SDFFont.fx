@@ -54,8 +54,9 @@ float4 PS(PS_INPUT input) : SV_Target {
     float distance = median(col.r, col.g, col.b);
     float alpha = smoothstep(0.2, 0.22, distance);
     
-    // For sharper results uncomment the following line
-    //alpha = getAlpha(input.UV * 2, distance, 0.2);
+    // Following line makes the font sharper, comment it out and hot-reload shaders with F5
+    // to see that even the super-simple variant produces good-looking text.
+    alpha = getAlpha(input.UV * 2, distance, 0.2);
 
     float4 result = float4(1.0, 1.0, 1.0, alpha);
 

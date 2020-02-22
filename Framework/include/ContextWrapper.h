@@ -30,7 +30,7 @@ struct ContextWrapper {
     ~ContextWrapper();
 
     HRESULT enableBlending() const;
-    HRESULT disableDepthTest() const;
+    HRESULT enableDepthTest(bool enable) const;
 
 private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

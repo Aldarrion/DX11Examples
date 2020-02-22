@@ -16,15 +16,17 @@ public:
     void setPosition(DirectX::XMFLOAT2 position);
     void setSize(float size);
     void setFont(FontSDF* font);
+    void setColor(const DirectX::XMFLOAT4& color);
 
-    void render(const ContextWrapper& context) const;
+    void draw(const ContextWrapper& context) const;
 
 private:
     FontSDF* font_{ nullptr };
 
     std::string text_{ "" };
     DirectX::XMFLOAT2 position_{ 0.0f, 0.0f };
-    float size_{ 32.0f };
+    float size_{ 24.0f };
+    DirectX::XMFLOAT4 color_{ 1, 1, 1, 1 };
 };
 
 }

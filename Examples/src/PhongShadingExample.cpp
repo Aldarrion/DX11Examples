@@ -21,7 +21,8 @@ HRESULT PhongShadingExample::setup() {
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
 
     // Create info text with hint to render on screen
-    infoText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "");
+    Text::makeDefaultSDFFont(context_, font_);
+    infoText_ = std::make_unique<Text::TextSDF>("", &font_);
 
     return S_OK;
 }
@@ -68,7 +69,7 @@ void PhongShadingExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
+    infoText_->draw(context_);
 
     // ==============================
     // Draw scene with phong lighting

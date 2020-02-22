@@ -6,7 +6,7 @@
 #include "Model.h"
 #include "PointWrapSampler.h"
 #include "Transform.h"
-#include "Text.h"
+#include "TextSDF.h"
 #include "ColorCube.h"
 #include "WinKeyMap.h"
 #include "PhongLights.h"
@@ -98,7 +98,8 @@ protected:
     std::vector<Transform> modelTransforms_;
 
     WinKeyMap::WinKeyMap switchRenderingModeKey_ = WinKeyMap::R;
-    std::unique_ptr<Text::Text> infoText_;
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> infoText_;
 
     ContextSettings getSettings() const override;
     HRESULT setup() override;

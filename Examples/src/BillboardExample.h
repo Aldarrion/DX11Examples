@@ -5,7 +5,7 @@
 #include "Texture.h"
 #include "AnisotropicSampler.h"
 #include "Plane.h"
-#include "Text.h"
+#include "TextSDF.h"
 
 namespace Billboard {
 
@@ -35,7 +35,8 @@ protected:
     std::unique_ptr<Texture> grassBillboard_;
     std::unique_ptr<AnisotropicSampler> diffuseSampler_;
     std::vector<DirectX::XMMATRIX> grassPositions_;
-    std::unique_ptr<Text::Text> frameTimeText_;
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> frameTimeText_;
 
     ID3D11Buffer* vertexBuffer_ = nullptr;
 

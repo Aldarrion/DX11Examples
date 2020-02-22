@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Font.h"
+#include "FontBitmap.h"
 #include "Quad.h"
 #include "ShaderProgram.h"
 
@@ -15,19 +15,19 @@ struct GlyphCb {
     DirectX::XMFLOAT4 TextColor;
 };
 
-class Text {
+class TextBitmap {
 private:
     std::string text_;
     Quad quad_;
     ShaderProgram<GlyphCb> fontShader_;
-    Font font_;
+    FontBitmap font_;
     DirectX::XMFLOAT4 textColor_;
     DirectX::XMFLOAT2 position_;
     float sizeMultiplier_ = 1.0f;
     float lineSpacing_ = 0.2f;
 
 public:
-    Text(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text);
+    TextBitmap(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text);
 
     void setText(const std::string& newText);
     void setSize(float size);
@@ -41,6 +41,5 @@ public:
     void draw(ID3D11DeviceContext* context, const float aspectRatio);
 };
 
-using PText = std::unique_ptr<Text>;
-PText makeText(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text);
+std::unique_ptr<TextBitmap> makeText(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text);
 }

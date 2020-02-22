@@ -4,7 +4,7 @@
 #include "ShaderProgram.h"
 #include "Layouts.h"
 #include "Transform.h"
-#include "Text.h"
+#include "TextSDF.h"
 
 namespace ShaderChangePerf {
 using namespace DirectX;
@@ -14,7 +14,8 @@ HRESULT ShaderChangePerfExample::setup() {
     if (FAILED(hr))
         return hr;
 
-    frameTimeText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
+    Text::makeDefaultSDFFont(context_, font_);
+    frameTimeText_ = std::make_unique<Text::TextSDF>("Frame time: 0", &font_);
 
     hr = reloadShaders();
     if (FAILED(hr))
@@ -60,7 +61,7 @@ void ShaderChangePerfExample::render() {
 
     clearViews();
 
-    frameTimeText_->draw(context_.immediateContext_, context_.getAspectRatio());
+    frameTimeText_->draw(context_);
 
     bool isEven = true;
     S1Cbuffer s1cb{};

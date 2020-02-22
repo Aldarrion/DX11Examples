@@ -231,7 +231,8 @@ HRESULT SSAO::SSAOExample::setup() {
         30.0f
     );
 
-    infoText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "PLACEHOLDER TEXT");
+    Text::makeDefaultSDFFont(context_, font_);
+    infoText_ = std::make_unique<Text::TextSDF>("PLACEHOLDER TEXT", &font_);
 
     return S_OK;
 }
@@ -450,7 +451,7 @@ void SSAO::SSAOExample::render() {
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
     drawGBufferDisplays();
     updateInfoText();
-    infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
+    infoText_->draw(context_);
 
     context_.swapChain_->Present(0, 0);
 }

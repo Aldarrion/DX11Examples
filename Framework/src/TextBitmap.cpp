@@ -1,8 +1,8 @@
-#include "Text.h"
+#include "TextBitmap.h"
 
 namespace Text {
 
-Text::Text(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text)
+TextBitmap::TextBitmap(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text)
     : text_(text)
     , quad_(device)
     , fontShader_(device, L"shaders/FontShader.fx", "VS", L"shaders/FontShader.fx", "PS", Layouts::POS_UV_LAYOUT)
@@ -12,35 +12,35 @@ Text::Text(ID3D11Device* device, ID3D11DeviceContext* context, const std::string
     , textColor_(1, 1, 1, 1) {
 }
 
-void Text::setText(const std::string& newText) {
+void TextBitmap::setText(const std::string& newText) {
     text_ = newText;
 }
 
-void Text::setSize(float size) {
+void TextBitmap::setSize(float size) {
     sizeMultiplier_ = size;
 }
 
-void Text::setColor(const DirectX::XMFLOAT4& color) {
+void TextBitmap::setColor(const DirectX::XMFLOAT4& color) {
     textColor_ = color;
 }
 
-void Text::setPosition(const DirectX::XMFLOAT2& position) {
+void TextBitmap::setPosition(const DirectX::XMFLOAT2& position) {
     position_ = position;
 }
 
-void Text::setLineSpacing(const float lineSpacing) {
+void TextBitmap::setLineSpacing(const float lineSpacing) {
     lineSpacing_ = lineSpacing;
 }
 
-float Text::getAbsoluteWidth() const {
+float TextBitmap::getAbsoluteWidth() const {
     return font_.getWidthSizeScale() * sizeMultiplier_;
 }
 
-float Text::getAbsoluteHeight() const {
+float TextBitmap::getAbsoluteHeight() const {
     return font_.getHeightSizeScale() * sizeMultiplier_;
 }
 
-void Text::draw(ID3D11DeviceContext* context, const float aspectRatio) {
+void TextBitmap::draw(ID3D11DeviceContext* context, const float aspectRatio) {
     using namespace DirectX;
     XMMATRIX aspectCorrection = XMMatrixScalingFromVector(XMVectorSet(1, aspectRatio, 1, 0));
     aspectCorrection = aspectCorrection * XMMatrixScalingFromVector(XMVectorSet(1, 1 / font_.getFontAspectRatio(), 1, 0));
@@ -84,7 +84,7 @@ void Text::draw(ID3D11DeviceContext* context, const float aspectRatio) {
     }
 }
 
-PText makeText(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text) {
-    return std::make_unique<Text>(device, context, text);
+std::unique_ptr<TextBitmap> makeText(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text) {
+    return std::make_unique<TextBitmap>(device, context, text);
 }
 }

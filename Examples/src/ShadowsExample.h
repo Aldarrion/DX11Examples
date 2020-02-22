@@ -11,7 +11,7 @@
 #include "ConstantBuffers.h"
 #include "Quad.h"
 #include "PointWrapSampler.h"
-#include "Text.h"
+#include "TextSDF.h"
 
 namespace Shadows {
 
@@ -60,7 +60,8 @@ protected:
     std::unique_ptr<ShadowDisplayShader> shadowMapDisplayShader_;
     std::unique_ptr<PointWrapSampler> pointSampler_;
 
-    std::unique_ptr<Text::Text> infoText_;
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> infoText_;
     bool isSelfCubeActive_ = true;
     bool drawFromLightView_ = false;
 

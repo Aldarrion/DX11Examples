@@ -82,7 +82,8 @@ HRESULT AlphaToCoverageExample::setup() {
     float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     context_.immediateContext_->OMSetBlendState(alphaToCoverageBlendState_, bl, 0xffffffff);
 
-    text_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, getHelperText(blendMode_));
+    Text::makeDefaultSDFFont(context_, font_);
+    text_ = std::make_unique<Text::TextSDF>(getHelperText(blendMode_), &font_);
     text_->setColor(DirectX::XMFLOAT4(0, 0, 0, 1));
 
     return hr;
@@ -133,7 +134,7 @@ void AlphaToCoverageExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::Red));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    text_->draw(context_.immediateContext_, context_.getAspectRatio());
+    text_->draw(context_);
 
     shader_->use(context_.immediateContext_);
     texture_->use(context_.immediateContext_, 0);

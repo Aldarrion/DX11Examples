@@ -8,7 +8,7 @@
 #include "TexturedCube.h"
 #include "PlaneTangentBitangent.h"
 #include "WinKeyMap.h"
-#include "Text.h"
+#include "TextSDF.h"
 
 namespace NormalMap {
 
@@ -38,7 +38,8 @@ private:
     std::unique_ptr<TexturedCube> cube_;
     std::unique_ptr<PlaneTangentBitangent> plane_;
 
-    Text::PText infoText_;
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> infoText_;
 
     WinKeyMap::WinKeyMap toggleRotationKey_ = WinKeyMap::E;
     bool isRotationOn_ = false;

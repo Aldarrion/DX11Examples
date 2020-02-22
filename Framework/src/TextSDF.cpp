@@ -25,9 +25,13 @@ void TextSDF::setFont(FontSDF* font) {
     font_ = font;
 }
 
-void TextSDF::render(const ContextWrapper& context) const {
+void TextSDF::setColor(const DirectX::XMFLOAT4& color) {
+    color_ = color;
+}
+
+void TextSDF::draw(const ContextWrapper& context) const {
     if (font_)
-        font_->render(context, text_, position_, size_);
+        font_->draw(context, text_, position_, size_, color_);
 }
 
 }

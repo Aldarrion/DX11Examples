@@ -29,8 +29,9 @@ HRESULT NormalMappingExample::setup() {
         -6.7f
     );
 
+    Text::makeDefaultSDFFont(context_, font_);
     using std::to_string;
-    infoText_ = Text::makeText(context_.d3dDevice_, context_.immediateContext_, "\n " + to_string(toggleRotationKey_) + ": to toggle rotation.");
+    infoText_ = std::make_unique<Text::TextSDF>("\n " + to_string(toggleRotationKey_) + ": to toggle rotation.", &font_);
 
     return hr;
 }
@@ -116,7 +117,7 @@ void NormalMappingExample::render() {
         }
     }
 
-    infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
+    infoText_->draw(context_);
 
     context_.swapChain_->Present(0, 0);
 }

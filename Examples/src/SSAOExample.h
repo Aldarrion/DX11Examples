@@ -95,16 +95,17 @@ protected:
     std::default_random_engine generator_;
 
     WinKeyMap::WinKeyMap toggleSSAOKey_ = WinKeyMap::E;
-	WinKeyMap::WinKeyMap incSSAOKernelSize_ = WinKeyMap::Z;
-	WinKeyMap::WinKeyMap decSSAOKernelSize_ = WinKeyMap::X;
-	WinKeyMap::WinKeyMap toggleSSAOKernelRotation = WinKeyMap::R;
-	WinKeyMap::WinKeyMap toggleSSAOBlur = WinKeyMap::B;
-    std::unique_ptr<Text::Text> infoText_;
+    WinKeyMap::WinKeyMap incSSAOKernelSize_ = WinKeyMap::Z;
+    WinKeyMap::WinKeyMap decSSAOKernelSize_ = WinKeyMap::X;
+    WinKeyMap::WinKeyMap toggleSSAOKernelRotation = WinKeyMap::R;
+    WinKeyMap::WinKeyMap toggleSSAOBlur = WinKeyMap::B;
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> infoText_;
 
     bool isSSAOOn_ = true;
-	int ssaoKernelSize = 64;
-	int randomRotation = 1;
-	int ssaoBlur = 1;
+    int ssaoKernelSize = 64;
+    int randomRotation = 1;
+    int ssaoBlur = 1;
 
     HRESULT setup() override;
     bool reloadShadersInternal() override;

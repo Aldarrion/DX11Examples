@@ -3,6 +3,7 @@
 #include "BaseExample.h"
 #include "WinKeyMap.h"
 #include "Transform.h"
+#include "FontSDF.h"
 
 #include <memory>
 #include <vector>
@@ -11,7 +12,7 @@ class Triangle;
 template<typename ... TCbuffers>
 class ShaderProgram;
 namespace Text {
-class Text;
+class TextSDF;
 }
 
 namespace ShaderChangePerf {
@@ -46,7 +47,8 @@ private:
 
     std::unique_ptr<Triangle> triangle_;
 
-    std::unique_ptr<Text::Text> frameTimeText_;
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> frameTimeText_;
 
     WinKeyMap::WinKeyMap toggle2Shaders_ = WinKeyMap::E;
     bool is2ShadersOn_ = true;

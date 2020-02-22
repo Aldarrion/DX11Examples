@@ -114,7 +114,7 @@ bool FontSDF::reloadShaders(ID3D11Device* device) {
         L"shaders/SDFFont.fx", "VS",
         L"shaders/SDFFont.fx", "PS",
         quad_->getVertexLayout()
-        );
+    );
 }
 
 XMFLOAT4 FontSDF::getUV(char c) const {
@@ -131,9 +131,12 @@ XMFLOAT4 FontSDF::getUV(char c) const {
     );
 }
 
-void FontSDF::render(const ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size) {
+void FontSDF::draw(const ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size, const DirectX::XMFLOAT4& color) {
+    if (!texture_)
+        return;
+
     context.enableBlending();
-    context.disableDepthTest();
+    context.enableDepthTest(false);
 
     const float aspectRatio = context.getAspectRatio();
     const float fontSize = size;
@@ -147,6 +150,8 @@ void FontSDF::render(const ContextWrapper& context, const std::string& text, Dir
     XMFLOAT2 posScreen(pxToPos(context, position));
 
     SDFCbuffer cb{};
+    cb.Color = color;
+
     int i = 0;
     for (auto c : text) {
         if (c == '\n') {
@@ -163,6 +168,14 @@ void FontSDF::render(const ContextWrapper& context, const std::string& text, Dir
         quad_->draw(context.immediateContext_);
         ++i;
     }
+
+    context.enableBlending();
+    context.enableDepthTest(true);
+}
+
+void makeDefaultSDFFont(const ContextWrapper& context, FontSDF& font) {
+    font.load(context, "fonts/RobotoMono-Regular");
+    font.reloadShaders(context.d3dDevice_);
 }
 
 }

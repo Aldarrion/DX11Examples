@@ -4,7 +4,7 @@
 
 #include "ShaderProgram.h"
 #include "Quad.h"
-#include "Text.h"
+#include "TextSDF.h"
 
 namespace GammaCorrection {
 
@@ -19,7 +19,8 @@ protected:
     std::unique_ptr<GammaCorrectionShader> shader_;
 
     std::unique_ptr<Quad> quad_;
-    std::unique_ptr<Text::Text> caption_;
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> caption_;
 
     bool isGammaCorrectionEnabled_{ true };
 

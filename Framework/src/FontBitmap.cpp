@@ -1,7 +1,7 @@
-#include "Font.h"
+#include "FontBitmap.h"
 
 namespace Text {
-Font::Font(
+FontBitmap::FontBitmap(
     ID3D11Device* device, ID3D11DeviceContext* context,
     const std::wstring& fontMap,
     const std::string& glyphs,
@@ -21,24 +21,24 @@ Font::Font(
         , sizeScale_(0.005f) {
 }
 
-void Font::use(ID3D11DeviceContext* context) const {
+void FontBitmap::use(ID3D11DeviceContext* context) const {
     fontMap_.use(context, 0);
     sampler_.use(context, 0);
 }
 
-float Font::getWidthSizeScale() const {
+float FontBitmap::getWidthSizeScale() const {
     return sizeScale_ * getFontAspectRatio();
 }
 
-float Font::getHeightSizeScale() const {
+float FontBitmap::getHeightSizeScale() const {
     return sizeScale_;
 }
 
-float Font::getFontAspectRatio() const {
+float FontBitmap::getFontAspectRatio() const {
     return glyphPxWidth_ / static_cast<float>(glyphPxHeight_);
 }
 
-DirectX::XMFLOAT4 Font::getUVWH(char c) const {
+DirectX::XMFLOAT4 FontBitmap::getUVWH(char c) const {
     size_t idx = glyphs_.find(c);
 
     if (idx == std::string::npos) {
@@ -57,9 +57,9 @@ DirectX::XMFLOAT4 Font::getUVWH(char c) const {
 }
 
 // TODO load font properties from config file
-Font makeInconsolata(ID3D11Device* device, ID3D11DeviceContext* context) {
+FontBitmap makeInconsolata(ID3D11Device* device, ID3D11DeviceContext* context) {
     std::string glyphs =
         " !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-    return Font(device, context, L"textures/Inconsolata-10-bold.dds", glyphs, 16, 6, 7, 17, 112, 112);
+    return FontBitmap(device, context, L"textures/Inconsolata-10-bold.dds", glyphs, 16, 6, 7, 17, 112, 112);
 }
 }

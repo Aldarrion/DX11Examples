@@ -15,11 +15,11 @@ HRESULT FontRenderingExample::setup() {
     if (FAILED(hr))
         return hr;
 
-    fpsText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, frameTimeString(0));
-    text_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, specString());
+    fpsText_ = std::make_unique<Text::TextBitmap>(context_.d3dDevice_, context_.immediateContext_, frameTimeString(0));
+    text_ = std::make_unique<Text::TextBitmap>(context_.d3dDevice_, context_.immediateContext_, specString());
     text_->setPosition({ 0, text_->getAbsoluteHeight() });
 
-    multilineText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "1. First line...\n2. Second line... :)\n3. etc.");
+    multilineText_ = std::make_unique<Text::TextBitmap>(context_.d3dDevice_, context_.immediateContext_, "1. First line...\n2. Second line... :)\n3. etc.");
     multilineText_->setPosition({ 0, text_->getAbsoluteHeight() * 3 });
 
     return S_OK;

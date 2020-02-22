@@ -103,7 +103,7 @@ void SignedDistanceFieldFontExample::render() {
     clearViews();
 
     for (const Text::TextSDF& text : texts_) {
-        text.render(context_);
+        text.draw(context_);
     }
 
     context_.swapChain_->Present(0, 0);

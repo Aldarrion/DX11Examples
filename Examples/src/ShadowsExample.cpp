@@ -18,10 +18,10 @@ HRESULT ShadowsExample::setup() {
     colorCube_ = std::make_unique<ColorCube>(context_.d3dDevice_);
     plane_ = std::make_unique<Plane>(context_.d3dDevice_);
     shadowMapDisplay_ = std::make_unique<Quad>(context_.d3dDevice_);
-    infoText_ = std::make_unique<Text::Text>(
-        context_.d3dDevice_, 
-        context_.immediateContext_, 
-        "\n E: toggle rendering cube at camera's position\n Q: toggle rendering scene from light's position"
+    Text::makeDefaultSDFFont(context_, font_);
+    infoText_ = std::make_unique<Text::TextSDF>(
+        "\n E: toggle rendering cube at camera's position\n Q: toggle rendering scene from light's position",
+        &font_
     );
 
     hr = reloadShaders();
@@ -173,7 +173,7 @@ void ShadowsExample::render() {
         context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
         context_.immediateContext_->RSSetViewports(1, &context_.viewPort_);
 
-        infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
+        infoText_->draw(context_);
 
         // ===========================
         // Draw the shadow map display

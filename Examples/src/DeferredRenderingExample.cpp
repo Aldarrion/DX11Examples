@@ -138,7 +138,8 @@ HRESULT DeferredRenderingExample::setup() {
     // ====================
     // Other initialization
     // ====================
-    infoText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
+    Text::makeDefaultSDFFont(context_, font_);
+    infoText_ = std::make_unique<Text::TextSDF>("Frame time: 0", &font_);
 
     std::string path = "models/nanosuit/nanosuit.obj";
     model_ = std::make_unique<Models::Model>(context_, path);
@@ -218,7 +219,7 @@ void DeferredRenderingExample::drawText() const {
         + "\n\n Frame time (ms): " + to_string(deltaTimeSMA_ * 1000)
         + "\n Is dffered rendering: " + to_string(isDeferredRendering_)
     );
-    infoText_->draw(context_.immediateContext_, context_.getAspectRatio());
+    infoText_->draw(context_);
 }
 
 void DeferredRenderingExample::renderLights() const {

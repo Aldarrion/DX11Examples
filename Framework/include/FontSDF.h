@@ -13,17 +13,19 @@ namespace Text {
 struct SDFCbuffer {
     DirectX::XMMATRIX Model;
     DirectX::XMFLOAT4 UVMul;
+    DirectX::XMFLOAT4 Color;
 };
 
 class FontSDF {
 public:
-    HRESULT load(const ContextWrapper& context, const std::string& description);
     ~FontSDF();
+
+    HRESULT load(const ContextWrapper& context, const std::string& description);
 
     bool reloadShaders(ID3D11Device* device);
     DirectX::XMFLOAT4 getUV(char c) const;
 
-    void render(const ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size);
+    void draw(const ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size, const DirectX::XMFLOAT4& color);
 
 private:
     using SDFFontShader_t = ShaderProgram<SDFCbuffer>;
@@ -38,8 +40,10 @@ private:
     ID3D11Texture2D* textureResource_{};
 
     std::unordered_map<char, DirectX::XMFLOAT2> charCoords_;
-    float glyphSize_;
-    DirectX::XMFLOAT2 uvPerGlyph_;
+    float glyphSize_{ 0.0f };
+    DirectX::XMFLOAT2 uvPerGlyph_{ 0, 0 };
 };
+
+void makeDefaultSDFFont(const ContextWrapper& context, FontSDF& font);
 
 }

@@ -23,7 +23,8 @@ HRESULT BillboardExample::setup() {
     if (FAILED(hr))
         return hr;
 
-    frameTimeText_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, "Frame time: 0");
+    Text::makeDefaultSDFFont(context_, font_);
+    frameTimeText_ = std::make_unique<Text::TextSDF>("Frame time: 0", &font_);
 
     plane_ = std::make_unique<Plane>(context_.d3dDevice_);
     seaFloorTexture_ = std::make_unique<Texture>(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", true);
@@ -172,7 +173,7 @@ void BillboardExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    frameTimeText_->draw(context_.immediateContext_, context_.getAspectRatio());
+    frameTimeText_->draw(context_);
 
     BillboardCBuffer cb;
     cb.View = XMMatrixTranspose(camera_.getViewMatrix());

@@ -31,12 +31,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     //example = std::make_unique<FontRendering::FontRenderingExample>();
     //example = std::make_unique<ModelLoading::ModelLoadingExample>();
     //example = std::make_unique<Deferred::DeferredRenderingExample>();
-    //example = std::make_unique<SSAO::SSAOExample>();
+    example = std::make_unique<SSAO::SSAOExample>();
 
     //example = std::make_unique<ShaderChangePerf::ShaderChangePerfExample>();
     //example = std::make_unique<AlphaToCoverage::AlphaToCoverageExample>();
     //example = std::make_unique<GammaCorrection::GammaCorrectionExample>();
-    example = std::make_unique<SDF::SignedDistanceFieldFontExample>();
+    //example = std::make_unique<SDF::SignedDistanceFieldFontExample>();
      
     return example->run(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }

@@ -22,7 +22,8 @@ HRESULT GammaCorrectionExample::setup() {
     if (FAILED(hr))
         return hr;
 
-    caption_ = std::make_unique<Text::Text>(context_.d3dDevice_, context_.immediateContext_, makeCaption(isGammaCorrectionEnabled_));
+    Text::makeDefaultSDFFont(context_, font_);
+    caption_ = std::make_unique<Text::TextSDF>(makeCaption(isGammaCorrectionEnabled_), &font_);
     caption_->setColor(Util::srgbToLinearVec(Colors::Aqua));
 
     return hr;
@@ -52,7 +53,7 @@ void GammaCorrectionExample::render() {
 
     clearViews();
 
-    caption_->draw(context_.immediateContext_, context_.getAspectRatio());
+    caption_->draw(context_);
 
     GammaCorrectionCb cb{};
     cb.IsGammaCorrectionEnabled.x = float(isGammaCorrectionEnabled_);
