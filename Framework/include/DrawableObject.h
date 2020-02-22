@@ -13,9 +13,9 @@
 template<typename TVertex>
 class DrawableObject : public ResourceHolder {
 protected:
-    ID3D11Buffer* vertexBuffer_;
-    ID3D11Buffer* indexBuffer_;
-    UINT indexCount_;
+    ID3D11Buffer* vertexBuffer_{ nullptr };
+    ID3D11Buffer* indexBuffer_{ nullptr };
+    UINT indexCount_{ 0 };
 
     /**
      * \brief Call method in constructor of inheriting class to initialize this DrawableObject
