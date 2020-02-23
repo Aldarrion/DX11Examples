@@ -5,7 +5,8 @@
 #include "Quad.h"
 #include "PointWrapSampler.h"
 #include "Transform.h"
-#include "DeferredRenderingExample.h"
+#include "WinKeyMap.h"
+#include "TextSDF.h"
 #include <random>
 
 namespace SSAO {
@@ -15,6 +16,10 @@ struct GShaderCB {
     DirectX::XMMATRIX View;
     DirectX::XMMATRIX Projection;
     DirectX::XMMATRIX NormalMatrix;
+};
+
+struct GBufferDisplayCB {
+    DirectX::XMMATRIX World;
 };
 
 struct SSAOCB {
@@ -69,7 +74,7 @@ protected:
     using GShader = ShaderProgram<GShaderCB>;
     using PGShader = std::unique_ptr<GShader>;
     using SSAOShader = ShaderProgram<SSAOCB>;
-    using GBufferDisplayShader = ShaderProgram<Deferred::GBufferDisplayCB>;
+    using GBufferDisplayShader = ShaderProgram<GBufferDisplayCB>;
     using PGBufferDisplayShader = std::unique_ptr<GBufferDisplayShader>;
     using PSSAOShader = std::unique_ptr<SSAOShader>;
     using SSAOBlurShader = ShaderProgram<SSAOBlurCB>;

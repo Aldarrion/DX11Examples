@@ -1,5 +1,4 @@
 #include "SSAOExample.h"
-#include "DeferredRenderingExample.h"
 #include "Util.h"
 
 #include <directxcolors.h>
@@ -335,7 +334,7 @@ void SSAO::SSAOExample::drawGBufferDisplays() const {
             XMFLOAT3(0, 0, 0),
             XMFLOAT3(mapDisplaySize, mapDisplaySize, mapDisplaySize)
         );
-        Deferred::GBufferDisplayCB gbdcb{};
+        GBufferDisplayCB gbdcb{};
         gbdcb.World = XMMatrixTranspose(shadowMapDisplayTransform.generateModelMatrix());
 
         gBufferDisplayShader_->use(context_.immediateContext_);
