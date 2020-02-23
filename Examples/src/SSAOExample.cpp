@@ -2,6 +2,8 @@
 #include "DeferredRenderingExample.h"
 #include "Util.h"
 
+#include <directxcolors.h>
+
 using namespace DirectX;
 
 HRESULT SSAO::SSAOExample::setup() {
@@ -281,23 +283,23 @@ void SSAO::SSAOExample::handleInput() {
         isSSAOOn_ = !isSSAOOn_;
     }
 
-	if (GetAsyncKeyState(incSSAOKernelSize_) & 1) {
-		ssaoKernelSize += 4;
-		if (ssaoKernelSize > 64) ssaoKernelSize = 64;
-	}
+    if (GetAsyncKeyState(incSSAOKernelSize_) & 1) {
+        ssaoKernelSize += 4;
+        if (ssaoKernelSize > 64) ssaoKernelSize = 64;
+    }
 
-	if (GetAsyncKeyState(decSSAOKernelSize_) & 1) {
-		ssaoKernelSize -= 4;
-		if (ssaoKernelSize < 4) ssaoKernelSize = 4;
-	}
+    if (GetAsyncKeyState(decSSAOKernelSize_) & 1) {
+        ssaoKernelSize -= 4;
+        if (ssaoKernelSize < 4) ssaoKernelSize = 4;
+    }
 
-	if (GetAsyncKeyState(toggleSSAOKernelRotation) & 1) {
-		randomRotation = (randomRotation + 1) % 2;
-	}
+    if (GetAsyncKeyState(toggleSSAOKernelRotation) & 1) {
+        randomRotation = (randomRotation + 1) % 2;
+    }
 
-	if (GetAsyncKeyState(toggleSSAOBlur) & 1) {
-		ssaoBlur = (ssaoBlur + 1) % 2;
-	}
+    if (GetAsyncKeyState(toggleSSAOBlur) & 1) {
+        ssaoBlur = (ssaoBlur + 1) % 2;
+    }
 
 }
 
@@ -306,13 +308,13 @@ void SSAO::SSAOExample::updateInfoText() const {
     infoText_->setText(
         "\n Displayed render targets from top:\n SSAO filtered, SSAO, Albedo, Normal in view space, Position in view space\n " 
         + to_string(toggleSSAOKey_) + ": toggle SSAO"
-		+ "\n " + to_string(toggleSSAOKernelRotation) + ": toggle random kernel rotation"
-		+ "\n " + to_string(incSSAOKernelSize_) + " / " + to_string(decSSAOKernelSize_) + ": +/- SSAO kernel size"
-		+ "\n " + to_string(toggleSSAOBlur) + ": toggle SSAO blur"
-		+ "\n"
+        + "\n " + to_string(toggleSSAOKernelRotation) + ": toggle random kernel rotation"
+        + "\n " + to_string(incSSAOKernelSize_) + " / " + to_string(decSSAOKernelSize_) + ": +/- SSAO kernel size"
+        + "\n " + to_string(toggleSSAOBlur) + ": toggle SSAO blur"
+        + "\n"
         + "\n SSAO is " + (isSSAOOn_ ? "on" : "off")
-		+ "\n SSAO Kernel rotation is " + (randomRotation == 1 ? "on" : "off") + "; SSAO blur is " + (ssaoBlur == 1 ? "on" : "off")
-		+ "\n SSAO Kernel size: " + to_string(ssaoKernelSize)
+        + "\n SSAO Kernel rotation is " + (randomRotation == 1 ? "on" : "off") + "; SSAO blur is " + (ssaoBlur == 1 ? "on" : "off")
+        + "\n SSAO Kernel size: " + to_string(ssaoKernelSize)
     );
 }
 
@@ -392,8 +394,8 @@ void SSAO::SSAOExample::render() {
         ssaocb.Kernel[i] = ssaoKernel_[i];
     }
     ssaocb.ScreenResolution = XMFLOAT4(static_cast<float>(context_.WIDTH), static_cast<float>(context_.HEIGHT), 0, 0);
-	ssaocb.kernelSize = ssaoKernelSize;
-	ssaocb.randomRotation = randomRotation;
+    ssaocb.kernelSize = ssaoKernelSize;
+    ssaocb.randomRotation = randomRotation;
 
     ssaoShader_->updateConstantBuffer(context_.immediateContext_, ssaocb);
     ssaoShader_->use(context_.immediateContext_);
@@ -403,20 +405,20 @@ void SSAO::SSAOExample::render() {
     // ======================
     // Filter the SSAO buffer
     // ======================
-	context_.immediateContext_->OMSetRenderTargets(1, &ssaoBlurRTView_, depthBufferDepthView_);
-	context_.immediateContext_->ClearRenderTargetView(ssaoBlurRTView_, Colors::Black);
-	context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    context_.immediateContext_->OMSetRenderTargets(1, &ssaoBlurRTView_, depthBufferDepthView_);
+    context_.immediateContext_->ClearRenderTargetView(ssaoBlurRTView_, Colors::Black);
+    context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	SSAOBlurCB ssaobcb;
-	ssaobcb.blur = ssaoBlur;
+    SSAOBlurCB ssaobcb;
+    ssaobcb.blur = ssaoBlur;
 
-	context_.immediateContext_->PSSetShaderResources(0, 1, &ssaoRV_);
-	pointSampler_->use(context_.immediateContext_, 0);
+    context_.immediateContext_->PSSetShaderResources(0, 1, &ssaoRV_);
+    pointSampler_->use(context_.immediateContext_, 0);
 
-	ssaoBlurShader_->updateConstantBuffer(context_.immediateContext_, ssaobcb);
-	ssaoBlurShader_->use(context_.immediateContext_);
-	quad_->draw(context_.immediateContext_);
-	
+    ssaoBlurShader_->updateConstantBuffer(context_.immediateContext_, ssaobcb);
+    ssaoBlurShader_->use(context_.immediateContext_);
+    quad_->draw(context_.immediateContext_);
+    
 
     // =================
     // Render final quad

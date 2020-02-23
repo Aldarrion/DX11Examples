@@ -31,6 +31,7 @@ protected:
     ID3D11BlendState* alphaToCoverageBlendState_;
     ID3D11BlendState* alphaBlendingBlendState_;
     ID3D11BlendState* noBlendingBlendState_;
+    ID3D11BlendState* currentBlendState_;
 
     BlendMode blendMode_;
 

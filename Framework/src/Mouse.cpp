@@ -16,6 +16,7 @@
 #include "PlatformHelpers.h"
 #include <windows.h>
 #include <assert.h>
+#include <directxmath.h>
 
 using namespace DirectX;
 //using Microsoft::WRL::ComPtr;

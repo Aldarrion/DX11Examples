@@ -98,15 +98,11 @@ HRESULT BillboardExample::setup() {
     blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    ID3D11BlendState* blendState;
-    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &blendState);
+    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &blendState_);
     if (FAILED(hr)) {
         MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
         return hr;
     }
-
-    float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    context_.immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
 
 
 
@@ -161,7 +157,7 @@ void BillboardExample::handleInput() {
 void BillboardExample::render() {
     BaseExample::render();
 
-    frameTimeText_->setText("Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000) + 
+    frameTimeText_->setText("\n Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000) +
         "\n E: toggle instanced rendering. Is instanced: " + std::to_string(isInstanced_)
     );
 
@@ -173,7 +169,8 @@ void BillboardExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    frameTimeText_->draw(context_);
+    float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    context_.immediateContext_->OMSetBlendState(blendState_, bl, 0xffffffff);
 
     BillboardCBuffer cb;
     cb.View = XMMatrixTranspose(camera_.getViewMatrix());
@@ -222,6 +219,8 @@ void BillboardExample::render() {
             context_.immediateContext_->Draw(1, 0);
         }
     }
+
+    frameTimeText_->draw(context_);
 
     context_.swapChain_->Present(0, 0);
 }

@@ -27,6 +27,8 @@
 #define DCOMMON_H_INCLUDED
 #define NO_D3D11_DEBUG_NAME
 #else
+
+#define COM_NO_WINDOWS_H
 #include <d3d11_1.h>
 #endif
 

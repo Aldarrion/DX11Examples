@@ -1,10 +1,10 @@
 #pragma once
 
-#include <d3d11.h>
-#include <DirectXMath.h>
-#include "VertexTypes.h"
-#include <vector>
 #include "DrawableObject.h"
+#include "VertexTypes.h"
+
+#include <vector>
+#include <DirectXMath.h>
 
 class Quad : public DrawableObject<VertexTypes::PosTexVertex> {
 public:

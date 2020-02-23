@@ -1,13 +1,13 @@
 #pragma once
-#include <d3d11.h>
-#include <array>
 #include "ResourceHolder.h"
-#include <vector>
-#include <d3dcompiler.h>
-#include <iostream>
 #include "Layouts.h"
 #include "ConstantBuffers.h"
 #include "ContextWrapper.h"
+
+#include <array>
+#include <vector>
+#include <d3dcompiler.h>
+#include <iostream>
 
 namespace Shaders {
 
@@ -19,7 +19,6 @@ template<typename ... TCBuffers>
 class ShaderProgram : public ResourceHolder {
     typedef std::tuple<TCBuffers ...> types;
     typedef std::array<ID3D11Buffer*, sizeof...(TCBuffers)> buffer_array_t;
-
 
     buffer_array_t cbuffers_{};
     ID3D11VertexShader* vertexShader_{};
@@ -223,16 +222,16 @@ private:
         HRESULT hr = S_OK;
 
         DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#ifdef _DEBUG
-        // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-        // Setting this flag improves the shader debugging experience, but still allows 
-        // the shaders to be optimized and to run exactly the way they will run in 
-        // the release configuration of this program.
-        dwShaderFlags |= D3DCOMPILE_DEBUG;
+        #ifdef _DEBUG
+            // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
+            // Setting this flag improves the shader debugging experience, but still allows 
+            // the shaders to be optimized and to run exactly the way they will run in 
+            // the release configuration of this program.
+            dwShaderFlags |= D3DCOMPILE_DEBUG;
 
-        // Disable optimizations to further improve shader debugging
-        dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
+            // Disable optimizations to further improve shader debugging
+            dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+        #endif
 
         ID3DBlob* pErrorBlob = nullptr;
         std::wcout << "Compiling: " << szFileName << " | " << szEntryPoint << std::endl;

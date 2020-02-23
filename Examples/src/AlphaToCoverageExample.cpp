@@ -23,7 +23,7 @@ std::string getNameOfMode(AlphaToCoverage::BlendMode mode) {
 }
 
 std::string getHelperText(AlphaToCoverage::BlendMode mode) {
-    return "\nPress E to cycle modes\nMode: " + getNameOfMode(mode);
+    return "\n Press E to cycle modes\n Mode: " + getNameOfMode(mode);
 }
 
 }
@@ -78,9 +78,7 @@ HRESULT AlphaToCoverageExample::setup() {
         return hr;
     }
 
-
-    float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    context_.immediateContext_->OMSetBlendState(alphaToCoverageBlendState_, bl, 0xffffffff);
+    currentBlendState_ = alphaToCoverageBlendState_;
 
     Text::makeDefaultSDFFont(context_, font_);
     text_ = std::make_unique<Text::TextSDF>(getHelperText(blendMode_), &font_);
@@ -104,25 +102,21 @@ void AlphaToCoverageExample::handleInput() {
     if (GetAsyncKeyState(WinKeyMap::E) & 1) {
         blendMode_ = BlendMode((blendMode_ + 1) % COUNT);
         
-        ID3D11BlendState* blendState;
         switch (blendMode_)
         {
             case AlphaToCoverage:
-                blendState = alphaToCoverageBlendState_;
+                currentBlendState_ = alphaToCoverageBlendState_;
                 break;
             case Blend:
-                blendState = alphaBlendingBlendState_;
+                currentBlendState_ = alphaBlendingBlendState_;
                 break;
             case NoBlend:
-                blendState = noBlendingBlendState_;
+                currentBlendState_ = noBlendingBlendState_;
                 break;
             default:
-                blendState = alphaToCoverageBlendState_;
+                currentBlendState_ = alphaToCoverageBlendState_;
                 break;
         }
-
-        float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        context_.immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
 
         text_->setText(getHelperText(blendMode_));
     }
@@ -134,11 +128,14 @@ void AlphaToCoverageExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::Red));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    text_->draw(context_);
+    float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    context_.immediateContext_->OMSetBlendState(currentBlendState_, bl, 0xffffffff);
 
     shader_->use(context_.immediateContext_);
     texture_->use(context_.immediateContext_, 0);
     quad_->draw(context_.immediateContext_);
+    
+    text_->draw(context_);
 
     context_.swapChain_->Present(0, 0);
 }

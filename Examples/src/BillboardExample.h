@@ -38,7 +38,8 @@ protected:
     Text::FontSDF font_;
     std::unique_ptr<Text::TextSDF> frameTimeText_;
 
-    ID3D11Buffer* vertexBuffer_ = nullptr;
+    ID3D11BlendState* blendState_{ nullptr };
+    ID3D11Buffer* vertexBuffer_{ nullptr };
 
     HRESULT setup() override;
     bool reloadShadersInternal() override;

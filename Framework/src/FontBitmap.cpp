@@ -1,4 +1,5 @@
 #include "FontBitmap.h"
+#include "Exceptions.h"
 
 namespace Text {
 FontBitmap::FontBitmap(

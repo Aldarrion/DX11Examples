@@ -173,8 +173,6 @@ void ShadowsExample::render() {
         context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
         context_.immediateContext_->RSSetViewports(1, &context_.viewPort_);
 
-        infoText_->draw(context_);
-
         // ===========================
         // Draw the shadow map display
         // ===========================
@@ -248,6 +246,8 @@ void ShadowsExample::render() {
         solidShader_->updateConstantBuffer(context_.immediateContext_, scb);
         solidShader_->use(context_.immediateContext_);
         colorCube_->draw(context_.immediateContext_);
+
+        infoText_->draw(context_);
 
         context_.swapChain_->Present(0, 0);
     }

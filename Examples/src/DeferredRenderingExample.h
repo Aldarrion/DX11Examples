@@ -97,7 +97,7 @@ protected:
     std::array<PointLight, NUM_LIGHTS> lights_;
     std::vector<Transform> modelTransforms_;
 
-    WinKeyMap::WinKeyMap switchRenderingModeKey_ = WinKeyMap::R;
+    WinKeyMap::WinKeyMap switchRenderingModeKey_ = WinKeyMap::E;
     Text::FontSDF font_;
     std::unique_ptr<Text::TextSDF> infoText_;
 

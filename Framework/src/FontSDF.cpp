@@ -135,7 +135,7 @@ void FontSDF::draw(const ContextWrapper& context, const std::string& text, Direc
     if (!texture_)
         return;
 
-    context.enableBlending();
+    context.enableBlending(true);
     context.enableDepthTest(false);
 
     const float aspectRatio = context.getAspectRatio();
@@ -169,7 +169,6 @@ void FontSDF::draw(const ContextWrapper& context, const std::string& text, Direc
         ++i;
     }
 
-    context.enableBlending();
     context.enableDepthTest(true);
 }
 

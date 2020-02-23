@@ -1,6 +1,5 @@
 #pragma once
 #include <DirectXMath.h>
-#include <iostream>
 
 namespace dx = DirectX;
 
@@ -148,9 +147,9 @@ private:
         using namespace dx;
         // Calculate the new Front vector
         XMFLOAT3 front;
-        front.x = cos(XMConvertToRadians(Yaw)) * cos(XMConvertToRadians(Pitch));
-        front.y = sin(XMConvertToRadians(Pitch));
-        front.z = sin(XMConvertToRadians(Yaw)) * cos(XMConvertToRadians(Pitch));
+        front.x = cosf(XMConvertToRadians(Yaw)) * cosf(XMConvertToRadians(Pitch));
+        front.y = sinf(XMConvertToRadians(Pitch));
+        front.z = sinf(XMConvertToRadians(Yaw)) * cosf(XMConvertToRadians(Pitch));
         XMStoreFloat3(&Front, XMVector3Normalize(XMLoadFloat3(&front)));
         
         // Also re-calculate the Right and Up vector

@@ -54,7 +54,7 @@ void ShaderChangePerfExample::render() {
     timeToShowFps += deltaTimeSMA_;
     if (timeToShowFps > 0.5f) {
         timeToShowFps = 0.0f;
-        frameTimeText_->setText("Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000) +
+        frameTimeText_->setText("\n Frame time (ms): " + std::to_string(deltaTimeSMA_ * 1000) +
             "\n E: toggle 2 shader rendering. Using 2 shaders: " + std::to_string(is2ShadersOn_)
         );
     }

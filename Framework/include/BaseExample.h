@@ -1,7 +1,6 @@
 #pragma once
 #include "Example.h"
 #include "Camera.h"
-#include <directxcolors.h>
 #include <vector>
 
 class BaseExample : public Example {

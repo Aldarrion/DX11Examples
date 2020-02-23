@@ -1,6 +1,6 @@
 #pragma once
 
-#include <windows.h>
+#define COM_NO_WINDOWS_H
 #include <d3d11_1.h>
 
 struct ContextSettings {
@@ -29,7 +29,7 @@ struct ContextWrapper {
 
     ~ContextWrapper();
 
-    HRESULT enableBlending() const;
+    HRESULT enableBlending(bool enable) const;
     HRESULT enableDepthTest(bool enable) const;
 
 private:

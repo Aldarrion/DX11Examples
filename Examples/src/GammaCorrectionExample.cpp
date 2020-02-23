@@ -3,6 +3,8 @@
 #include "WinKeyMap.h"
 #include "Util.h"
 
+#include <directxcolors.h>
+
 using namespace DirectX;
 
 namespace GammaCorrection {
@@ -53,8 +55,6 @@ void GammaCorrectionExample::render() {
 
     clearViews();
 
-    caption_->draw(context_);
-
     GammaCorrectionCb cb{};
     cb.IsGammaCorrectionEnabled.x = float(isGammaCorrectionEnabled_);
 
@@ -62,6 +62,8 @@ void GammaCorrectionExample::render() {
     shader_->updateConstantBuffer(context_.immediateContext_, cb);
 
     quad_->draw(context_.immediateContext_);
+
+    caption_->draw(context_);
 
     context_.swapChain_->Present(0, 0);
 }

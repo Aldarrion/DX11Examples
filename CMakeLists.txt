@@ -48,5 +48,15 @@ add_custom_command(TARGET ${PROJ_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/Extern/lib/64/assimp-vc140-mt.dll" "${CMAKE_CURRENT_BINARY_DIR}/Release"
 )
 
+set(FTIME_TRACE 0 CACHE BOOL "-ftime-trace for clang")
+if (FTIME_TRACE)
+    target_compile_options(Framework PRIVATE -ftime-trace)
+    target_compile_options(${PROJ_NAME} PRIVATE -ftime-trace)
+endif()
+
+if(MSVC)
+    add_definitions(/MP)
+endif()
+
 # Solution name
 project (DX11Examples)

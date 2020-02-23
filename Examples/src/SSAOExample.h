@@ -21,13 +21,13 @@ struct SSAOCB {
     DirectX::XMMATRIX Projection;
     DirectX::XMFLOAT4 Kernel[64];
     DirectX::XMFLOAT4 ScreenResolution;
-	int kernelSize;
-	int randomRotation;
+    int kernelSize;
+    int randomRotation;
 };
 
 struct SSAOBlurCB {
-	int blur;
-	DirectX::XMINT3 padding;
+    int blur;
+    DirectX::XMINT3 padding;
 };
 
 struct SSAOLightCB {

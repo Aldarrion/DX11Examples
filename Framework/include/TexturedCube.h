@@ -1,9 +1,9 @@
 #pragma once
 
-#include <d3d11.h>
-#include <DirectXMath.h>
 #include "VertexTypes.h"
 #include "DrawableObject.h"
+
+#include <DirectXMath.h>
 
 class TexturedCube : public DrawableObject<VertexTypes::FullVertex> {
 public:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <WinUser.h>
+#include <string>
 
 namespace WinKeyMap {
 enum WinKeyMap {
@@ -31,7 +31,7 @@ enum WinKeyMap {
     Y,
     Z,
 
-    F1 = VK_F1,
+    F1 = 0x70, // VK_F1
     F2,
     F3,
     F4,

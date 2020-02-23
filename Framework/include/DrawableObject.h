@@ -1,8 +1,8 @@
 #pragma once
-#include <d3d11.h>
-#include <vector>
 #include "ResourceHolder.h"
 #include "Layouts.h"
+
+#include <vector>
 
 /**
  * \brief Base class for simple objects specified by vertex and index buffers.

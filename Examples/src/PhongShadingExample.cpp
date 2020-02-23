@@ -69,8 +69,6 @@ void PhongShadingExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Util::srgbToLinear(DirectX::Colors::MidnightBlue));
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    infoText_->draw(context_);
-
     // ==============================
     // Draw scene with phong lighting
     // ==============================
@@ -156,6 +154,8 @@ void PhongShadingExample::render() {
 
         colorCube_->draw(context_.immediateContext_);
     }
+
+    infoText_->draw(context_);
 
     context_.swapChain_->Present(0, 0);
 }

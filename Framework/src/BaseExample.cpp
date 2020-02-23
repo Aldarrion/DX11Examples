@@ -1,7 +1,9 @@
 #include "BaseExample.h"
+#include "WinKeyMap.h"
+
 #include <chrono>
 #include <directxcolors.h>
-#include "WinKeyMap.h"
+#include <iostream>
 
 using namespace DirectX;
 

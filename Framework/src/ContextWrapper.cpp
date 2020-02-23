@@ -21,11 +21,11 @@ ContextWrapper::~ContextWrapper() {
     cleanupDevice();
 }
 
-HRESULT ContextWrapper::enableBlending() const {
+HRESULT ContextWrapper::enableBlending(bool enable) const {
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
     blendDesc.AlphaToCoverageEnable = false;
-    blendDesc.RenderTarget[0].BlendEnable = true;
+    blendDesc.RenderTarget[0].BlendEnable = enable;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
     blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
@@ -344,11 +344,18 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
 }
 
 void ContextWrapper::cleanupDevice() {
-    if (immediateContext_) immediateContext_->ClearState();
-    if (depthStencil_) depthStencil_->Release();
-    if (depthStencilView_) depthStencilView_->Release();
-    if (renderTargetView_) renderTargetView_->Release();
-    if (swapChain_) swapChain_->Release();
-    if (immediateContext_) immediateContext_->Release();
-    if (d3dDevice_) d3dDevice_->Release();
+    if (immediateContext_) 
+        immediateContext_->ClearState();
+    if (depthStencil_) 
+        depthStencil_->Release();
+    if (depthStencilView_) 
+        depthStencilView_->Release();
+    if (renderTargetView_) 
+        renderTargetView_->Release();
+    if (swapChain_) 
+        swapChain_->Release();
+    if (immediateContext_) 
+        immediateContext_->Release();
+    if (d3dDevice_) 
+        d3dDevice_->Release();
 }

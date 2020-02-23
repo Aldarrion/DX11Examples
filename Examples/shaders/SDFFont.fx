@@ -6,6 +6,7 @@ cbuffer ConstantBuffer : register(b0)
 {
     matrix Model;
     float4 UVAdjust;
+    float4 Color;
 }
 
 struct VS_INPUT {
@@ -58,7 +59,7 @@ float4 PS(PS_INPUT input) : SV_Target {
     // to see that even the super-simple variant produces good-looking text.
     alpha = getAlpha(input.UV * 2, distance, 0.2);
 
-    float4 result = float4(1.0, 1.0, 1.0, alpha);
+    float4 result = float4(Color.r, Color.g, Color.b, Color.a * alpha);
 
     return result;
 }

@@ -1,6 +1,7 @@
 #include "DeferredRenderingExample.h"
-#include <algorithm>
 #include "WinKeyMap.h"
+#include <algorithm>
+#include <directxcolors.h>
 
 namespace Deferred {
 
@@ -336,8 +337,6 @@ void DeferredRenderingExample::renderForward() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::Black);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    drawText();
-
     anisoSampler_->use(context_.immediateContext_, 0);
     forwardShader_->use(context_.immediateContext_);
 
@@ -354,6 +353,8 @@ void DeferredRenderingExample::renderForward() {
     }
 
     renderLights();
+
+    drawText();
 
     context_.swapChain_->Present(0, 0);
 }

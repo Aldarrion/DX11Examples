@@ -1,5 +1,8 @@
 #pragma once
-#include <d3d11.h>
+
+#define COM_NO_WINDOWS_H
+#include <d3d11_1.h>
+
 #include <vector>
 
 namespace Layouts {

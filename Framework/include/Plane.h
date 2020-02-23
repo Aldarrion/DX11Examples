@@ -1,9 +1,9 @@
 #pragma once
-#include <d3d11.h>
-#include <DirectXMath.h>
 #include "VertexTypes.h"
-#include <vector>
 #include "DrawableObject.h"
+
+#include <DirectXMath.h>
+#include <vector>
 
 class Plane : public DrawableObject<VertexTypes::FullVertex> {
 public:

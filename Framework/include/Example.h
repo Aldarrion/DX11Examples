@@ -4,8 +4,8 @@
 #include "ContextWrapper.h"
 
 #include "Mouse.h"
-#include <windows.h>
 #include <memory>
+#include <directxmath.h>
 
 namespace Util {
 DirectX::XMVECTORF32 srgbToLinear(const DirectX::XMVECTORF32& color);
