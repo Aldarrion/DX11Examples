@@ -8,6 +8,7 @@
 #include <vector>
 #include <d3dcompiler.h>
 #include <iostream>
+#include <memory>
 
 namespace Shaders {
 
