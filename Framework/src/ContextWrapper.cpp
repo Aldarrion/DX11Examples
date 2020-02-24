@@ -164,9 +164,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
 
     D3D_FEATURE_LEVEL featureLevels[] =
     {
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_1,
-        D3D_FEATURE_LEVEL_10_0,
+        D3D_FEATURE_LEVEL_11_0
     };
     const UINT numFeatureLevels = ARRAYSIZE(featureLevels);
 
@@ -196,14 +194,14 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     IDXGIFactory1* dxgiFactory = nullptr;
     {
         IDXGIDevice* dxgiDevice = nullptr;
-        hr = d3dDevice_->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice));
+        hr = d3dDevice_->QueryInterface(IID_PPV_ARGS(&dxgiDevice));
         if (SUCCEEDED(hr))
         {
             IDXGIAdapter* adapter = nullptr;
             hr = dxgiDevice->GetAdapter(&adapter);
             if (SUCCEEDED(hr))
             {
-                hr = adapter->GetParent(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&dxgiFactory));
+                hr = adapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
                 adapter->Release();
             }
             dxgiDevice->Release();
@@ -228,6 +226,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
         sd.SampleDesc.Count = settings.MultisampleCount;
         sd.SampleDesc.Quality = 0;
         sd.Windowed = TRUE;
+        sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
         hr = dxgiFactory->CreateSwapChain(d3dDevice_, &sd, &swapChain_);
     }
@@ -242,7 +241,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
 
     // Create a render target view
     ID3D11Texture2D* pBackBuffer = nullptr;
-    hr = swapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
+    hr = swapChain_->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
     if (FAILED(hr))
         return hr;
 
