@@ -5,6 +5,7 @@
 #include "Layouts.h"
 #include "Transform.h"
 #include "TextSDF.h"
+#include "Logging.h"
 
 namespace ShaderChangePerf {
 using namespace DirectX;
@@ -93,8 +94,8 @@ void ShaderChangePerfExample::render() {
 
     if (timeFromStart > benchmarkTime && !isEnd) {
         isEnd = true;
-        std::cout << "Frame count after " << benchmarkTime << " seconds" << std::endl;
-        std::cout << frameCount_ << std::endl;
+        ex::log(ex::LogLevel::Info, "Frame count after %f seconds", benchmarkTime);
+        ex::log(ex::LogLevel::Info, "%d", frameCount_);
     }
 }
 }

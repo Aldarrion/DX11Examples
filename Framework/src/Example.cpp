@@ -1,5 +1,5 @@
 #include "Example.h"
-#include <iostream>
+#include "Logging.h"
 
 using namespace DirectX;
 
@@ -25,21 +25,14 @@ Mouse::Mode Example::getInitialMouseMode() {
 }
 
 int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-    AllocConsole();
-    FILE *pCin, *pCout, *pCerr;
-    freopen_s(&pCin, "conin$", "r", stdin);
-    freopen_s(&pCout, "conout$", "w", stdout);
-    freopen_s(&pCerr, "conout$", "w", stderr);
-    std::cout << "Start" << std::endl;
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-
+    ex::log(ex::LogLevel::Info, "Start");
     const ContextSettings settings = getSettings();
 
     auto hr = context_.init(hInstance, nCmdShow, settings);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Failed to init context wrapper", "Error", MB_OK);
-        return 0;
+        ex::log(ex::LogLevel::Error, "Failed to init context wrapper");
+        assert(!"Failed to init context wrapper");
+        return -1;
     }
 
     mouse_ = std::make_unique<Mouse>();
@@ -49,9 +42,9 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
 
     hr = setup();
     if (FAILED(hr)) {
-        std::cout << "Failed to setup the example " << hr << std::endl;
-        MessageBoxA(nullptr, "Failed to setup the example", "Error", MB_OK);
-        return 0;
+        ex::log(ex::LogLevel::Error, "Failed to setup the example, error: %d", hr);
+        assert(!"Failed to setup the example, see the log for more info");
+        return -1;
     }
 
 

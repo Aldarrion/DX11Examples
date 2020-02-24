@@ -1,4 +1,5 @@
 #include "ContextWrapper.h"
+#include "Logging.h"
 
 float ContextWrapper::getAspectRatio() const {
     return WIDTH / static_cast<float>(HEIGHT);
@@ -6,12 +7,12 @@ float ContextWrapper::getAspectRatio() const {
 
 HRESULT ContextWrapper::init(HINSTANCE hInstance, int nCmdShow, const ContextSettings& settings) {
     if (FAILED(initWindow(hInstance, nCmdShow, settings))) {
-        MessageBoxA(nullptr, "Failed to window", "Error", MB_OK);
+        ex::log(ex::LogLevel::Error, "Failed to init window");
         return -1;
     }
 
     if (FAILED(initDevice(settings))) {
-        MessageBoxA(nullptr, "Failed to init wrapper device", "Error", MB_OK);
+        ex::log(ex::LogLevel::Error, "Failed to init wrapper device");
         return -1;
     }
     return 0;

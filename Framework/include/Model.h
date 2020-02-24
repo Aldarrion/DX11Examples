@@ -1,6 +1,8 @@
 #pragma once
 #include "Mesh.h"
-#include <iostream>
+
+#include "Logging.h"
+
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
@@ -133,7 +135,7 @@ private:
         
         // check for errors
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
-            std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+            ex::log(ex::LogLevel::Error, "ASSIMP:: %s", importer.GetErrorString());
             return;
         }
 

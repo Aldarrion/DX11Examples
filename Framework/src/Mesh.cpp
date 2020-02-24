@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-#include <iostream>
+#include "Logging.h"
 
 #define COM_NO_WINDOWS_H
 #include <d3d11_1.h>
@@ -75,7 +75,7 @@ void Mesh::draw(ID3D11DeviceContext* context) const {
         if (textures_[i].Type != TextureType::Unknown) {
             textures_[i].Texture->use(context, static_cast<int>(textures_[i].Type));
         } else {
-            std::cout << "Trying to use texture of unknown type" << std::endl;
+            ex::log(ex::LogLevel::Error, "Trying to use texture of unknown type");
         }
     }
 

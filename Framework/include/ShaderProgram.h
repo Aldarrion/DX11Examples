@@ -3,11 +3,11 @@
 #include "Layouts.h"
 #include "ConstantBuffers.h"
 #include "ContextWrapper.h"
+#include "Logging.h"
 
 #include <array>
 #include <vector>
 #include <d3dcompiler.h>
-#include <iostream>
 #include <memory>
 
 namespace Shaders {
@@ -39,7 +39,7 @@ class ShaderProgram : public ResourceHolder {
             bufferDesc.CPUAccessFlags = 0;
             auto hr = device->CreateBuffer(&bufferDesc, nullptr, &arr[N]);
             if (FAILED(hr)) {
-                MessageBoxA(nullptr, "Failed to create constant buffer", "Error", MB_OK);
+                assert(!"Failed to create constant buffer");
                 return;
             }
 
@@ -139,8 +139,8 @@ public:
             );
             GSBlob->Release();
             if (FAILED(hr)) {
-                std::cout << hr << std::endl;
-                //MessageBox(nullptr, L"Failed to create geometry shader", L"Error", MB_OK);
+                ex::log(ex::LogLevel::Error, "Failed to create geometry shader %d", hr);
+                assert(!"Failed to create geometry shader");
                 return;
             }
         } else {
@@ -235,13 +235,12 @@ private:
         #endif
 
         ID3DBlob* pErrorBlob = nullptr;
-        std::wcout << "Compiling: " << szFileName << " | " << szEntryPoint << std::endl;
+        ex::log(ex::LogLevel::Info, "Compiling: %s | %s", szFileName, szEntryPoint);
         hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
         if (FAILED(hr)) {
             if (pErrorBlob) {
-                std::cout << "Shader compile errors: " << std::endl;
-                std::cout << reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()) << std::endl;
-                OutputDebugStringA(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+                ex::log(ex::LogLevel::Error, "Shader compile: ");
+                ex::log(ex::LogLevel::Error, "%s", reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
                 pErrorBlob->Release();
             }
             Shaders::isLastCompileOK = false;
@@ -252,7 +251,7 @@ private:
         }
 
         Shaders::isLastCompileOK = true;
-        std::cout << "Success!" << std::endl;
+        ex::log(ex::LogLevel::Info, "Success!");
         return S_OK;
     }
 };
