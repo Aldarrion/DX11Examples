@@ -8,7 +8,7 @@ First, basic "Hello World" triangle is introduced. Then, each example presents a
 
 The things you need
 
-* [CMake](https://cmake.org/) 
+* [CMake](https://cmake.org/) version 3.14 or greater
 * C++ compiler and build tools - Visual Studio 2017/2019 work fine. Clang 9 with Ninja should work as well.
 * Compatible Windows SDK with DX11 (10.0.16299.0 works, 8.1 should be fine as well)
 
