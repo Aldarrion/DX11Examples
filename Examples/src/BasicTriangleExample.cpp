@@ -10,7 +10,7 @@ HRESULT BasicTriangleExample::setup() {
     // Create a simple triangle to draw in render
     triangle_ = std::make_unique<Triangle>(context_.d3dDevice_);
     // Specify and create shader from given fx files and entrypoints and layout. Make sure that layout corresponds to vertex shader input.
-    shader_ = std::make_unique<SimpleShader>(context_.d3dDevice_, L"shaders/BasicTriangle.fx", "VS", L"shaders/BasicTriangle.fx", "PS", layout);
+    shader_ = std::make_unique<SimpleShader>(context_.d3dDevice_, "shaders/BasicTriangle.fx", "VS", "shaders/BasicTriangle.fx", "PS", layout);
 
     return S_OK;
 }

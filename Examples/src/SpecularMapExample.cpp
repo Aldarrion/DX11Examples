@@ -32,7 +32,7 @@ HRESULT SpecularMapExample::setup() {
 
 bool SpecularMapExample::reloadShadersInternal() {
     return
-        Shaders::makeShader<SpecularShader>(shader_, context_.d3dDevice_, L"shaders/Specular.fx", "VS", L"shaders/Specular.fx", "PS", Layouts::TEXTURED_LAYOUT)
+        Shaders::makeShader<SpecularShader>(shader_, context_.d3dDevice_, "shaders/Specular.fx", "VS", "shaders/Specular.fx", "PS", Layouts::TEXTURED_LAYOUT)
         && Shaders::makeSolidShader(solidShader_, context_);
 }
 

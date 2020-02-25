@@ -91,8 +91,8 @@ bool AlphaToCoverageExample::reloadShadersInternal() {
     return Shaders::makeShader<AtoCShader>(
         shader_,
         context_.d3dDevice_,
-        L"shaders/AlphaToCoverage.fx", "VS",
-        L"shaders/AlphaToCoverage.fx", "PS",
+        "shaders/AlphaToCoverage.fx", "VS",
+        "shaders/AlphaToCoverage.fx", "PS",
         quad_->getVertexLayout()
     );
 }

@@ -79,7 +79,7 @@ bool TexturingExample::reloadShadersInternal() {
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    return Shaders::makeShader<TextureShader>(texturedPhong_, context_.d3dDevice_, L"shaders/Textured.fx", "VS", L"shaders/Textured.fx", "PS", texturedLayout);
+    return Shaders::makeShader<TextureShader>(texturedPhong_, context_.d3dDevice_, "shaders/Textured.fx", "VS", "shaders/Textured.fx", "PS", texturedLayout);
 }
 
 void TexturingExample::render() {

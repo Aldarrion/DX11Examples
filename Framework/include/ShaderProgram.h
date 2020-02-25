@@ -57,12 +57,12 @@ class ShaderProgram : public ResourceHolder {
 public:
     ShaderProgram(
             ID3D11Device* device,
-            const WCHAR* vertexPath,
+            const char* vertexPath,
             const char* vertexStart,
-            const WCHAR* pixelPath,
+            const char* pixelPath,
             const char* pixelStart,
             const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout,
-            const WCHAR* geomPath = nullptr,
+            const char* geomPath = nullptr,
             const char* geomStart = nullptr
     ) {
         // Compile vertex shader
@@ -219,7 +219,7 @@ public:
     }
 
 private:
-    static HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut) {
+    static HRESULT CompileShaderFromFile(const char* fileName, const char* entryPoint, const char* shaderModel, ID3DBlob** ppBlobOut) {
         HRESULT hr = S_OK;
 
         DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -234,9 +234,16 @@ private:
             dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
         #endif
 
+        ex::log(ex::LogLevel::Info, "Compiling: %s | %s", fileName, entryPoint);
+        
+        auto fileNameLen = strlen(fileName);
+        std::wstring wFileName(fileNameLen, L'x');
+        auto convertedLen = mbstowcs(&wFileName[0], fileName, fileNameLen);
+        assert(convertedLen >= 0 && "Error while converting string to wstring");
+
         ID3DBlob* pErrorBlob = nullptr;
-        ex::log(ex::LogLevel::Info, "Compiling: %s | %s", szFileName, szEntryPoint);
-        hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+        hr = D3DCompileFromFile(wFileName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entryPoint, shaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+        
         if (FAILED(hr)) {
             if (pErrorBlob) {
                 ex::log(ex::LogLevel::Error, "Shader compile: ");
@@ -260,19 +267,19 @@ namespace Shaders {
     using SolidShader = ShaderProgram<ConstantBuffers::SolidConstBuffer>;
     using PSolidShader = std::unique_ptr<SolidShader>;
     inline PSolidShader createSolidShader(const ContextWrapper& context) {
-        return std::make_unique<SolidShader>(context.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
+        return std::make_unique<SolidShader>(context.d3dDevice_, "shaders/Solid.fx", "VS", "shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
     }
 
     template<typename ShaderT>
     inline bool makeShader(
         std::unique_ptr<ShaderT>& oldShader,
         ID3D11Device* device,
-        const WCHAR* vertexPath,
+        const char* vertexPath,
         const char* vertexStart,
-        const WCHAR* pixelPath,
+        const char* pixelPath,
         const char* pixelStart,
         const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout,
-        const WCHAR* geomPath = nullptr,
+        const char* geomPath = nullptr,
         const char* geomStart = nullptr
     ) {
         auto shader = std::make_unique<ShaderT>(device, vertexPath, vertexStart, pixelPath, pixelStart, layout, geomPath, geomStart);
@@ -285,6 +292,6 @@ namespace Shaders {
     }
 
     inline bool makeSolidShader(PSolidShader& oldShader, const ContextWrapper& context) {
-        return makeShader<SolidShader>(oldShader, context.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
+        return makeShader<SolidShader>(oldShader, context.d3dDevice_, "shaders/Solid.fx", "VS", "shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
     }
 }

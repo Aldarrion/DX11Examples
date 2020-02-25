@@ -98,10 +98,10 @@ HRESULT ShadowsExample::setup() {
 
 bool ShadowsExample::reloadShadersInternal() {
     return
-        Shaders::makeShader<ShadowShader>(shadowShader_, context_.d3dDevice_, L"shaders/Shadows.fx", "VS_Shadow", L"shaders/Shadows.fx", "PS_Shadow", Layouts::TEXTURED_LAYOUT)
-        && Shaders::makeShader<TextureShader>(texturedPhong_, context_.d3dDevice_, L"shaders/PhongShadows.fx", "VS", L"shaders/PhongShadows.fx", "PS", Layouts::TEXTURED_LAYOUT)
+        Shaders::makeShader<ShadowShader>(shadowShader_, context_.d3dDevice_, "shaders/Shadows.fx", "VS_Shadow", "shaders/Shadows.fx", "PS_Shadow", Layouts::TEXTURED_LAYOUT)
+        && Shaders::makeShader<TextureShader>(texturedPhong_, context_.d3dDevice_, "shaders/PhongShadows.fx", "VS", "shaders/PhongShadows.fx", "PS", Layouts::TEXTURED_LAYOUT)
         && Shaders::makeSolidShader(solidShader_, context_)
-        && Shaders::makeShader<ShadowDisplayShader>(shadowMapDisplayShader_, context_.d3dDevice_, L"shaders/ShadowMapQuadShader.fx", "VS", L"shaders/ShadowMapQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
+        && Shaders::makeShader<ShadowDisplayShader>(shadowMapDisplayShader_, context_.d3dDevice_, "shaders/ShadowMapQuadShader.fx", "VS", "shaders/ShadowMapQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 void ShadowsExample::handleInput() {

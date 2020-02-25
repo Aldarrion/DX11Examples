@@ -1,6 +1,5 @@
 #pragma once
 #include "TextureSampler.h"
-#include <iostream>
 
 class ShadowSampler : public TextureSampler {
 public:

@@ -240,11 +240,11 @@ HRESULT SSAO::SSAOExample::setup() {
 
 bool SSAO::SSAOExample::reloadShadersInternal() {
     return
-        Shaders::makeShader<GShader>(gShader_, context_.d3dDevice_, L"shaders/SSAO_GBuffer.fx", "VS", L"shaders/SSAO_GBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
-        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT)
-        && Shaders::makeShader<SSAOShader>(ssaoShader_, context_.d3dDevice_, L"shaders/SSAO.fx", "VS", L"shaders/SSAO.fx", "PS", Layouts::POS_UV_LAYOUT)
-        && Shaders::makeShader<SSAOBlurShader>(ssaoBlurShader_, context_.d3dDevice_, L"shaders/SSAO_Blur.fx", "VS", L"shaders/SSAO_Blur.fx", "PS", Layouts::POS_UV_LAYOUT)
-        && Shaders::makeShader<SSAOLightShader>(ssaoLightShader_, context_.d3dDevice_, L"shaders/SSAO_Light.fx", "VS", L"shaders/SSAO_Light.fx", "PS", Layouts::POS_UV_LAYOUT);
+        Shaders::makeShader<GShader>(gShader_, context_.d3dDevice_, "shaders/SSAO_GBuffer.fx", "VS", "shaders/SSAO_GBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
+        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, "shaders/GBufferQuadShader.fx", "VS", "shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOShader>(ssaoShader_, context_.d3dDevice_, "shaders/SSAO.fx", "VS", "shaders/SSAO.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOBlurShader>(ssaoBlurShader_, context_.d3dDevice_, "shaders/SSAO_Blur.fx", "VS", "shaders/SSAO_Blur.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<SSAOLightShader>(ssaoLightShader_, context_.d3dDevice_, "shaders/SSAO_Light.fx", "VS", "shaders/SSAO_Light.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 std::vector<XMFLOAT3> SSAO::SSAOExample::generateNoise() {

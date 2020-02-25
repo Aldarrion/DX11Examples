@@ -1,9 +1,9 @@
 #include "BaseExample.h"
 #include "WinKeyMap.h"
+#include "Logging.h"
 
 #include <chrono>
 #include <directxcolors.h>
-#include <iostream>
 
 using namespace DirectX;
 
@@ -53,11 +53,11 @@ void BaseExample::handleInput() {
     }
 
     if (GetAsyncKeyState(WinKeyMap::F5) & 1) {
-        std::cout << "+++ Reloading shaders" << std::endl;
+        ex::log(ex::LogLevel::Info, "+++ Reloading shaders");
         if (FAILED(reloadShaders()))
-            std::cout << "--- Reload failed" << std::endl;
+            ex::log(ex::LogLevel::Info, "--- Reload failed");
         else
-            std::cout << "--- Reload successful" << std::endl;
+            ex::log(ex::LogLevel::Info, "--- Reload successful");
     }
 }
 

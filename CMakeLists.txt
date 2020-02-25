@@ -56,6 +56,7 @@ endif()
 
 if(MSVC)
     add_definitions(/MP)
+    add_definitions(/D _CRT_SECURE_NO_WARNINGS)
 endif()
 
 # Solution name

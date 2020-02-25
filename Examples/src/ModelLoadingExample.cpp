@@ -28,7 +28,7 @@ HRESULT ModelLoadingExample::setup() {
 
 bool ModelLoadingExample::reloadShadersInternal() {
     return
-        Shaders::makeShader<ShaderProgram<SpecularCB>>(shader_, context_.d3dDevice_, L"shaders/ModelPhong.fx", "VS", L"shaders/ModelPhong.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
+        Shaders::makeShader<ShaderProgram<SpecularCB>>(shader_, context_.d3dDevice_, "shaders/ModelPhong.fx", "VS", "shaders/ModelPhong.fx", "PS", Layouts::POS_NORM_UV_LAYOUT);
 }
 
 void ModelLoadingExample::render() {

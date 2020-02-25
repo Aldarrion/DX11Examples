@@ -35,8 +35,8 @@ bool GammaCorrectionExample::reloadShadersInternal() {
     return Shaders::makeShader<GammaCorrectionShader>(
         shader_,
         context_.d3dDevice_,
-        L"shaders/GammaCorrectionShowcase.fx", "VS",
-        L"shaders/GammaCorrectionShowcase.fx", "PS",
+        "shaders/GammaCorrectionShowcase.fx", "VS",
+        "shaders/GammaCorrectionShowcase.fx", "PS",
         quad_->getVertexLayout()
     );
 }

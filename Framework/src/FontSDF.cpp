@@ -111,8 +111,8 @@ bool FontSDF::reloadShaders(ID3D11Device* device) {
     return Shaders::makeShader<SDFFontShader_t>(
         sdfShader_,
         device,
-        L"shaders/SDFFont.fx", "VS",
-        L"shaders/SDFFont.fx", "PS",
+        "shaders/SDFFont.fx", "VS",
+        "shaders/SDFFont.fx", "PS",
         quad_->getVertexLayout()
     );
 }

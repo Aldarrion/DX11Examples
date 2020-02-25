@@ -1,8 +1,8 @@
 #include "TextureSampler.h"
+#include "Logging.h"
 
 #define COM_NO_WINDOWS_H
 #include <d3d11_1.h>
-#include <iostream>
 
 TextureSampler::~TextureSampler() {
     if (sampler_)
@@ -29,7 +29,7 @@ ID3D11SamplerState* TextureSampler::createSampler(ID3D11Device* device, const D3
     ID3D11SamplerState* sampler;
     auto hr = device->CreateSamplerState(&sampDesc, &sampler);
     if (FAILED(hr)) {
-        std::cout << "ERROR: Could not create shadow sampler " << hr << std::endl;
+        ex::log(ex::LogLevel::Error, "Could not create shadow sampler, error code: %d", hr);
         return nullptr;
     }
 

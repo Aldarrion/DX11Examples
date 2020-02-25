@@ -37,8 +37,8 @@ bool PhongShadingExample::reloadShadersInternal() {
 
     // Create shaders
     return
-        Shaders::makeShader<PhongShader>(phongShader_, context_.d3dDevice_, L"shaders/Phong.fx", "VS", L"shaders/Phong.fx", "PS", layout)
-        && Shaders::makeShader<SolidShader>(solidShader_, context_.d3dDevice_, L"shaders/Solid.fx", "VS", L"shaders/Solid.fx", "PSSolid", layout);
+        Shaders::makeShader<PhongShader>(phongShader_, context_.d3dDevice_, "shaders/Phong.fx", "VS", "shaders/Phong.fx", "PS", layout)
+        && Shaders::makeShader<SolidShader>(solidShader_, context_.d3dDevice_, "shaders/Solid.fx", "VS", "shaders/Solid.fx", "PSSolid", layout);
 }
 
 void PhongShadingExample::render() {

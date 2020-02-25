@@ -33,8 +33,8 @@ HRESULT ShaderChangePerfExample::setup() {
 
 bool ShaderChangePerfExample::reloadShadersInternal() {
     return 
-        Shaders::makeShader<Shader1>(shader1_, context_.d3dDevice_, L"shaders/ChangePerf_1.fx", "VS", L"shaders/ChangePerf_1.fx", "PS", Layouts::POS_LAYOUT)
-        && Shaders::makeShader<Shader2>(shader2_, context_.d3dDevice_, L"shaders/ChangePerf_2.fx", "VS", L"shaders/ChangePerf_2.fx", "PS", Layouts::POS_LAYOUT);
+        Shaders::makeShader<Shader1>(shader1_, context_.d3dDevice_, "shaders/ChangePerf_1.fx", "VS", "shaders/ChangePerf_1.fx", "PS", Layouts::POS_LAYOUT)
+        && Shaders::makeShader<Shader2>(shader2_, context_.d3dDevice_, "shaders/ChangePerf_2.fx", "VS", "shaders/ChangePerf_2.fx", "PS", Layouts::POS_LAYOUT);
 }
 
 void ShaderChangePerfExample::handleInput() {

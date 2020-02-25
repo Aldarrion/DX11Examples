@@ -133,17 +133,17 @@ bool BillboardExample::reloadShadersInternal() {
         Shaders::makeShader<TextureShader>(
         textureShader_,
         context_.d3dDevice_,
-        L"shaders/UnlitGeom.fx", "VS",
-        L"shaders/UnlitGeom.fx", "PS",
+        "shaders/UnlitGeom.fx", "VS",
+        "shaders/UnlitGeom.fx", "PS",
         Layouts::TEXTURED_LAYOUT)
 
     && Shaders::makeShader<BillboardShader>(
         billboardShader_,
         context_.d3dDevice_,
-        L"shaders/Billboard.fx", "VS",
-        L"shaders/Billboard.fx", "PS",
+        "shaders/Billboard.fx", "VS",
+        "shaders/Billboard.fx", "PS",
         posLayout,
-        L"shaders/Billboard.fx", "GS"
+        "shaders/Billboard.fx", "GS"
     );
 }
 

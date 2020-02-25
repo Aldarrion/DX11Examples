@@ -38,7 +38,7 @@ HRESULT NormalMappingExample::setup() {
 
 bool NormalMappingExample::reloadShadersInternal() {
     return 
-        Shaders::makeShader<NormalMapShader>(normalMapShader_, context_.d3dDevice_, L"shaders/NormalMap.fx", "VS", L"shaders/NormalMap.fx", "PS", plane_->getVertexLayout())
+        Shaders::makeShader<NormalMapShader>(normalMapShader_, context_.d3dDevice_, "shaders/NormalMap.fx", "VS", "shaders/NormalMap.fx", "PS", plane_->getVertexLayout())
         && Shaders::makeSolidShader(solidShader_, context_);
 }
 

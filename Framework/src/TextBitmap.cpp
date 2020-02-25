@@ -5,7 +5,7 @@ namespace Text {
 TextBitmap::TextBitmap(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text)
     : text_(text)
     , quad_(device)
-    , fontShader_(device, L"shaders/FontShader.fx", "VS", L"shaders/FontShader.fx", "PS", Layouts::POS_UV_LAYOUT)
+    , fontShader_(device, "shaders/FontShader.fx", "VS", "shaders/FontShader.fx", "PS", Layouts::POS_UV_LAYOUT)
     , font_(makeInconsolata(device, context))
     , sizeMultiplier_(10.0f)
     , position_({ 0, 0 })

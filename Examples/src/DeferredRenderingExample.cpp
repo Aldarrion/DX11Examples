@@ -187,11 +187,11 @@ HRESULT DeferredRenderingExample::setup() {
 
 bool DeferredRenderingExample::reloadShadersInternal() {
     return
-        Shaders::makeShader<GShader>(gShader_, context_.d3dDevice_, L"shaders/DeferredGBuffer.fx", "VS", L"shaders/DeferredGBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
-        && Shaders::makeShader<DefferedShader>(defferedLightShader_, context_.d3dDevice_, L"shaders/DeferredShader.fx", "VS", L"shaders/DeferredShader.fx", "PS", Layouts::POS_UV_LAYOUT)
-        && Shaders::makeShader<ForwardShader>(forwardShader_, context_.d3dDevice_, L"shaders/ForwardShader.fx", "VS", L"shaders/ForwardShader.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
+        Shaders::makeShader<GShader>(gShader_, context_.d3dDevice_, "shaders/DeferredGBuffer.fx", "VS", "shaders/DeferredGBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
+        && Shaders::makeShader<DefferedShader>(defferedLightShader_, context_.d3dDevice_, "shaders/DeferredShader.fx", "VS", "shaders/DeferredShader.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<ForwardShader>(forwardShader_, context_.d3dDevice_, "shaders/ForwardShader.fx", "VS", "shaders/ForwardShader.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
         && Shaders::makeSolidShader(lightShader_, context_)
-        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, L"shaders/GBufferQuadShader.fx", "VS", L"shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
+        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, "shaders/GBufferQuadShader.fx", "VS", "shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 void DeferredRenderingExample::handleInput() {

@@ -29,15 +29,15 @@ bool GeometryShaderExample::reloadShadersInternal() {
         Shaders::makeShader<GeomShader>(
             normalShader_,
             context_.d3dDevice_,
-            L"shaders/NormalGeomShader.fx", "VS",
-            L"shaders/NormalGeomShader.fx", "PS",
-            Layouts::TEXTURED_LAYOUT
-            , L"shaders/NormalGeomShader.fx", "GS")
+            "shaders/NormalGeomShader.fx", "VS",
+            "shaders/NormalGeomShader.fx", "PS",
+            Layouts::TEXTURED_LAYOUT, 
+            "shaders/NormalGeomShader.fx", "GS")
         &&  Shaders::makeShader<StdShader>(
             standardShader_,
             context_.d3dDevice_,
-            L"shaders/UnlitGeom.fx", "VS",
-            L"shaders/UnlitGeom.fx", "PS",
+            "shaders/UnlitGeom.fx", "VS",
+            "shaders/UnlitGeom.fx", "PS",
             Layouts::TEXTURED_LAYOUT);
 }
 
