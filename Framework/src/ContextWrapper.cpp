@@ -38,7 +38,7 @@ HRESULT ContextWrapper::enableBlending(bool enable) const {
     ID3D11BlendState* blendState;
     auto hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
+        assert(!"Failed to create blend state");
         return hr;
     }
 
@@ -77,7 +77,7 @@ HRESULT ContextWrapper::enableDepthTest(bool enable) const {
     ID3D11DepthStencilState * pDSState;
     auto hr = d3dDevice_->CreateDepthStencilState(&dsDesc, &pDSState);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Failed to create depth stencil desc", "Error", MB_OK);
+        assert(!"Failed to create depth stencil desc");
         return hr;
     }
 
@@ -308,7 +308,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     ID3D11BlendState* blendState;
     hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
+        assert(!"Failed to create blend state");
         return hr;
     }
 
@@ -334,7 +334,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     ID3D11RasterizerState* state = nullptr;
     hr = d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &state);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Failed to create rasterizer state", "Error", MB_OK);
+        assert(!"Failed to create rasterizer state");
         return hr;
     }
 

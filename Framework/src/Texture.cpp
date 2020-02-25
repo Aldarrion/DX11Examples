@@ -3,10 +3,12 @@
 #include "ContextWrapper.h"
 #include "DDSTextureLoader.h"
 
+#include <cassert>
+
 Texture::Texture(ID3D11Device* device, ID3D11DeviceContext* context, const WCHAR* pathToDDS, bool isSRGB) {
     auto hr = DirectX::CreateDDSTextureFromFile(device, context, pathToDDS, isSRGB, &textureResource_, &texture_);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Texture could not have been loaded", "Error", MB_OK);
+        assert(!"Texture could not have been loaded");
     }
 }
 

@@ -3,6 +3,7 @@
 #include "Layouts.h"
 
 #include <vector>
+#include <cassert>
 
 /**
  * \brief Base class for simple objects specified by vertex and index buffers.
@@ -47,7 +48,7 @@ protected:
         // Try to create vertex buffer using given device and description
         auto hr = device->CreateBuffer(&vertexBuffDesc, &vertexData, &vertexBuffer_);
         if (FAILED(hr)) {
-            MessageBoxA(nullptr, "Failed to create vertex buffer", "Error", MB_OK);
+            assert(!"Failed to create vertex buffer");
             return;
         }
 
@@ -70,7 +71,7 @@ protected:
         // Try to create index buffer using given device and description
         hr = device->CreateBuffer(&indexBuffDesc, &indexData, &indexBuffer_);
         if (FAILED(hr)) {
-            MessageBoxA(nullptr, "Failed to create index buffer", "Error", MB_OK);
+            assert(!"Failed to create index buffer");
             return;
         }
 

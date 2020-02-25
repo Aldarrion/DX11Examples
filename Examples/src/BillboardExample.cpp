@@ -4,10 +4,6 @@
 #include "Transform.h"
 #include "WinKeyMap.h"
 
-// Uncomment to see non instanced version
-// Recommended to run in Release mode
-#define BILLBOARD_EXAMPLE_NON_INSTANCED
-
 namespace Billboard {
 
 using namespace DirectX;
@@ -54,7 +50,7 @@ HRESULT BillboardExample::setup() {
     InitData.pSysMem = vertices.data();
     hr = context_.d3dDevice_->CreateBuffer(&bd, &InitData, &vertexBuffer_);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Failed to create vertex buffer", "Error", MB_OK);
+        assert(!"Failed to create vertex buffer");
         return hr;
     }
 
@@ -77,7 +73,7 @@ HRESULT BillboardExample::setup() {
     
     hr = context_.d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &state);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Failed to create rasterizer state", "Error", MB_OK);
+        assert(!"Failed to create rasterizer state");
         return hr;
     }
     context_.immediateContext_->RSSetState(state);
@@ -100,7 +96,7 @@ HRESULT BillboardExample::setup() {
 
     hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &blendState_);
     if (FAILED(hr)) {
-        MessageBoxA(nullptr, "Failed to create blend state", "Error", MB_OK);
+        assert(!"Failed to create blend state");
         return hr;
     }
 
