@@ -249,6 +249,13 @@ void ShadowsExample::render() {
 
         infoText_->draw(context_);
 
+        // Next frame texture bound as PS resource will be used as DSV, here we unbind manually to state the intent
+        // Otherwise, the driver would unbind the texture forecfully, see ID3D11DeviceContext::OMSetRenderTargets on MSDN
+        ID3D11ShaderResourceView* nullViews[] = {
+            nullptr, nullptr
+        };
+        context_.immediateContext_->PSSetShaderResources(0, 2, nullViews);
+
         context_.swapChain_->Present(0, 0);
     }
 }
