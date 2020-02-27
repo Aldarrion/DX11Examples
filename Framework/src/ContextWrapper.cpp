@@ -152,7 +152,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
 
     UINT createDeviceFlags = 0;
     #ifdef _DEBUG
-    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+        createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
     #endif
 
     D3D_DRIVER_TYPE driverTypes[] =
@@ -163,6 +163,9 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     };
     const UINT numDriverTypes = ARRAYSIZE(driverTypes);
 
+    // Feature levels do not match the DX runtime version, 11_0 does not mean DX 11.1
+    // for more info see the wiki https://en.wikipedia.org/wiki/Feature_levels_in_Direct3D
+    // We currently build shaders in SM 5.0 therefore we require FL at least 11.0
     D3D_FEATURE_LEVEL featureLevels[] =
     {
         D3D_FEATURE_LEVEL_11_0
