@@ -261,6 +261,10 @@ void DeferredRenderingExample::drawGBufferDisplays() const {
         pointSampler_->use(context_.immediateContext_, 0);
         quad_->draw(context_.immediateContext_);
     }
+
+    // Unbind from PS so the driver does not have to force it when binding textures as RTs
+    static ID3D11ShaderResourceView* nullViews[] = { nullptr, nullptr, nullptr };
+    context_.immediateContext_->PSSetShaderResources(0, 2, nullViews);
 }
 
 void DeferredRenderingExample::renderDeferred() {
