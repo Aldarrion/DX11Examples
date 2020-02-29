@@ -178,7 +178,7 @@ HRESULT SSAO::SSAOExample::setup() {
     noiseBufferDesc.Height = 4;
     noiseBufferDesc.MipLevels = 1;
     noiseBufferDesc.ArraySize = 1;
-    noiseBufferDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    noiseBufferDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
     noiseBufferDesc.SampleDesc.Count = 1;
     noiseBufferDesc.SampleDesc.Quality = 0;
     noiseBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -186,10 +186,10 @@ HRESULT SSAO::SSAOExample::setup() {
     noiseBufferDesc.CPUAccessFlags = 0;
     noiseBufferDesc.MiscFlags = 0;
 
-    std::vector<XMFLOAT3>noiseVector_ = generateNoise();
+    std::vector<XMFLOAT2>noiseVector = generateNoise();
     D3D11_SUBRESOURCE_DATA noiseData;
-    noiseData.pSysMem = static_cast<void *>(noiseVector_.data());
-    noiseData.SysMemPitch = 4 * sizeof(XMFLOAT3);
+    noiseData.pSysMem = static_cast<void*>(noiseVector.data());
+    noiseData.SysMemPitch = 4 * sizeof(XMFLOAT2);
     noiseData.SysMemSlicePitch = 0;
 
     hr = context_.d3dDevice_->CreateTexture2D(&noiseBufferDesc, &noiseData, &noiseBuffer_);
@@ -198,7 +198,7 @@ HRESULT SSAO::SSAOExample::setup() {
 
     D3D11_SHADER_RESOURCE_VIEW_DESC noiseRVDesc;
     ZeroMemory(&noiseRVDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-    noiseRVDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    noiseRVDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
     noiseRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     noiseRVDesc.Texture2D.MipLevels = texDesc.MipLevels;
     noiseRVDesc.Texture2D.MostDetailedMip = 0;
@@ -247,10 +247,10 @@ bool SSAO::SSAOExample::reloadShadersInternal() {
         && Shaders::makeShader<SSAOLightShader>(ssaoLightShader_, context_.d3dDevice_, "shaders/SSAO_Light.fx", "VS", "shaders/SSAO_Light.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
-std::vector<XMFLOAT3> SSAO::SSAOExample::generateNoise() {
-    std::vector<XMFLOAT3> data;
+std::vector<XMFLOAT2> SSAO::SSAOExample::generateNoise() {
+    std::vector<XMFLOAT2> data;
     for (int i = 0; i < 16; ++i) {
-        data.emplace_back(randomFloats_(generator_) * 2.0f - 1.0f, randomFloats_(generator_) * 2.0f - 1.0f, 0.0f);
+        data.emplace_back(randomFloats_(generator_) * 2.0f - 1.0f, randomFloats_(generator_) * 2.0f - 1.0f);
     }
 
     return data;
@@ -444,6 +444,9 @@ void SSAO::SSAOExample::render() {
 
     quad_->draw(context_.immediateContext_);
 
+    // Unbind GBuffer from use so we can bind it as RTV without driver forceful unbind
+    static ID3D11ShaderResourceView* nullViews[] = { nullptr, nullptr, nullptr };
+    context_.immediateContext_->PSSetShaderResources(0, 3, nullViews);
 
     // =======================
     // Forward pass for the UI

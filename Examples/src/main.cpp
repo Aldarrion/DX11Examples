@@ -22,7 +22,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     //example = std::make_unique<BasicTriangleExample>();
     //example = std::make_unique<Phong::PhongShadingExample>();
-    example = std::make_unique<Texturing::TexturingExample>();
+    //example = std::make_unique<Texturing::TexturingExample>();
     //example = std::make_unique<Shadows::ShadowsExample>();
     //example = std::make_unique<GeometryShader::GeometryShaderExample>();
     //example = std::make_unique<Billboard::BillboardExample>();
@@ -32,7 +32,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     //example = std::make_unique<SDF::SignedDistanceFieldFontExample>();
     //example = std::make_unique<ModelLoading::ModelLoadingExample>();
     //example = std::make_unique<Deferred::DeferredRenderingExample>();
-    //example = std::make_unique<SSAO::SSAOExample>();
+    example = std::make_unique<SSAO::SSAOExample>();
 
     //example = std::make_unique<ShaderChangePerf::ShaderChangePerfExample>();
     //example = std::make_unique<AlphaToCoverage::AlphaToCoverageExample>();
