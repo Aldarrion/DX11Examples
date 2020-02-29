@@ -8,16 +8,20 @@ struct ContextSettings {
 };
 
 struct ContextWrapper {
-    HINSTANCE               hInst_ = nullptr;
-    HWND                    hWnd_ = nullptr;
-    D3D_DRIVER_TYPE         driverType_ = D3D_DRIVER_TYPE_NULL;
-    D3D_FEATURE_LEVEL       featureLevel_ = D3D_FEATURE_LEVEL_11_0;
-    ID3D11Device*           d3dDevice_ = nullptr;
-    ID3D11DeviceContext*    immediateContext_ = nullptr;
-    IDXGISwapChain*         swapChain_ = nullptr;
-    ID3D11RenderTargetView* renderTargetView_ = nullptr;
-    ID3D11Texture2D*        depthStencil_ = nullptr;
-    ID3D11DepthStencilView* depthStencilView_ = nullptr;
+    HINSTANCE                   hInst_ = nullptr;
+    HWND                        hWnd_ = nullptr;
+    D3D_DRIVER_TYPE             driverType_ = D3D_DRIVER_TYPE_NULL;
+    D3D_FEATURE_LEVEL           featureLevel_ = D3D_FEATURE_LEVEL_11_0;
+    ID3D11Device*               d3dDevice_ = nullptr;
+    ID3D11DeviceContext*        immediateContext_ = nullptr;
+    IDXGISwapChain*             swapChain_ = nullptr;
+    ID3D11RenderTargetView*     renderTargetView_ = nullptr;
+    ID3D11DepthStencilView*     depthStencilView_ = nullptr;
+
+    #if _DEBUG
+        ID3D11Debug* debugDevice_;
+    #endif
+
     D3D11_VIEWPORT viewPort_;
 
     int WIDTH = 1280;
@@ -29,8 +33,8 @@ struct ContextWrapper {
 
     ~ContextWrapper();
 
-    HRESULT enableBlending(bool enable) const;
-    HRESULT enableDepthTest(bool enable) const;
+    HRESULT enableBlending(bool enable);
+    HRESULT enableDepthTest(bool enable);
 
 private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

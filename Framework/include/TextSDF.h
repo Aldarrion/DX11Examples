@@ -18,7 +18,7 @@ public:
     void setFont(FontSDF* font);
     void setColor(const DirectX::XMFLOAT4& color);
 
-    void draw(const ContextWrapper& context) const;
+    void draw(ContextWrapper& context) const;
 
 private:
     FontSDF* font_{ nullptr };

@@ -25,7 +25,7 @@ public:
     bool reloadShaders(ID3D11Device* device);
     DirectX::XMFLOAT4 getUV(char c) const;
 
-    void draw(const ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size, const DirectX::XMFLOAT4& color);
+    void draw(ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size, const DirectX::XMFLOAT4& color);
 
 private:
     using SDFFontShader_t = ShaderProgram<SDFCbuffer>;

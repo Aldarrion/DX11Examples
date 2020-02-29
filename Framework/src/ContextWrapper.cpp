@@ -22,7 +22,7 @@ ContextWrapper::~ContextWrapper() {
     cleanupDevice();
 }
 
-HRESULT ContextWrapper::enableBlending(bool enable) const {
+HRESULT ContextWrapper::enableBlending(bool enable) {
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
     blendDesc.AlphaToCoverageEnable = false;
@@ -35,20 +35,22 @@ HRESULT ContextWrapper::enableBlending(bool enable) const {
     blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    ID3D11BlendState* blendState;
-    auto hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
+    //if (blendState_)
+        //blendState_->Release();
+    ID3D11BlendState* blendState_ = nullptr;
+    auto hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState_);
     if (FAILED(hr)) {
         assert(!"Failed to create blend state");
         return hr;
     }
 
     float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
+    immediateContext_->OMSetBlendState(blendState_, bl, 0xffffffff);
 
     return S_OK;
 }
 
-HRESULT ContextWrapper::enableDepthTest(bool enable) const {
+HRESULT ContextWrapper::enableDepthTest(bool enable) {
     D3D11_DEPTH_STENCIL_DESC dsDesc;
 
     // Depth test parameters
@@ -73,15 +75,17 @@ HRESULT ContextWrapper::enableDepthTest(bool enable) const {
     dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
     dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
+    ID3D11DepthStencilState* dsState = nullptr;
     // Create depth stencil state
-    ID3D11DepthStencilState * pDSState;
-    auto hr = d3dDevice_->CreateDepthStencilState(&dsDesc, &pDSState);
+    auto hr = d3dDevice_->CreateDepthStencilState(&dsDesc, &dsState);
     if (FAILED(hr)) {
         assert(!"Failed to create depth stencil desc");
         return hr;
     }
 
-    immediateContext_->OMSetDepthStencilState(pDSState, 1);
+    immediateContext_->OMSetDepthStencilState(dsState, 1);
+    dsState->Release();
+
     return S_OK;
 }
 
@@ -254,6 +258,10 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     if (FAILED(hr))
         return hr;
 
+    #if _DEBUG
+        d3dDevice_->QueryInterface(IID_PPV_ARGS(&debugDevice_));
+    #endif
+
     // Create depth stencil texture
     D3D11_TEXTURE2D_DESC descDepth;
     ZeroMemory(&descDepth, sizeof(descDepth));
@@ -268,7 +276,9 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
     descDepth.CPUAccessFlags = 0;
     descDepth.MiscFlags = 0;
-    hr = d3dDevice_->CreateTexture2D(&descDepth, nullptr, &depthStencil_);
+    
+    ID3D11Texture2D* depthStencil;
+    hr = d3dDevice_->CreateTexture2D(&descDepth, nullptr, &depthStencil);
     if (FAILED(hr))
         return hr;
 
@@ -278,9 +288,11 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     descDSV.Format = descDepth.Format;
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
     descDSV.Texture2D.MipSlice = 0;
-    hr = d3dDevice_->CreateDepthStencilView(depthStencil_, &descDSV, &depthStencilView_);
+    hr = d3dDevice_->CreateDepthStencilView(depthStencil, &descDSV, &depthStencilView_);
     if (FAILED(hr))
         return hr;
+    
+    depthStencil->Release();
 
     immediateContext_->OMSetRenderTargets(1, &renderTargetView_, depthStencilView_);
 
@@ -308,7 +320,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    ID3D11BlendState* blendState;
+    ID3D11BlendState* blendState = nullptr;
     hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
     if (FAILED(hr)) {
         assert(!"Failed to create blend state");
@@ -317,6 +329,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
 
     float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
+    blendState->Release();
 
     // ==================
     // Setup face culling
@@ -334,14 +347,15 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     CurrentRasterizerState.MultisampleEnable = true;
     CurrentRasterizerState.AntialiasedLineEnable = false;
 
-    ID3D11RasterizerState* state = nullptr;
-    hr = d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &state);
+    ID3D11RasterizerState* rasterizerState = nullptr;
+    hr = d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &rasterizerState);
     if (FAILED(hr)) {
         assert(!"Failed to create rasterizer state");
         return hr;
     }
 
-    immediateContext_->RSSetState(state);
+    immediateContext_->RSSetState(rasterizerState);
+    rasterizerState->Release();
 
     return S_OK;
 }
@@ -349,8 +363,8 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
 void ContextWrapper::cleanupDevice() {
     if (immediateContext_) 
         immediateContext_->ClearState();
-    if (depthStencil_) 
-        depthStencil_->Release();
+    //if (depthStencil_) 
+      //  depthStencil_->Release();
     if (depthStencilView_) 
         depthStencilView_->Release();
     if (renderTargetView_) 
@@ -361,4 +375,10 @@ void ContextWrapper::cleanupDevice() {
         immediateContext_->Release();
     if (d3dDevice_) 
         d3dDevice_->Release();
+    #if _DEBUG
+        if (debugDevice_) {
+            //debugDevice_->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+            debugDevice_->Release();
+        }
+    #endif
 }

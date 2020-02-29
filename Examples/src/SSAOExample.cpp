@@ -34,7 +34,7 @@ HRESULT SSAO::SSAOExample::setup() {
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
 
-    hr = context_.d3dDevice_->CreateDepthStencilView(depthBuffer_, &descDSV, &depthBufferDepthView_);
+    hr = context_.d3dDevice_->CreateDepthStencilView(depthBuffer_.Get(), &descDSV, &depthBufferDepthView_);
     if (FAILED(hr))
         return hr;
 
@@ -46,7 +46,7 @@ HRESULT SSAO::SSAOExample::setup() {
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(depthBuffer_, &srvDesc, &depthBufferResourceView_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(depthBuffer_.Get(), &srvDesc, &depthBufferResourceView_);
     if (FAILED(hr))
         return hr;
 
@@ -84,15 +84,15 @@ HRESULT SSAO::SSAOExample::setup() {
     gBufferDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     gBufferDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gPosition_, &gBufferDesc, &gPositionView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gPosition_.Get(), &gBufferDesc, &gPositionView_);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gNormal_, &gBufferDesc, &gNormalView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gNormal_.Get(), &gBufferDesc, &gNormalView_);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gAlbedo_, &gBufferDesc, &gAlbedoView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gAlbedo_.Get(), &gBufferDesc, &gAlbedoView_);
     if (FAILED(hr))
         return hr;
 
@@ -104,15 +104,15 @@ HRESULT SSAO::SSAOExample::setup() {
     gResourceView.Texture2D.MipLevels = 1;
     gResourceView.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gPosition_, &gResourceView, &gPositionRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gPosition_.Get(), &gResourceView, &gPositionRV_);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gNormal_, &gResourceView, &gNormalRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gNormal_.Get(), &gResourceView, &gNormalRV_);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gAlbedo_, &gResourceView, &gAlbedoRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gAlbedo_.Get(), &gResourceView, &gAlbedoRV_);
     if (FAILED(hr))
         return hr;
 
@@ -146,11 +146,11 @@ HRESULT SSAO::SSAOExample::setup() {
     ssaoRTVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     ssaoRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(ssaoBuffer_, &ssaoRTVDesc, &ssaoRTView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(ssaoBuffer_.Get(), &ssaoRTVDesc, &ssaoRTView_);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(ssaoBlurBuffer_, &ssaoRTVDesc, &ssaoBlurRTView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(ssaoBlurBuffer_.Get(), &ssaoRTVDesc, &ssaoBlurRTView_);
     if (FAILED(hr))
         return hr;
 
@@ -161,11 +161,11 @@ HRESULT SSAO::SSAOExample::setup() {
     ssaoRVDesc.Texture2D.MipLevels = texDesc.MipLevels;
     ssaoRVDesc.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(ssaoBuffer_, &ssaoRVDesc, &ssaoRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(ssaoBuffer_.Get(), &ssaoRVDesc, &ssaoRV_);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(ssaoBlurBuffer_, &ssaoRVDesc, &ssaoBlurRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(ssaoBlurBuffer_.Get(), &ssaoRVDesc, &ssaoBlurRV_);
     if (FAILED(hr))
         return hr;
 
@@ -203,7 +203,7 @@ HRESULT SSAO::SSAOExample::setup() {
     noiseRVDesc.Texture2D.MipLevels = texDesc.MipLevels;
     noiseRVDesc.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(noiseBuffer_, &noiseRVDesc, &noiseRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(noiseBuffer_.Get(), &noiseRVDesc, &noiseRV_);
     if (FAILED(hr))
         return hr;
 

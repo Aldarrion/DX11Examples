@@ -8,6 +8,7 @@
 #include "WinKeyMap.h"
 #include "TextSDF.h"
 #include <random>
+#include <wrl/client.h>
 
 namespace SSAO {
 
@@ -44,14 +45,14 @@ struct SSAOLightCB {
 
 class SSAOExample : public BaseExample {
 protected:
-    ID3D11Texture2D * depthBuffer_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> depthBuffer_;
     ID3D11DepthStencilView* depthBufferDepthView_ = nullptr;
     ID3D11ShaderResourceView* depthBufferResourceView_ = nullptr;
 
     // Geometry buffers
-    ID3D11Texture2D * gPosition_ = nullptr;
-    ID3D11Texture2D* gNormal_ = nullptr;
-    ID3D11Texture2D* gAlbedo_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> gPosition_;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> gNormal_;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> gAlbedo_ = nullptr;
     ID3D11RenderTargetView* gPositionView_ = nullptr;
     ID3D11RenderTargetView* gNormalView_ = nullptr;
     ID3D11RenderTargetView* gAlbedoView_ = nullptr;
@@ -60,14 +61,14 @@ protected:
     ID3D11ShaderResourceView* gAlbedoRV_ = nullptr;
 
     // SSAO buffers
-    ID3D11Texture2D* ssaoBuffer_ = nullptr;
-    ID3D11Texture2D* ssaoBlurBuffer_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> ssaoBuffer_;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> ssaoBlurBuffer_;
     ID3D11RenderTargetView* ssaoRTView_ = nullptr;
     ID3D11RenderTargetView* ssaoBlurRTView_ = nullptr;
     ID3D11ShaderResourceView* ssaoRV_ = nullptr;
     ID3D11ShaderResourceView* ssaoBlurRV_ = nullptr;
     
-    ID3D11Texture2D* noiseBuffer_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> noiseBuffer_;
     ID3D11ShaderResourceView* noiseRV_ = nullptr;
 
     // Shaders

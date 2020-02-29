@@ -151,10 +151,14 @@ public:
     }
 
     ~ShaderProgram() {
-        if (vertexShader_) vertexShader_->Release();
-        if (pixelShader_) pixelShader_->Release();
-        if (geometryShader_) geometryShader_->Release();
-        if (inputLayout_) inputLayout_->Release();
+        if (vertexShader_) 
+            vertexShader_->Release();
+        if (pixelShader_) 
+            pixelShader_->Release();
+        if (geometryShader_) 
+            geometryShader_->Release();
+        if (inputLayout_) 
+            inputLayout_->Release();
         if (!cbuffers_.empty()) {
             for (auto cbuffer : cbuffers_) {
                 if (cbuffer)

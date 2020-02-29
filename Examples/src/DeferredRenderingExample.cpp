@@ -212,7 +212,7 @@ void DeferredRenderingExample::render() {
     }
 }
 
-void DeferredRenderingExample::drawText() const {
+void DeferredRenderingExample::drawText() {
     using std::to_string;
     infoText_->setText(
         "\n " + to_string(switchRenderingModeKey_) + ": switch rendering mode."

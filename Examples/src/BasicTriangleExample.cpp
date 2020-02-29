@@ -1,6 +1,10 @@
 #include "BasicTriangleExample.h"
 #include <directxcolors.h>
 
+DirectX::Mouse::Mode BasicTriangleExample::getInitialMouseMode() {
+    return DirectX::Mouse::MODE_ABSOLUTE;
+}
+
 HRESULT BasicTriangleExample::setup() {
     // Create layout which corresponds to the vertices we use - see VertexTypes::PosVertex in VertexTypes.h
     std::vector<D3D11_INPUT_ELEMENT_DESC> layout = {

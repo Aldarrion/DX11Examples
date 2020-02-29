@@ -7,7 +7,6 @@
 #include "ColorCube.h"
 #include "Plane.h"
 
-
 namespace Texturing {
 
 struct ConstantBuffer {
@@ -21,12 +20,17 @@ struct ConstantBuffer {
 };
 
 class TexturingExample : public BaseExample {
+public:
+    ~TexturingExample() override;
+
 protected:
     using TextureShader = ShaderProgram<ConstantBuffer>;
 
-    ID3D11ShaderResourceView* seaFloorTexture_ = nullptr;
-    ID3D11ShaderResourceView* boxTexture_ = nullptr;
-    ID3D11SamplerState* textureSampler_ = nullptr;
+    ID3D11Resource* seaFloorTexResource_{ nullptr };
+    ID3D11ShaderResourceView* seaFloorTexture_{ nullptr };
+    ID3D11Resource* boxTexResource_{ nullptr };
+    ID3D11ShaderResourceView* boxTexture_{ nullptr };
+    ID3D11SamplerState* textureSampler_{ nullptr };
 
     std::unique_ptr<TextureShader> texturedPhong_;
     std::unique_ptr<TexturedCube> texturedCube_;

@@ -14,9 +14,7 @@ protected:
     std::unique_ptr<Triangle> triangle_;
     std::unique_ptr<SimpleShader> shader_;
 
+    DirectX::Mouse::Mode getInitialMouseMode() override;
     HRESULT setup() override;
     void render() override;
-
-public:
-    virtual ~BasicTriangleExample() = default;
 };

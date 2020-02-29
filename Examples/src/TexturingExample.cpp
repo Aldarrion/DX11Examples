@@ -23,7 +23,7 @@ HRESULT TexturingExample::setup() {
     // ========================
     // Create sea floor texture
     // ========================
-    hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", true, nullptr, &seaFloorTexture_);
+    hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", true, &seaFloorTexResource_, &seaFloorTexture_);
     
     /* Uncomment following to allow mipmap generation */
     //hr = CreateDDSTextureFromFile(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
@@ -35,7 +35,7 @@ HRESULT TexturingExample::setup() {
     // =======================
     // Create box wood texture
     // =======================
-    hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/container2.dds", true, nullptr, &boxTexture_);
+    hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/container2.dds", true, &boxTexResource_, &boxTexture_);
 
     /* Uncomment following to allow mipmap generation */
     //hr = CreateDDSTextureFromFile(context_.d3dDevice_, context_.immediateContext_, L"textures/seafloor.dds", nullptr, &seaFloorTexture_);
@@ -136,4 +136,18 @@ void TexturingExample::render() {
 
     context_.swapChain_->Present(0, 0);
 }
+
+TexturingExample::~TexturingExample() {
+    if (seaFloorTexResource_)
+        seaFloorTexResource_->Release();
+    if (seaFloorTexture_)
+        seaFloorTexture_->Release();
+    if (boxTexResource_)
+        boxTexResource_->Release();
+    if (boxTexture_)
+        boxTexture_->Release();
+    if (textureSampler_)
+        textureSampler_->Release();
+}
+
 }

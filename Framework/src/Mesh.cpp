@@ -25,7 +25,7 @@ Mesh::Mesh(
     InitData.pSysMem = vertices.data();
     auto hr = device->CreateBuffer(&bd, &InitData, &vertexBuffer_);
     if (FAILED(hr)) {
-        assert(!"Failed to create vertex buffer", "Error", MB_OK);
+        assert(!"Failed to create vertex buffer");
         return;
     }
 
@@ -37,7 +37,7 @@ Mesh::Mesh(
     InitData.pSysMem = indices.data();
     hr = device->CreateBuffer(&bd, &InitData, &indexBuffer_);
     if (FAILED(hr)) {
-        assert(!"Failed to create index buffer", "Error", MB_OK);
+        assert(!"Failed to create index buffer");
         return;
     }
     indexCount_ = static_cast<UINT>(indices.size());

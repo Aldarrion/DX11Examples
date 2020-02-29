@@ -83,8 +83,10 @@ public:
     DrawableObject() = default;
 
     virtual ~DrawableObject() {
-        if (vertexBuffer_) vertexBuffer_->Release();
-        if (indexBuffer_) indexBuffer_->Release();
+        if (vertexBuffer_) 
+            vertexBuffer_->Release();
+        if (indexBuffer_) 
+            indexBuffer_->Release();
     }
 
     /**
