@@ -28,8 +28,5 @@ protected:
     HRESULT setup() override;
     bool reloadShadersInternal() override;
     void render() override;
-
-public:
-    virtual ~GeometryShaderExample() = default;
 };
 }

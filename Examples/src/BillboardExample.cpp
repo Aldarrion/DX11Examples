@@ -12,8 +12,6 @@ struct PosVertex {
     XMFLOAT4 Position;
 };
 
-ID3D11RasterizerState* state = nullptr;
-
 HRESULT BillboardExample::setup() {
     auto hr = BaseExample::setup();
     if (FAILED(hr))
@@ -55,33 +53,15 @@ HRESULT BillboardExample::setup() {
     }
 
 
-    // ==================
-    // Setup face culling
-    // ==================
+    // =================================
+    // Enable alpha to coverage blending
+    // =================================
 
-    D3D11_RASTERIZER_DESC CurrentRasterizerState;
-    CurrentRasterizerState.FillMode = D3D11_FILL_SOLID;
-    CurrentRasterizerState.CullMode = D3D11_CULL_FRONT;
-    CurrentRasterizerState.FrontCounterClockwise = true;
-    CurrentRasterizerState.DepthBias = false;
-    CurrentRasterizerState.DepthBiasClamp = 0;
-    CurrentRasterizerState.SlopeScaledDepthBias = 0;
-    CurrentRasterizerState.DepthClipEnable = true;
-    CurrentRasterizerState.ScissorEnable = false;
-    CurrentRasterizerState.MultisampleEnable = true;
-    CurrentRasterizerState.AntialiasedLineEnable = false;
-    
-    hr = context_.d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &state);
-    if (FAILED(hr)) {
-        assert(!"Failed to create rasterizer state");
-        return hr;
-    }
-    context_.immediateContext_->RSSetState(state);
-
-    // =====================
-    // Enable alpha blending
-    // =====================
-
+    // Use alpha to coverage blending which utilizes multisampling instead of full alpha blending which would also
+    // require to sort the triangles and draw them back to front. This is especially tricky for intersecting trinagles
+    // which we also have.
+    // We could use alpha testing too (the fragment is either fully opaque or fully transparent) but it would give us
+    // sharper edges and slightly worse result in return.
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
     blendDesc.AlphaToCoverageEnable = true;
@@ -94,13 +74,12 @@ HRESULT BillboardExample::setup() {
     blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &blendState_);
+    // ComPtr::GetAddressOf returns the address of the underlying pointer, equivalent to &ptr for T* ptr
+    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, blendState_.GetAddressOf());
     if (FAILED(hr)) {
-        assert(!"Failed to create blend state");
+        ex::log(ex::LogLevel::Error, "Failed to create blend state");
         return hr;
     }
-
-
 
 
     // =========================
@@ -166,7 +145,9 @@ void BillboardExample::render() {
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    context_.immediateContext_->OMSetBlendState(blendState_, bl, 0xffffffff);
+    // ComPtr::Get returns the underlying pointer, there is no implicit conversion from ComPtr<T> to T*
+    // Set the alpha to coverage blend state every frame since other parts of the program might hve changed it (namely fonts)
+    context_.immediateContext_->OMSetBlendState(blendState_.Get(), bl, 0xffffffff);
 
     BillboardCBuffer cb;
     cb.View = XMMatrixTranspose(camera_.getViewMatrix());

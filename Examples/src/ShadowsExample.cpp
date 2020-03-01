@@ -8,6 +8,14 @@
 using namespace DirectX;
 
 namespace Shadows {
+
+ShadowsExample::~ShadowsExample() {
+    if (shadowMapDepthView_) 
+        shadowMapDepthView_->Release();
+    if (shadowShaderResourceView_) 
+        shadowShaderResourceView_->Release();
+}
+
 HRESULT ShadowsExample::setup() {
     auto hr = BaseExample::setup();
     if (FAILED(hr)) 
@@ -66,7 +74,8 @@ HRESULT ShadowsExample::setup() {
     texDesc.CPUAccessFlags = 0;
     texDesc.MiscFlags = 0;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &shadowMap_);
+    ID3D11Texture2D* shadowMap = nullptr;
+    hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &shadowMap);
     if (FAILED(hr)) 
         return hr;
 
@@ -77,8 +86,8 @@ HRESULT ShadowsExample::setup() {
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
 
-    hr = context_.d3dDevice_->CreateDepthStencilView(shadowMap_, &descDSV, &shadowMapDepthView_);
-    if (FAILED(hr)) 
+    hr = context_.d3dDevice_->CreateDepthStencilView(shadowMap, &descDSV, &shadowMapDepthView_);
+    if (FAILED(hr))
         return hr;
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -89,9 +98,13 @@ HRESULT ShadowsExample::setup() {
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(shadowMap_, &srvDesc, &shadowShaderResourceView_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(shadowMap, &srvDesc, &shadowShaderResourceView_);
     if (FAILED(hr)) 
         return hr;
+
+    // The views have their own reference and since we don't need the texture anymore we can just release it
+    // (decrease refcount) to avoid leaks on example exit
+    shadowMap->Release();
 
     return S_OK;
 }

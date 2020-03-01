@@ -37,6 +37,8 @@ struct ShadowDisplayBuffer {
 };
 
 class ShadowsExample : public BaseExample {
+public:
+    ~ShadowsExample() override;
 protected:
     using TextureShader = ShaderProgram<ConstantBuffer>;
     using SolidShader = ShaderProgram<ConstantBuffers::SolidConstBuffer>;
@@ -73,7 +75,6 @@ protected:
     static constexpr UINT SHADOW_MAP_WIDTH = 1024;
     static constexpr UINT SHADOW_MAP_HEIGHT = 1024;
 
-    ID3D11Texture2D* shadowMap_ = nullptr;
     ID3D11DepthStencilView* shadowMapDepthView_ = nullptr;
     ID3D11ShaderResourceView* shadowShaderResourceView_ = nullptr;
     D3D11_VIEWPORT shadowViewPort_;
@@ -83,12 +84,5 @@ protected:
     bool reloadShadersInternal() override;
     void handleInput() override;
     void render() override;
-
-public:
-    virtual ~ShadowsExample() {
-        if (shadowMap_) shadowMap_->Release();
-        if (shadowMapDepthView_) shadowMapDepthView_->Release();
-        if (shadowShaderResourceView_) shadowShaderResourceView_->Release();
-    }
 };
 }

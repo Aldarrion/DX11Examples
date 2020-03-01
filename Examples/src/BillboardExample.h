@@ -7,6 +7,8 @@
 #include "Plane.h"
 #include "TextSDF.h"
 
+#include <wrl/client.h>
+
 namespace Billboard {
 
 constexpr size_t GRASS_COUNT = 1000;
@@ -23,7 +25,7 @@ struct BillboardCBuffer {
 
 class BillboardExample : public BaseExample {
 protected:
-    bool isInstanced_ = false;
+    bool isInstanced_ = true;
 
     using BillboardShader = ShaderProgram<BillboardCBuffer>;
     using TextureShader = ShaderProgram<BillboardCBuffer>;
@@ -38,8 +40,9 @@ protected:
     Text::FontSDF font_;
     std::unique_ptr<Text::TextSDF> frameTimeText_;
 
-    ID3D11BlendState* blendState_{ nullptr };
-    ID3D11Buffer* vertexBuffer_{ nullptr };
+    // If we don't want to handle 
+    Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer_;
 
     HRESULT setup() override;
     bool reloadShadersInternal() override;

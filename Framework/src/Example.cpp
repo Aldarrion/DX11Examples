@@ -74,12 +74,11 @@ int Example::run(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine,
 
             TranslateMessage(&msg);
             DispatchMessage(&msg);
-        }
-        else {
+        } else {
             render();
         }
     }
 
-    return static_cast<int>(msg.wParam);
+    return 0;
 }
 

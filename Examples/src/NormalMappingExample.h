@@ -45,7 +45,6 @@ private:
     bool isRotationOn_ = false;
     float rotation_ = 0.0f;
 
-public:
     HRESULT setup() override;
     bool reloadShadersInternal() override;
     void handleInput() override;
