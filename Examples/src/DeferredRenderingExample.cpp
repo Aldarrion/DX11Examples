@@ -41,7 +41,8 @@ HRESULT DeferredRenderingExample::setup() {
     texDesc.CPUAccessFlags = 0;
     texDesc.MiscFlags = 0;
 
-    auto hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &depthBuffer_);
+    ID3D11Texture2D* depthBuffer = nullptr;
+    auto hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &depthBuffer);
     if (FAILED(hr))
         return hr;
 
@@ -52,7 +53,7 @@ HRESULT DeferredRenderingExample::setup() {
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
 
-    hr = context_.d3dDevice_->CreateDepthStencilView(depthBuffer_, &descDSV, &depthBufferDSV_);
+    hr = context_.d3dDevice_->CreateDepthStencilView(depthBuffer, &descDSV, depthBufferDSV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
@@ -64,9 +65,11 @@ HRESULT DeferredRenderingExample::setup() {
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(depthBuffer_, &srvDesc, &depthBufferSRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(depthBuffer, &srvDesc, depthBufferSRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
+
+    depthBuffer->Release();
 
 
     // ===================
@@ -86,15 +89,19 @@ HRESULT DeferredRenderingExample::setup() {
     gBufferTextDesc.CPUAccessFlags = 0;
     gBufferTextDesc.MiscFlags = 0;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gPosition_);
+    ID3D11Texture2D* gPosition = nullptr;
+    ID3D11Texture2D* gNormal = nullptr;
+    ID3D11Texture2D* gAlbedo = nullptr;
+
+    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gPosition);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gNormal_);
+    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gNormal);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gAlbedo_);
+    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gAlbedo);
     if (FAILED(hr))
         return hr;
 
@@ -103,15 +110,15 @@ HRESULT DeferredRenderingExample::setup() {
     gBufferDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     gBufferDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gPosition_, &gBufferDesc, &gPositionRTV_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gPosition, &gBufferDesc, gPositionRTV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gNormal_, &gBufferDesc, &gNormalRTV_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gNormal, &gBufferDesc, gNormalRTV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gAlbedo_, &gBufferDesc, &gAlbedoRTV_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gAlbedo, &gBufferDesc, gAlbedoRTV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
@@ -123,19 +130,22 @@ HRESULT DeferredRenderingExample::setup() {
     gResourceView.Texture2D.MipLevels = texDesc.MipLevels;
     gResourceView.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gPosition_, &gResourceView, &gPositionSRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gPosition, &gResourceView, gPositionSRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gNormal_, &gResourceView, &gNormalSRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gNormal, &gResourceView, gNormalSRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gAlbedo_, &gResourceView, &gAlbedoSRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gAlbedo, &gResourceView, gAlbedoSRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    
+    gPosition->Release();
+    gNormal->Release();
+    gAlbedo->Release();
+
     // ====================
     // Other initialization
     // ====================
@@ -239,9 +249,9 @@ void DeferredRenderingExample::renderLights() const {
 
 void DeferredRenderingExample::drawGBufferDisplays() const {
     std::array<ID3D11ShaderResourceView*, 3> gBufferViews = {
-        gPositionSRV_,
-        gNormalSRV_,
-        gAlbedoSRV_
+        gPositionSRV_.Get(),
+        gNormalSRV_.Get(),
+        gAlbedoSRV_.Get()
     };
     
     const float mapDisplaySize = 0.2f;
@@ -272,17 +282,17 @@ void DeferredRenderingExample::renderDeferred() {
     // Render infromation to geometry buffer views
     // ===========================================
     std::array<ID3D11RenderTargetView*, 3> views = {
-        gPositionRTV_,
-        gNormalRTV_,
-        gAlbedoRTV_
+        gPositionRTV_.Get(),
+        gNormalRTV_.Get(),
+        gAlbedoRTV_.Get()
     };
     
     // Set multiple rendering targets
-    context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDSV_);
+    context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDSV_.Get());
     for (auto& view : views) {
         context_.immediateContext_->ClearRenderTargetView(view, Util::srgbToLinear(DirectX::Colors::Black));
     }
-    context_.immediateContext_->ClearDepthStencilView(depthBufferDSV_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    context_.immediateContext_->ClearDepthStencilView(depthBufferDSV_.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     GShaderCB gscb;
     gscb.View = XMMatrixTranspose(camera_.getViewMatrix());
@@ -310,9 +320,9 @@ void DeferredRenderingExample::renderDeferred() {
     lightCb.ViewPos = XMFLOAT4(camera_.Position.x, camera_.Position.y, camera_.Position.z, 1.0f);
     
     // Set geometry buffer data as input to deferred lighting pass
-    context_.immediateContext_->PSSetShaderResources(0, 1, &gPositionSRV_);
-    context_.immediateContext_->PSSetShaderResources(1, 1, &gNormalSRV_);
-    context_.immediateContext_->PSSetShaderResources(2, 1, &gAlbedoSRV_);
+    context_.immediateContext_->PSSetShaderResources(0, 1, gPositionSRV_.GetAddressOf());
+    context_.immediateContext_->PSSetShaderResources(1, 1, gNormalSRV_.GetAddressOf());
+    context_.immediateContext_->PSSetShaderResources(2, 1, gAlbedoSRV_.GetAddressOf());
 
     defferedLightShader_->updateConstantBuffer(context_.immediateContext_, lightCb);
     defferedLightShader_->use(context_.immediateContext_);
@@ -326,7 +336,7 @@ void DeferredRenderingExample::renderDeferred() {
     // Forward pass to render the cubes representing lights
     // ====================================================
     // Set depth information from the geometry pass 
-    context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, depthBufferDSV_);
+    context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, depthBufferDSV_.Get());
     renderLights();
 
     // Render other billboards 

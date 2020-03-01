@@ -23,7 +23,8 @@ HRESULT SSAO::SSAOExample::setup() {
     texDesc.CPUAccessFlags = 0;
     texDesc.MiscFlags = 0;
 
-    auto hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &depthBuffer_);
+    ID3D11Texture2D* depthBuffer = nullptr;
+    auto hr = context_.d3dDevice_->CreateTexture2D(&texDesc, nullptr, &depthBuffer);
     if (FAILED(hr))
         return hr;
 
@@ -34,7 +35,7 @@ HRESULT SSAO::SSAOExample::setup() {
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
 
-    hr = context_.d3dDevice_->CreateDepthStencilView(depthBuffer_.Get(), &descDSV, &depthBufferDepthView_);
+    hr = context_.d3dDevice_->CreateDepthStencilView(depthBuffer, &descDSV, depthBufferDepthView_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
@@ -46,9 +47,11 @@ HRESULT SSAO::SSAOExample::setup() {
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(depthBuffer_.Get(), &srvDesc, &depthBufferResourceView_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(depthBuffer, &srvDesc, depthBufferResourceView_.GetAddressOf());
     if (FAILED(hr))
         return hr;
+
+    depthBuffer->Release();
 
     // ===================
     // Initialize G-buffer
@@ -67,15 +70,19 @@ HRESULT SSAO::SSAOExample::setup() {
     gBufferTextDesc.CPUAccessFlags = 0;
     gBufferTextDesc.MiscFlags = 0;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gPosition_);
+    ID3D11Texture2D* gPosition = nullptr;
+    ID3D11Texture2D* gNormal = nullptr;
+    ID3D11Texture2D* gAlbedo = nullptr;
+
+    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gPosition);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gNormal_);
+    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gNormal);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gAlbedo_);
+    hr = context_.d3dDevice_->CreateTexture2D(&gBufferTextDesc, nullptr, &gAlbedo);
     if (FAILED(hr))
         return hr;
 
@@ -84,15 +91,15 @@ HRESULT SSAO::SSAOExample::setup() {
     gBufferDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     gBufferDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gPosition_.Get(), &gBufferDesc, &gPositionView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gPosition, &gBufferDesc, gPositionView_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gNormal_.Get(), &gBufferDesc, &gNormalView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gNormal, &gBufferDesc, gNormalView_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(gAlbedo_.Get(), &gBufferDesc, &gAlbedoView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(gAlbedo, &gBufferDesc, gAlbedoView_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
@@ -104,17 +111,21 @@ HRESULT SSAO::SSAOExample::setup() {
     gResourceView.Texture2D.MipLevels = 1;
     gResourceView.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gPosition_.Get(), &gResourceView, &gPositionRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gPosition, &gResourceView, gPositionRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gNormal_.Get(), &gResourceView, &gNormalRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gNormal, &gResourceView, gNormalRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(gAlbedo_.Get(), &gResourceView, &gAlbedoRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(gAlbedo, &gResourceView, gAlbedoRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
+
+    gPosition->Release();
+    gNormal->Release();
+    gAlbedo->Release();
 
     // ====
     // SSAO
@@ -133,11 +144,14 @@ HRESULT SSAO::SSAOExample::setup() {
     ssaoTexDesc.CPUAccessFlags = 0;
     ssaoTexDesc.MiscFlags = 0;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&ssaoTexDesc, nullptr, &ssaoBuffer_);
+    ID3D11Texture2D* ssaoBuffer = nullptr;
+    ID3D11Texture2D* ssaoBlurBuffer = nullptr;
+
+    hr = context_.d3dDevice_->CreateTexture2D(&ssaoTexDesc, nullptr, &ssaoBuffer);
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&ssaoTexDesc, nullptr, &ssaoBlurBuffer_);
+    hr = context_.d3dDevice_->CreateTexture2D(&ssaoTexDesc, nullptr, &ssaoBlurBuffer);
     if (FAILED(hr))
         return hr;
 
@@ -146,11 +160,11 @@ HRESULT SSAO::SSAOExample::setup() {
     ssaoRTVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     ssaoRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(ssaoBuffer_.Get(), &ssaoRTVDesc, &ssaoRTView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(ssaoBuffer, &ssaoRTVDesc, ssaoRTView_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateRenderTargetView(ssaoBlurBuffer_.Get(), &ssaoRTVDesc, &ssaoBlurRTView_);
+    hr = context_.d3dDevice_->CreateRenderTargetView(ssaoBlurBuffer, &ssaoRTVDesc, ssaoBlurRTView_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
@@ -161,13 +175,16 @@ HRESULT SSAO::SSAOExample::setup() {
     ssaoRVDesc.Texture2D.MipLevels = texDesc.MipLevels;
     ssaoRVDesc.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(ssaoBuffer_.Get(), &ssaoRVDesc, &ssaoRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(ssaoBuffer, &ssaoRVDesc, ssaoRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(ssaoBlurBuffer_.Get(), &ssaoRVDesc, &ssaoBlurRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(ssaoBlurBuffer, &ssaoRVDesc, ssaoBlurRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
+
+    ssaoBuffer->Release();
+    ssaoBlurBuffer->Release();
 
     // =============
     // Noise texture
@@ -192,7 +209,8 @@ HRESULT SSAO::SSAOExample::setup() {
     noiseData.SysMemPitch = 4 * sizeof(XMFLOAT2);
     noiseData.SysMemSlicePitch = 0;
 
-    hr = context_.d3dDevice_->CreateTexture2D(&noiseBufferDesc, &noiseData, &noiseBuffer_);
+    ID3D11Texture2D* noiseBuffer = nullptr;
+    hr = context_.d3dDevice_->CreateTexture2D(&noiseBufferDesc, &noiseData, &noiseBuffer);
     if (FAILED(hr))
         return hr;
 
@@ -203,9 +221,11 @@ HRESULT SSAO::SSAOExample::setup() {
     noiseRVDesc.Texture2D.MipLevels = texDesc.MipLevels;
     noiseRVDesc.Texture2D.MostDetailedMip = 0;
 
-    hr = context_.d3dDevice_->CreateShaderResourceView(noiseBuffer_.Get(), &noiseRVDesc, &noiseRV_);
+    hr = context_.d3dDevice_->CreateShaderResourceView(noiseBuffer, &noiseRVDesc, noiseRV_.GetAddressOf());
     if (FAILED(hr))
         return hr;
+
+    noiseBuffer->Release();
 
     ssaoKernel_ = generateKernel();
 
@@ -319,11 +339,11 @@ void SSAO::SSAOExample::updateInfoText() const {
 
 void SSAO::SSAOExample::drawGBufferDisplays() const {
     std::array<ID3D11ShaderResourceView*, 5> gBufferViews = {
-        gPositionRV_,
-        gNormalRV_,
-        gAlbedoRV_,
-        ssaoRV_,
-        ssaoBlurRV_
+        gPositionRV_.Get(),
+        gNormalRV_.Get(),
+        gAlbedoRV_.Get(),
+        ssaoRV_.Get(),
+        ssaoBlurRV_.Get()
     };
 
     const float mapDisplaySize = 0.2f;
@@ -352,17 +372,17 @@ void SSAO::SSAOExample::render() {
     // Render infromation to geometry buffer views
     // ===========================================
     std::array<ID3D11RenderTargetView*, 3> views = {
-        gPositionView_,
-        gNormalView_,
-        gAlbedoView_
+        gPositionView_.Get(),
+        gNormalView_.Get(),
+        gAlbedoView_.Get()
     };
 
     // Set multiple rendering targets
-    context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDepthView_);
+    context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDepthView_.Get());
     for (auto& view : views) {
         context_.immediateContext_->ClearRenderTargetView(view, Colors::Black);
     }
-    context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     GShaderCB gscb{};
     gscb.View = XMMatrixTranspose(camera_.getViewMatrix());
@@ -378,13 +398,13 @@ void SSAO::SSAOExample::render() {
     // =====================
     // Generate SSAO texture
     // =====================
-    context_.immediateContext_->OMSetRenderTargets(1, &ssaoRTView_, depthBufferDepthView_);
-    context_.immediateContext_->ClearRenderTargetView(ssaoRTView_, Colors::Black);
-    context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    context_.immediateContext_->OMSetRenderTargets(1, ssaoRTView_.GetAddressOf(), depthBufferDepthView_.Get());
+    context_.immediateContext_->ClearRenderTargetView(ssaoRTView_.Get(), Colors::Black);
+    context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     
-    context_.immediateContext_->PSSetShaderResources(0, 1, &gPositionRV_);
-    context_.immediateContext_->PSSetShaderResources(1, 1, &gNormalRV_);
-    context_.immediateContext_->PSSetShaderResources(2, 1, &noiseRV_);
+    context_.immediateContext_->PSSetShaderResources(0, 1, gPositionRV_.GetAddressOf());
+    context_.immediateContext_->PSSetShaderResources(1, 1, gNormalRV_.GetAddressOf());
+    context_.immediateContext_->PSSetShaderResources(2, 1, noiseRV_.GetAddressOf());
     pointSampler_->use(context_.immediateContext_, 0);
 
     SSAOCB ssaocb{};
@@ -404,14 +424,14 @@ void SSAO::SSAOExample::render() {
     // ======================
     // Filter the SSAO buffer
     // ======================
-    context_.immediateContext_->OMSetRenderTargets(1, &ssaoBlurRTView_, depthBufferDepthView_);
-    context_.immediateContext_->ClearRenderTargetView(ssaoBlurRTView_, Colors::Black);
-    context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    context_.immediateContext_->OMSetRenderTargets(1, ssaoBlurRTView_.GetAddressOf(), depthBufferDepthView_.Get());
+    context_.immediateContext_->ClearRenderTargetView(ssaoBlurRTView_.Get(), Colors::Black);
+    context_.immediateContext_->ClearDepthStencilView(depthBufferDepthView_.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     SSAOBlurCB ssaobcb;
     ssaobcb.blur = ssaoBlur;
 
-    context_.immediateContext_->PSSetShaderResources(0, 1, &ssaoRV_);
+    context_.immediateContext_->PSSetShaderResources(0, 1, ssaoRV_.GetAddressOf());
     pointSampler_->use(context_.immediateContext_, 0);
 
     ssaoBlurShader_->updateConstantBuffer(context_.immediateContext_, ssaobcb);
@@ -426,10 +446,10 @@ void SSAO::SSAOExample::render() {
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::Black);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
     // Set geometry buffer data as input to deferred lighting pass
-    context_.immediateContext_->PSSetShaderResources(0, 1, &gPositionRV_);
-    context_.immediateContext_->PSSetShaderResources(1, 1, &gNormalRV_);
-    context_.immediateContext_->PSSetShaderResources(2, 1, &gAlbedoRV_);
-    context_.immediateContext_->PSSetShaderResources(3, 1, &ssaoBlurRV_);
+    context_.immediateContext_->PSSetShaderResources(0, 1, gPositionRV_.GetAddressOf());
+    context_.immediateContext_->PSSetShaderResources(1, 1, gNormalRV_.GetAddressOf());
+    context_.immediateContext_->PSSetShaderResources(2, 1, gAlbedoRV_.GetAddressOf());
+    context_.immediateContext_->PSSetShaderResources(3, 1, ssaoBlurRV_.GetAddressOf());
 
     pointSampler_->use(context_.immediateContext_, 0);
 

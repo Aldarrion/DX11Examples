@@ -46,30 +46,24 @@ struct SSAOLightCB {
 class SSAOExample : public BaseExample {
 protected:
     Microsoft::WRL::ComPtr<ID3D11Texture2D> depthBuffer_;
-    ID3D11DepthStencilView* depthBufferDepthView_ = nullptr;
-    ID3D11ShaderResourceView* depthBufferResourceView_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthBufferDepthView_;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> depthBufferResourceView_;
 
     // Geometry buffers
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> gPosition_;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> gNormal_;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> gAlbedo_ = nullptr;
-    ID3D11RenderTargetView* gPositionView_ = nullptr;
-    ID3D11RenderTargetView* gNormalView_ = nullptr;
-    ID3D11RenderTargetView* gAlbedoView_ = nullptr;
-    ID3D11ShaderResourceView* gPositionRV_ = nullptr;
-    ID3D11ShaderResourceView* gNormalRV_ = nullptr;
-    ID3D11ShaderResourceView* gAlbedoRV_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> gPositionView_;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> gNormalView_;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> gAlbedoView_;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> gPositionRV_;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> gNormalRV_;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> gAlbedoRV_;
 
     // SSAO buffers
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> ssaoBuffer_;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> ssaoBlurBuffer_;
-    ID3D11RenderTargetView* ssaoRTView_ = nullptr;
-    ID3D11RenderTargetView* ssaoBlurRTView_ = nullptr;
-    ID3D11ShaderResourceView* ssaoRV_ = nullptr;
-    ID3D11ShaderResourceView* ssaoBlurRV_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> ssaoRTView_;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> ssaoBlurRTView_;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ssaoRV_;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ssaoBlurRV_;
     
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> noiseBuffer_;
-    ID3D11ShaderResourceView* noiseRV_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> noiseRV_;
 
     // Shaders
     using GShader = ShaderProgram<GShaderCB>;
