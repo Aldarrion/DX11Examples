@@ -53,7 +53,7 @@ ID3D11Buffer*           g_pVertexBuffer = nullptr;
 // Forward declarations
 //--------------------------------------------------------------------------------------
 HRESULT InitWindow( HINSTANCE hInstance, int nCmdShow );
-HRESULT InitDevice();
+HRESULT InitDeviceAlternative();
 void CleanupDevice();
 LRESULT CALLBACK    WndProc( HWND, UINT, WPARAM, LPARAM );
 void Render();
@@ -71,7 +71,7 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     if( FAILED( InitWindow( hInstance, nCmdShow ) ) )
         return 0;
 
-    if( FAILED( InitDevice() ) )
+    if( FAILED( InitDeviceAlternative() ) )
     {
         CleanupDevice();
         return 0;
@@ -177,7 +177,7 @@ HRESULT CompileShaderFromFile( const LPCWSTR szFileName, LPCSTR szEntryPoint, LP
 //--------------------------------------------------------------------------------------
 // Create Direct3D device and swap chain
 //--------------------------------------------------------------------------------------
-HRESULT InitDevice()
+HRESULT InitDeviceAlternative()
 {
     HRESULT hr = S_OK;
 
