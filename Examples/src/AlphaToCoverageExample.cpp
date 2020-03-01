@@ -56,7 +56,7 @@ HRESULT AlphaToCoverageExample::setup() {
     blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &alphaToCoverageBlendState_);
+    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, alphaToCoverageBlendState_.GetAddressOf());
     if (FAILED(hr)) {
         assert(!"Failed to create blend state");
         return hr;
@@ -64,7 +64,7 @@ HRESULT AlphaToCoverageExample::setup() {
 
     blendDesc.AlphaToCoverageEnable = false;
     blendDesc.RenderTarget[0].BlendEnable = true;
-    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &alphaBlendingBlendState_);
+    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, alphaBlendingBlendState_.GetAddressOf());
     if (FAILED(hr)) {
         assert(!"Failed to create blend state");
         return hr;
@@ -72,7 +72,7 @@ HRESULT AlphaToCoverageExample::setup() {
 
     blendDesc.AlphaToCoverageEnable = false;
     blendDesc.RenderTarget[0].BlendEnable = false;
-    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, &noBlendingBlendState_);
+    hr = context_.d3dDevice_->CreateBlendState(&blendDesc, noBlendingBlendState_.GetAddressOf());
     if (FAILED(hr)) {
         assert(!"Failed to create blend state");
         return hr;
@@ -129,7 +129,7 @@ void AlphaToCoverageExample::render() {
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    context_.immediateContext_->OMSetBlendState(currentBlendState_, bl, 0xffffffff);
+    context_.immediateContext_->OMSetBlendState(currentBlendState_.Get(), bl, 0xffffffff);
 
     shader_->use(context_.immediateContext_);
     texture_->use(context_.immediateContext_, 0);

@@ -7,6 +7,8 @@
 #include "Quad.h"
 #include "TextSDF.h"
 
+#include <wrl/client.h>
+
 namespace AlphaToCoverage {
 
 enum BlendMode {
@@ -28,10 +30,10 @@ protected:
     Text::FontSDF font_;
     std::unique_ptr<Text::TextSDF> text_;
 
-    ID3D11BlendState* alphaToCoverageBlendState_;
-    ID3D11BlendState* alphaBlendingBlendState_;
-    ID3D11BlendState* noBlendingBlendState_;
-    ID3D11BlendState* currentBlendState_;
+    Microsoft::WRL::ComPtr<ID3D11BlendState> alphaToCoverageBlendState_;
+    Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBlendingBlendState_;
+    Microsoft::WRL::ComPtr<ID3D11BlendState> noBlendingBlendState_;
+    Microsoft::WRL::ComPtr<ID3D11BlendState> currentBlendState_;
 
     BlendMode blendMode_;
 
