@@ -50,19 +50,19 @@ struct GBufferDisplayCB {
 class DeferredRenderingExample : public BaseExample {
 protected:
     ID3D11Texture2D * depthBuffer_ = nullptr;
-    ID3D11DepthStencilView* depthBufferDepthView_ = nullptr;
-    ID3D11ShaderResourceView* depthBufferResourceView_ = nullptr;
+    ID3D11DepthStencilView* depthBufferDSV_ = nullptr;
+    ID3D11ShaderResourceView* depthBufferSRV_ = nullptr;
 
     // Geometry buffers
     ID3D11Texture2D * gPosition_ = nullptr;
     ID3D11Texture2D* gNormal_ = nullptr;
     ID3D11Texture2D* gAlbedo_ = nullptr;
-    ID3D11RenderTargetView* gPositionView_ = nullptr;
-    ID3D11RenderTargetView* gNormalView_ = nullptr;
-    ID3D11RenderTargetView* gAlbedoView_ = nullptr;
-    ID3D11ShaderResourceView* gPositionRV_ = nullptr;
-    ID3D11ShaderResourceView* gNormalRV_ = nullptr;
-    ID3D11ShaderResourceView* gAlbedoRV_ = nullptr;
+    ID3D11RenderTargetView* gPositionRTV_ = nullptr;
+    ID3D11RenderTargetView* gNormalRTV_ = nullptr;
+    ID3D11RenderTargetView* gAlbedoRTV_ = nullptr;
+    ID3D11ShaderResourceView* gPositionSRV_ = nullptr;
+    ID3D11ShaderResourceView* gNormalSRV_ = nullptr;
+    ID3D11ShaderResourceView* gAlbedoSRV_ = nullptr;
 
     bool isDeferredRendering_ = true;
 
