@@ -131,7 +131,7 @@ XMFLOAT4 FontSDF::getUV(char c) const {
     );
 }
 
-void FontSDF::draw(ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size, const DirectX::XMFLOAT4& color) {
+void FontSDF::draw(const ContextWrapper& context, const std::string& text, DirectX::XMFLOAT2 position, float size, const DirectX::XMFLOAT4& color) {
     if (!texture_)
         return;
 

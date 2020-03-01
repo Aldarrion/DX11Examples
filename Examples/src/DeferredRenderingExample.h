@@ -107,7 +107,7 @@ protected:
     void handleInput() override;
     void render() override;
 
-    void drawText();
+    void drawText() const;
     void renderLights() const;
     void drawGBufferDisplays() const;
 

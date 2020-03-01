@@ -29,7 +29,7 @@ void TextSDF::setColor(const DirectX::XMFLOAT4& color) {
     color_ = color;
 }
 
-void TextSDF::draw(ContextWrapper& context) const {
+void TextSDF::draw(const ContextWrapper& context) const {
     if (font_)
         font_->draw(context, text_, position_, size_, color_);
 }

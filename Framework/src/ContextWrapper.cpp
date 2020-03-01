@@ -22,7 +22,7 @@ ContextWrapper::~ContextWrapper() {
     cleanupDevice();
 }
 
-HRESULT ContextWrapper::enableBlending(bool enable) {
+HRESULT ContextWrapper::enableBlending(bool enable) const {
     D3D11_BLEND_DESC blendDesc;
     ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
     blendDesc.AlphaToCoverageEnable = false;
@@ -35,22 +35,21 @@ HRESULT ContextWrapper::enableBlending(bool enable) {
     blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    //if (blendState_)
-        //blendState_->Release();
-    ID3D11BlendState* blendState_ = nullptr;
-    auto hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState_);
+    ID3D11BlendState* blendState = nullptr;
+    auto hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
     if (FAILED(hr)) {
         assert(!"Failed to create blend state");
         return hr;
     }
 
     float bl[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    immediateContext_->OMSetBlendState(blendState_, bl, 0xffffffff);
+    immediateContext_->OMSetBlendState(blendState, bl, 0xffffffff);
+    blendState->Release();
 
     return S_OK;
 }
 
-HRESULT ContextWrapper::enableDepthTest(bool enable) {
+HRESULT ContextWrapper::enableDepthTest(bool enable) const {
     D3D11_DEPTH_STENCIL_DESC dsDesc;
 
     // Depth test parameters
@@ -195,8 +194,10 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
         if (SUCCEEDED(hr))
             break;
     }
-    if (FAILED(hr))
+    if (FAILED(hr)) {
+        ex::log(ex::LogLevel::Error, "Failed to find a compatible device in the computer");
         return hr;
+    }
 
     // Obtain DXGI factory from device (since we used nullptr for pAdapter above)
     IDXGIFactory1* dxgiFactory = nullptr;
@@ -210,13 +211,21 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
             if (SUCCEEDED(hr))
             {
                 hr = adapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
+                if (FAILED(hr)) {
+                    ex::log(ex::LogLevel::Error, "Failed to get a DXGI factory from the adapter");
+                    return hr;
+                }
                 adapter->Release();
+            } else {
+                ex::log(ex::LogLevel::Error, "Failed to get adapter from DXGI device");
+                return hr;
             }
             dxgiDevice->Release();
+        } else {
+            ex::log(ex::LogLevel::Error, "Failed to obtain DXGI device from D3DDevice");
+            return hr;
         }
     }
-    if (FAILED(hr))
-        return hr;
 
     // Create swap chain
     {
@@ -237,26 +246,37 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
         sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
         hr = dxgiFactory->CreateSwapChain(d3dDevice_, &sd, &swapChain_);
+
+        if (FAILED(hr)) {
+            ex::log(ex::LogLevel::Error, "Failed to create a swapchain");
+            return hr;
+        }
     }
 
     // Note this tutorial doesn't handle full-screen swapchains so we block the ALT+ENTER shortcut
-    dxgiFactory->MakeWindowAssociation(hWnd_, DXGI_MWA_NO_ALT_ENTER);
+    hr = dxgiFactory->MakeWindowAssociation(hWnd_, DXGI_MWA_NO_ALT_ENTER);
 
     dxgiFactory->Release();
 
-    if (FAILED(hr))
+    if (FAILED(hr)) {
+        ex::log(ex::LogLevel::Error, "Failed to associate the window with the swapchain");
         return hr;
+    }
 
     // Create a render target view
     ID3D11Texture2D* pBackBuffer = nullptr;
     hr = swapChain_->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    if (FAILED(hr))
+    if (FAILED(hr)) {
+        ex::log(ex::LogLevel::Error, "Failed to get a backbuffer from the swapchain");
         return hr;
+    }
 
     hr = d3dDevice_->CreateRenderTargetView(pBackBuffer, nullptr, &renderTargetView_);
     pBackBuffer->Release();
-    if (FAILED(hr))
+    if (FAILED(hr)) {
+        ex::log(ex::LogLevel::Error, "Failed to create backbuffer render target view");
         return hr;
+    }
 
     #if _DEBUG
         d3dDevice_->QueryInterface(IID_PPV_ARGS(&debugDevice_));
@@ -279,8 +299,10 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     
     ID3D11Texture2D* depthStencil;
     hr = d3dDevice_->CreateTexture2D(&descDepth, nullptr, &depthStencil);
-    if (FAILED(hr))
+    if (FAILED(hr)) {
+        ex::log(ex::LogLevel::Error, "Failed to create depth stencil texture");
         return hr;
+    }
 
     // Create the depth stencil view
     D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
@@ -289,8 +311,10 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
     descDSV.Texture2D.MipSlice = 0;
     hr = d3dDevice_->CreateDepthStencilView(depthStencil, &descDSV, &depthStencilView_);
-    if (FAILED(hr))
+    if (FAILED(hr)) {
+        ex::log(ex::LogLevel::Error, "Failed to create depth stencil view");
         return hr;
+    }
     
     depthStencil->Release();
 
@@ -323,7 +347,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     ID3D11BlendState* blendState = nullptr;
     hr = d3dDevice_->CreateBlendState(&blendDesc, &blendState);
     if (FAILED(hr)) {
-        assert(!"Failed to create blend state");
+        ex::log(ex::LogLevel::Error, "Failed to create blend state");
         return hr;
     }
 
@@ -350,7 +374,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     ID3D11RasterizerState* rasterizerState = nullptr;
     hr = d3dDevice_->CreateRasterizerState(&CurrentRasterizerState, &rasterizerState);
     if (FAILED(hr)) {
-        assert(!"Failed to create rasterizer state");
+        ex::log(ex::LogLevel::Error, "Failed to create rasterizer state");
         return hr;
     }
 
@@ -363,8 +387,6 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
 void ContextWrapper::cleanupDevice() {
     if (immediateContext_) 
         immediateContext_->ClearState();
-    //if (depthStencil_) 
-      //  depthStencil_->Release();
     if (depthStencilView_) 
         depthStencilView_->Release();
     if (renderTargetView_) 
