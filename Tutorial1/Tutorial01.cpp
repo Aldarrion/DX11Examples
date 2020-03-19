@@ -13,6 +13,41 @@ ID3D11DeviceContext*    g_pImmediateContext = nullptr;
 IDXGISwapChain*         g_pSwapChain = nullptr;
 ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
 
+HRESULT initWindow(HINSTANCE hInstance, int nCmdShow);
+HRESULT initDevice();
+void cleanupDevice();
+void render();
+
+// The entry point for Windows applications
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
+    // First, try to initialize a Window, this is just Windows stuff
+    if (FAILED(initWindow(hInstance, nCmdShow)))
+        return 0;
+
+    // Now try to initialize the DirectX device
+    if (FAILED(initDevice())) {
+        cleanupDevice();
+        return 0;
+    }
+
+    // Main message loop, again, standard Windows stuff
+    MSG msg{};
+    while (WM_QUIT != msg.message) {
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        } else {
+            // When all messages are processed call our custom rendering function is called
+            render();
+        }
+    }
+
+    // Don't forget to release all the resources we acquired
+    cleanupDevice();
+
+    return (int)msg.wParam;
+}
+
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     PAINTSTRUCT ps;
     HDC hdc;
@@ -134,7 +169,7 @@ HRESULT createSwapChain(IDXGIFactory* dxgiFactory) {
 }
 
 /* 
-/* Finds an adapter which corresponds to given argumens
+ * Finds an adapter which corresponds to given argumens
  * If multiple adapters are found the one with the most dedicated memory is returned
  */
 IDXGIAdapter* findBestAdapter(IDXGIFactory* dxgiFactory, UINT createDeviceFlags, D3D_FEATURE_LEVEL* featureLevels, UINT featureLevelCount) {
@@ -243,35 +278,5 @@ void cleanupDevice() {
     if(g_pSwapChain) g_pSwapChain->Release();
     if(g_pImmediateContext) g_pImmediateContext->Release();
     if(g_pd3dDevice) g_pd3dDevice->Release();
-}
-
-// The entry point for Windows applications
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-    // First, try to initialize a Window, this is just Windows stuff
-    if (FAILED(initWindow(hInstance, nCmdShow)))
-        return 0;
-
-    // Now try to initialize the DirectX device
-    if (FAILED(initDevice())) {
-        cleanupDevice();
-        return 0;
-    }
-
-    // Main message loop, again, standard Windows stuff
-    MSG msg{};
-    while (WM_QUIT != msg.message) {
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        } else {
-            // When all messages are processed call our custom rendering function is called
-            render();
-        }
-    }
-
-    // Don't forget to release all the resources we acquired
-    cleanupDevice();
-
-    return (int)msg.wParam;
 }
 
