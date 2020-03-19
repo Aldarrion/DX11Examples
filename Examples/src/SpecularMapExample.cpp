@@ -71,7 +71,7 @@ void SpecularMapExample::render() {
             cb.World = XMMatrixTranspose(cubeTransforms[i].generateModelMatrix());
             cb.NormalMatrix = computeNormalMatrix(cb.World);
             shader_->updateConstantBuffer(context_.immediateContext_, cb);
-            cube_->draw(context_.immediateContext_);
+            cube_->draw(context_);
         }
     }
 
@@ -85,7 +85,7 @@ void SpecularMapExample::render() {
 
         solidShader_->use(context_.immediateContext_);
         solidShader_->updateConstantBuffer(context_.immediateContext_, cb);
-        cube_->draw(context_.immediateContext_);
+        cube_->draw(context_);
     }
 
     context_.swapChain_->Present(0, 0);

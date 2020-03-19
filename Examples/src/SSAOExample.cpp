@@ -361,7 +361,7 @@ void SSAO::SSAOExample::drawGBufferDisplays() const {
         gBufferDisplayShader_->updateConstantBuffer(context_.immediateContext_, gbdcb);
         context_.immediateContext_->PSSetShaderResources(0, 1, &gBufferViews[i]);
         pointSampler_->use(context_.immediateContext_, 0);
-        quad_->draw(context_.immediateContext_);
+        quad_->draw(context_);
     }
 }
 
@@ -392,7 +392,7 @@ void SSAO::SSAOExample::render() {
     gscb.World = XMMatrixTranspose(modelTransform_.generateModelMatrix());
     gscb.NormalMatrix = XMMatrixTranspose(computeNormalMatrix({ gscb.World, gscb.View }));
     gShader_->updateConstantBuffer(context_.immediateContext_, gscb);
-    model_->draw(context_.immediateContext_);
+    model_->draw(context_);
 
     
     // =====================
@@ -418,7 +418,7 @@ void SSAO::SSAOExample::render() {
 
     ssaoShader_->updateConstantBuffer(context_.immediateContext_, ssaocb);
     ssaoShader_->use(context_.immediateContext_);
-    quad_->draw(context_.immediateContext_);
+    quad_->draw(context_);
 
 
     // ======================
@@ -436,7 +436,7 @@ void SSAO::SSAOExample::render() {
 
     ssaoBlurShader_->updateConstantBuffer(context_.immediateContext_, ssaobcb);
     ssaoBlurShader_->use(context_.immediateContext_);
-    quad_->draw(context_.immediateContext_);
+    quad_->draw(context_);
     
 
     // =================
@@ -462,7 +462,7 @@ void SSAO::SSAOExample::render() {
     ssaoLightShader_->updateConstantBuffer(context_.immediateContext_, lightCb);
     ssaoLightShader_->use(context_.immediateContext_);
 
-    quad_->draw(context_.immediateContext_);
+    quad_->draw(context_);
 
     // Unbind GBuffer from use so we can bind it as RTV without driver forceful unbind
     static ID3D11ShaderResourceView* nullViews[] = { nullptr, nullptr, nullptr };

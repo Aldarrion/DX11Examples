@@ -59,14 +59,14 @@ void GeometryShaderExample::render() {
         standardShader_->use(context_.immediateContext_);
         texture_->use(context_.immediateContext_, 0);
         sampler_->use(context_.immediateContext_, 0);
-        cube_->draw(context_.immediateContext_);
+        cube_->draw(context_);
     }
 
     // Draw only the normals
     {
         normalShader_->updateConstantBuffer(context_.immediateContext_, cb);
         normalShader_->use(context_.immediateContext_);
-        cube_->draw(context_.immediateContext_);
+        cube_->draw(context_);
     }
 
     context_.swapChain_->Present(0, 0);

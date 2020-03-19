@@ -79,13 +79,13 @@ void ShaderChangePerfExample::render() {
 
             shader1_->use(context_.immediateContext_);
             shader1_->updateConstantBuffer(context_.immediateContext_, s1cb);
-            triangle_->draw(context_.immediateContext_);
+            triangle_->draw(context_);
         } else {
             s2cb.World = XMMatrixTranspose(transform.generateModelMatrix());
             
             shader2_->use(context_.immediateContext_);
             shader2_->updateConstantBuffer(context_.immediateContext_, s2cb);
-            triangle_->draw(context_.immediateContext_);
+            triangle_->draw(context_);
         }
         isEven = !isEven;
     }

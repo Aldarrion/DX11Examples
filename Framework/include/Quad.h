@@ -28,5 +28,9 @@ public:
     Layouts::VertexLayout_t getVertexLayout() const override {
         return Layouts::POS_UV_LAYOUT;
     }
+
+    const wchar_t* getObjectName() const override {
+        return L"Quad";
+    }
 };
 

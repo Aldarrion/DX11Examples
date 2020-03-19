@@ -165,7 +165,7 @@ void FontSDF::draw(const ContextWrapper& context, const std::string& text, Direc
         cb.UVMul = getUV(c);
         sdfShader_->updateConstantBuffer(context.immediateContext_, cb);
 
-        quad_->draw(context.immediateContext_);
+        quad_->draw(context);
         ++i;
     }
 

@@ -1,9 +1,12 @@
 #pragma once
 #include "ResourceHolder.h"
 #include "Layouts.h"
+#include "ContextWrapper.h"
+#include "Logging.h"
 
 #include <vector>
 #include <cassert>
+#include <cwchar>
 
 /**
  * \brief Base class for simple objects specified by vertex and index buffers.
@@ -13,10 +16,55 @@
  */
 template<typename TVertex>
 class DrawableObject : public ResourceHolder {
+public:
+    DrawableObject() = default;
+
+    virtual ~DrawableObject() {
+        if (vertexBuffer_) 
+            vertexBuffer_->Release();
+        if (indexBuffer_) 
+            indexBuffer_->Release();
+    }
+
+    /**
+     * \brief Draws this DrawableObject to currently used buffer in given context.
+     * @param context Device context used for drawing.
+     */
+    virtual void draw(const ContextWrapper& context) const {
+        static constexpr unsigned int BUFF_LEN = 256;
+        wchar_t buff[BUFF_LEN];
+        const wchar_t* prefix = L"Draw ";
+        const wchar_t* objName = getObjectName();
+        const size_t size = wcslen(prefix) + wcslen(objName);
+        assert(size < BUFF_LEN);
+
+        std::swprintf(buff, BUFF_LEN, L"%s%s", prefix, objName);
+        
+        ex::beginEvent(context.perf_, buff);
+        const UINT stride = sizeof(TVertex);
+        const UINT offset = 0;
+        // Set vertex buffer to use for drawing
+        context.immediateContext_->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
+        // Set index buffer of 16 byte unsigned integers to use for drawing
+        context.immediateContext_->IASetIndexBuffer(indexBuffer_, DXGI_FORMAT_R16_UINT, 0);
+        // Set topology - how should we interpret the indices given - to a list of triangles
+        context.immediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        // Draw geometry in vertex buffer using index buffer
+        context.immediateContext_->DrawIndexed(indexCount_, 0, 0);
+        ex::endEvent(context.perf_);
+    }
+
+    /**
+     * \brief Returns layout of vertices for this drawable object. To be used in shader creation.
+     */
+    virtual Layouts::VertexLayout_t getVertexLayout() const = 0;
+
 protected:
     ID3D11Buffer* vertexBuffer_{ nullptr };
     ID3D11Buffer* indexBuffer_{ nullptr };
     UINT indexCount_{ 0 };
+
+    virtual const wchar_t* getObjectName() const = 0;
 
     /**
      * \brief Call method in constructor of inheriting class to initialize this DrawableObject
@@ -78,36 +126,4 @@ protected:
         // Save index count for drawing
         indexCount_ = static_cast<UINT>(indices.size());
     }
-
-public:
-    DrawableObject() = default;
-
-    virtual ~DrawableObject() {
-        if (vertexBuffer_) 
-            vertexBuffer_->Release();
-        if (indexBuffer_) 
-            indexBuffer_->Release();
-    }
-
-    /**
-     * \brief Draws this DrawableObject to currently used buffer in given context.
-     * @param context Device context used for drawing.
-     */
-    virtual void draw(ID3D11DeviceContext* context) const {
-        const UINT stride = sizeof(TVertex);
-        const UINT offset = 0;
-        // Set vertex buffer to use for drawing
-        context->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
-        // Set index buffer of 16 byte unsigned integers to use for drawing
-        context->IASetIndexBuffer(indexBuffer_, DXGI_FORMAT_R16_UINT, 0);
-        // Set topology - how should we interpret the indices given - to a list of triangles
-        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        // Draw geometry in vertex buffer using index buffer
-        context->DrawIndexed(indexCount_, 0, 0);
-    }
-
-    /**
-     * \brief Returns layout of vertices for this drawable object. To be used in shader creation.
-     */
-    virtual Layouts::VertexLayout_t getVertexLayout() const = 0;
 };

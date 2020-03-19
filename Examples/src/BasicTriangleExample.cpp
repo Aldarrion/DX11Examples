@@ -28,7 +28,7 @@ void BasicTriangleExample::render() {
     // Use the simple shader
     shader_->use(context_.immediateContext_);
     // Draw the triangle to backbuffer
-    triangle_->draw(context_.immediateContext_);
+    triangle_->draw(context_);
 
     // Put backbuffer in front
     context_.swapChain_->Present(0, 0);

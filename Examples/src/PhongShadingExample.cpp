@@ -97,7 +97,7 @@ void PhongShadingExample::render() {
 
         // Render the cube
         phongShader_->use(context_.immediateContext_);
-        colorCube_->draw(context_.immediateContext_);
+        colorCube_->draw(context_);
 
         // Render plane
         XMFLOAT4 planePos = XMFLOAT4(0.0, -2.0f, 0.0f, 1.0f);
@@ -106,7 +106,7 @@ void PhongShadingExample::render() {
         cb.NormalMatrix = computeNormalMatrix(cb.World);
 
         phongShader_->updateConstantBuffer(context_.immediateContext_, cb);
-        colorCube_->draw(context_.immediateContext_);
+        colorCube_->draw(context_);
     }
 
     // =================
@@ -128,7 +128,7 @@ void PhongShadingExample::render() {
             solidShader_->updateConstantBuffer(context_.immediateContext_, solidCb);
 
             solidShader_->use(context_.immediateContext_);
-            colorCube_->draw(context_.immediateContext_);
+            colorCube_->draw(context_);
         }
 
         // Render "sun"
@@ -141,7 +141,7 @@ void PhongShadingExample::render() {
         solidShader_->updateConstantBuffer(context_.immediateContext_, solidCb);
 
         solidShader_->use(context_.immediateContext_);
-        colorCube_->draw(context_.immediateContext_);
+        colorCube_->draw(context_);
 
         // Render spotlight
         mLight = XMMatrixTranslationFromVector(XMLoadFloat4(&spotLightPos));
@@ -152,7 +152,7 @@ void PhongShadingExample::render() {
         solidCb.OutputColor = spotLightColor;
         solidShader_->updateConstantBuffer(context_.immediateContext_, solidCb);
 
-        colorCube_->draw(context_.immediateContext_);
+        colorCube_->draw(context_);
     }
 
     infoText_->draw(context_);

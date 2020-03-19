@@ -169,8 +169,7 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     // Feature levels do not match the DX runtime version, 11_0 does not mean DX 11.1
     // for more info see the wiki https://en.wikipedia.org/wiki/Feature_levels_in_Direct3D
     // We currently build shaders in SM 5.0 therefore we require FL at least 11.0
-    D3D_FEATURE_LEVEL featureLevels[] =
-    {
+    D3D_FEATURE_LEVEL featureLevels[] = {
         D3D_FEATURE_LEVEL_11_0
     };
     const UINT numFeatureLevels = ARRAYSIZE(featureLevels);
@@ -381,6 +380,14 @@ HRESULT ContextWrapper::initDevice(const ContextSettings& settings) {
     immediateContext_->RSSetState(rasterizerState);
     rasterizerState->Release();
 
+    if (settings.UseCustomGPUAnnotations) {
+        hr = immediateContext_->QueryInterface(IID_PPV_ARGS(&perf_));
+        if (FAILED(hr)) {
+            ex::log(ex::LogLevel::Error, "Failed to query ID3DUserDefinedAnnotation from immediate context");
+            return hr;
+        }
+    }
+
     return S_OK;
 }
 
@@ -397,6 +404,8 @@ void ContextWrapper::cleanupDevice() {
         immediateContext_->Release();
     if (d3dDevice_) 
         d3dDevice_->Release();
+    if (perf_)
+        perf_->Release();
     #if _DEBUG
         if (debugDevice_) {
             //debugDevice_->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);

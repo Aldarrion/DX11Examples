@@ -29,4 +29,7 @@ protected:
     void clearViews() const;
 
     void showMouse();
+
+    void beginEvent(LPCWSTR name) const;
+    void endEvent() const;
 };

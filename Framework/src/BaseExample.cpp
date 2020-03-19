@@ -107,6 +107,14 @@ void BaseExample::showMouse() {
     mouse_->SetMode(Mouse::MODE_ABSOLUTE);
 }
 
+void BaseExample::beginEvent(LPCWSTR name) const {
+    ex::beginEvent(context_.perf_, name);
+}
+
+void BaseExample::endEvent() const {
+    ex::endEvent(context_.perf_);
+}
+
 BaseExample::BaseExample() 
     : camera_(XMFLOAT3(0.0f, 0.0f, -10.0f)) {
 }

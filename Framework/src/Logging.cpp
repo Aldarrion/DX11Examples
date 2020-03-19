@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define COM_NO_WINDOWS_H
+#include <d3d11_1.h>
+
 #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
 
-#ifdef ERROR
-    #undef ERROR
-#endif
 
 namespace ex {
 void log(LogLevel level, const char* formatString, ...) {
@@ -45,4 +45,17 @@ void log(LogLevel level, const char* formatString, ...) {
 
     OutputDebugStringA(buffer);
 }
+
+void beginEvent(ID3DUserDefinedAnnotation* perf, const wchar_t* name) {
+    if (perf) {
+        perf->BeginEvent(name);
+    }
+}
+
+void endEvent(ID3DUserDefinedAnnotation* perf) {
+    if (perf) {
+        perf->EndEvent();
+    }
+}
+
 }

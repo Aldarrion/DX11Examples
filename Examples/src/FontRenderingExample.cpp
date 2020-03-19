@@ -35,9 +35,9 @@ void FontRenderingExample::render() {
 
     float aspectRatio = context_.getAspectRatio();
 
-    fpsText_->draw(context_.immediateContext_, aspectRatio);
-    text_->draw(context_.immediateContext_, aspectRatio);
-    multilineText_->draw(context_.immediateContext_, aspectRatio);
+    fpsText_->draw(context_, aspectRatio);
+    text_->draw(context_, aspectRatio);
+    multilineText_->draw(context_, aspectRatio);
 
     context_.swapChain_->Present(0, 0);
 }

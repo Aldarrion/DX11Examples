@@ -160,7 +160,7 @@ void BillboardExample::render() {
         diffuseSampler_->use(context_.immediateContext_, 0);
         textureShader_->updateConstantBuffer(context_.immediateContext_, cb);
         textureShader_->use(context_.immediateContext_);
-        plane_->draw(context_.immediateContext_);
+        plane_->draw(context_);
     }
 
     // Instanced rendering breaks out of this loop

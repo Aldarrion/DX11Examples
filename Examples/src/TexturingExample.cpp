@@ -107,7 +107,7 @@ void TexturingExample::render() {
     texturedPhong_->use(context_.immediateContext_);
     context_.immediateContext_->PSSetShaderResources(0, 1, &boxTexture_);
     context_.immediateContext_->PSSetSamplers(0, 1, &textureSampler_);
-    texturedCube_->draw(context_.immediateContext_);
+    texturedCube_->draw(context_);
 
     // ==========
     // Draw floor
@@ -120,7 +120,7 @@ void TexturingExample::render() {
     texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
     context_.immediateContext_->PSSetShaderResources(0, 1, &seaFloorTexture_);
     context_.immediateContext_->PSSetSamplers(0, 1, &textureSampler_);
-    texturedPlane_->draw(context_.immediateContext_);
+    texturedPlane_->draw(context_);
 
     // Draw sun
     ConstantBuffers::SolidConstBuffer scb;
@@ -132,7 +132,7 @@ void TexturingExample::render() {
 
     solidShader_->updateConstantBuffer(context_.immediateContext_, scb);
     solidShader_->use(context_.immediateContext_);
-    colorCube_->draw(context_.immediateContext_);
+    colorCube_->draw(context_);
 
     context_.swapChain_->Present(0, 0);
 }

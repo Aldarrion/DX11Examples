@@ -19,7 +19,10 @@ ContextSettings DeferredRenderingExample::getSettings() const {
     // and we would have to take care to always use the same multisampling 
     // settings for render/depth buffers which are used together
     settings.MultisampleCount = 1;
-    
+
+    // This example is annotated for easier viewing in frame debuggers such as RenderDoc
+    settings.UseCustomGPUAnnotations = true;
+
     return settings;
 }
 
@@ -234,6 +237,7 @@ void DeferredRenderingExample::drawText() const {
 }
 
 void DeferredRenderingExample::renderLights() const {
+    beginEvent(L"Light cubes");
     const XMMATRIX lightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
     ConstantBuffers::SolidConstBuffer solidCb;
     solidCb.View = XMMatrixTranspose(camera_.getViewMatrix());
@@ -243,8 +247,9 @@ void DeferredRenderingExample::renderLights() const {
         solidCb.OutputColor = light.Color;
         solidCb.World = XMMatrixTranspose(lightScale * XMMatrixTranslationFromVector(XMLoadFloat4(&light.Position)));
         lightShader_->updateConstantBuffer(context_.immediateContext_, solidCb);
-        colorCube_->draw(context_.immediateContext_);
+        colorCube_->draw(context_);
     }
+    endEvent();
 }
 
 void DeferredRenderingExample::drawGBufferDisplays() const {
@@ -256,6 +261,7 @@ void DeferredRenderingExample::drawGBufferDisplays() const {
     
     const float mapDisplaySize = 0.2f;
 
+    beginEvent(L"GBuffer displays");
     for (size_t i = 0; i < gBufferViews.size(); ++i) {
         Transform shadowMapDisplayTransform(
             XMFLOAT3(1 - mapDisplaySize, -1 + mapDisplaySize * (i * 2 + 1), 0),
@@ -269,12 +275,13 @@ void DeferredRenderingExample::drawGBufferDisplays() const {
         gBufferDisplayShader_->updateConstantBuffer(context_.immediateContext_, gbdcb);
         context_.immediateContext_->PSSetShaderResources(0, 1, &gBufferViews[i]);
         pointSampler_->use(context_.immediateContext_, 0);
-        quad_->draw(context_.immediateContext_);
+        quad_->draw(context_);
     }
 
     // Unbind from PS so the driver does not have to force it when binding textures as RTs
     static ID3D11ShaderResourceView* nullViews[] = { nullptr, nullptr, nullptr };
     context_.immediateContext_->PSSetShaderResources(0, 3, nullViews);
+    endEvent();
 }
 
 void DeferredRenderingExample::renderDeferred() {
@@ -287,6 +294,8 @@ void DeferredRenderingExample::renderDeferred() {
         gAlbedoRTV_.Get()
     };
     
+    beginEvent(L"GBuffer pass");
+
     // Set multiple rendering targets
     context_.immediateContext_->OMSetRenderTargets(static_cast<UINT>(views.size()), views.data(), depthBufferDSV_.Get());
     for (auto& view : views) {
@@ -304,10 +313,12 @@ void DeferredRenderingExample::renderDeferred() {
         gscb.World = XMMatrixTranspose(transform.generateModelMatrix());
         gscb.NormalMatrix = XMMatrixTranspose(computeNormalMatrix(gscb.World));
         gShader_->updateConstantBuffer(context_.immediateContext_, gscb);
-        model_->draw(context_.immediateContext_);
+        model_->draw(context_);
     }
 
+    endEvent();
 
+    beginEvent(L"Deferred Quad");
     // =================
     // Render final quad
     // =================
@@ -329,8 +340,9 @@ void DeferredRenderingExample::renderDeferred() {
     anisoSampler_->use(context_.immediateContext_, 0);
     pointSampler_->use(context_.immediateContext_, 1);
 
-    quad_->draw(context_.immediateContext_);
-
+    quad_->draw(context_);
+    
+    endEvent();
 
     // ====================================================
     // Forward pass to render the cubes representing lights
@@ -347,6 +359,7 @@ void DeferredRenderingExample::renderDeferred() {
 }
 
 void DeferredRenderingExample::renderForward() {
+    beginEvent(L"Forward pass");
     context_.immediateContext_->OMSetRenderTargets(1, &context_.renderTargetView_, context_.depthStencilView_);
     context_.immediateContext_->ClearRenderTargetView(context_.renderTargetView_, Colors::Black);
     context_.immediateContext_->ClearDepthStencilView(context_.depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -363,8 +376,9 @@ void DeferredRenderingExample::renderForward() {
         cb.World = XMMatrixTranspose(transform.generateModelMatrix());
         cb.NormalMatrix = XMMatrixTranspose(computeNormalMatrix(cb.World));
         forwardShader_->updateConstantBuffer(context_.immediateContext_, cb);
-        model_->draw(context_.immediateContext_);
+        model_->draw(context_);
     }
+    endEvent();
 
     renderLights();
 

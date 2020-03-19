@@ -61,7 +61,7 @@ void GammaCorrectionExample::render() {
     shader_->use(context_.immediateContext_);
     shader_->updateConstantBuffer(context_.immediateContext_, cb);
 
-    quad_->draw(context_.immediateContext_);
+    quad_->draw(context_);
 
     caption_->draw(context_);
 

@@ -66,5 +66,9 @@ public:
     Layouts::VertexLayout_t getVertexLayout() const override {
         return Layouts::TEXTURED_LAYOUT;
     }
+
+    const wchar_t* getObjectName() const override {
+        return L"Textured Cube";
+    }
 };
 

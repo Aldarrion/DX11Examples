@@ -5,6 +5,7 @@
 
 struct ContextSettings {
     int MultisampleCount{ 8 };
+    bool UseCustomGPUAnnotations{ false };
 };
 
 struct ContextWrapper {
@@ -17,6 +18,7 @@ struct ContextWrapper {
     IDXGISwapChain*             swapChain_ = nullptr;
     ID3D11RenderTargetView*     renderTargetView_ = nullptr;
     ID3D11DepthStencilView*     depthStencilView_ = nullptr;
+    ID3DUserDefinedAnnotation*  perf_ = nullptr;
 
     #if _DEBUG
         ID3D11Debug* debugDevice_;

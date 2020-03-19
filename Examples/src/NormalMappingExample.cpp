@@ -97,7 +97,7 @@ void NormalMappingExample::render() {
             cb.NormalMatrix = computeNormalMatrix(cb.World);
             normalMapShader_->updateConstantBuffer(context_.immediateContext_, cb);
             //cube_->draw(context_.immediateContext_);
-            plane_->draw(context_.immediateContext_);
+            plane_->draw(context_);
         }
     }
 
@@ -113,7 +113,7 @@ void NormalMappingExample::render() {
             cb.OutputColor = lightColor;
             solidShader_->updateConstantBuffer(context_.immediateContext_, cb);
 
-            cube_->draw(context_.immediateContext_);
+            cube_->draw(context_);
         }
     }
 

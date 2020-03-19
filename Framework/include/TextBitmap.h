@@ -38,7 +38,7 @@ public:
     float getAbsoluteWidth() const;
     float getAbsoluteHeight() const;
 
-    void draw(ID3D11DeviceContext* context, const float aspectRatio);
+    void draw(const ContextWrapper& context, const float aspectRatio);
 };
 
 std::unique_ptr<TextBitmap> makeText(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& text);

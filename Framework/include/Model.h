@@ -11,6 +11,19 @@
 namespace Models {
 
 class Model {
+public:
+    Model(const ContextWrapper& context, const std::string& path) {
+        loadModel(context, path);
+    }
+
+    void draw(const ContextWrapper& context) const {
+        ex::beginEvent(context.perf_, L"Draw Model");
+        for(const auto& mesh : meshes_) {
+            mesh.draw(context.immediateContext_);
+        }
+        ex::endEvent(context.perf_);
+    }
+
 private:
     std::vector<Mesh> meshes_;
     std::string directory_;
@@ -142,17 +155,6 @@ private:
         directory_ = path.substr(0, path.find_last_of('/'));
 
         processNode(context, scene->mRootNode, scene);
-    }
-
-public:
-    Model(const ContextWrapper& context, const std::string& path) {
-        loadModel(context, path);
-    }
-
-    void draw(ID3D11DeviceContext* context) const {
-        for(const auto& mesh : meshes_) {
-            mesh.draw(context);
-        }
     }
 };
 }

@@ -168,13 +168,13 @@ void ShadowsExample::render() {
         for (const auto& transform : cubes) {
             cb.World = XMMatrixTranspose(transform.generateModelMatrix());
             shadowShader_->updateConstantBuffer(context_.immediateContext_, cb);
-            texturedCube_->draw(context_.immediateContext_);
+            texturedCube_->draw(context_);
         }
         // Draw floor
         cb.World = XMMatrixTranspose(planeTransform.generateModelMatrix());
 
         shadowShader_->updateConstantBuffer(context_.immediateContext_, cb);
-        plane_->draw(context_.immediateContext_);
+        plane_->draw(context_);
     }
 
     // ==============
@@ -202,7 +202,7 @@ void ShadowsExample::render() {
         shadowMapDisplayShader_->updateConstantBuffer(context_.immediateContext_, sdcb);
         context_.immediateContext_->PSSetShaderResources(0, 1, &shadowShaderResourceView_);
         pointSampler_->use(context_.immediateContext_, 0);
-        shadowMapDisplay_->draw(context_.immediateContext_);
+        shadowMapDisplay_->draw(context_);
 
         // =========
         // Draw cube
@@ -233,7 +233,7 @@ void ShadowsExample::render() {
             cb.World = XMMatrixTranspose(transform.generateModelMatrix());
             cb.NormalMatrix = computeNormalMatrix(cb.World);
             texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
-            texturedCube_->draw(context_.immediateContext_);
+            texturedCube_->draw(context_);
         }
 
         // ==========
@@ -244,7 +244,7 @@ void ShadowsExample::render() {
 
         seaFloorTexture_->use(context_.immediateContext_, 0);
         texturedPhong_->updateConstantBuffer(context_.immediateContext_, cb);
-        plane_->draw(context_.immediateContext_);
+        plane_->draw(context_);
 
         // ========
         // Draw sun
@@ -258,7 +258,7 @@ void ShadowsExample::render() {
 
         solidShader_->updateConstantBuffer(context_.immediateContext_, scb);
         solidShader_->use(context_.immediateContext_);
-        colorCube_->draw(context_.immediateContext_);
+        colorCube_->draw(context_);
 
         infoText_->draw(context_);
 

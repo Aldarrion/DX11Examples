@@ -40,15 +40,15 @@ float TextBitmap::getAbsoluteHeight() const {
     return font_.getHeightSizeScale() * sizeMultiplier_;
 }
 
-void TextBitmap::draw(ID3D11DeviceContext* context, const float aspectRatio) {
+void TextBitmap::draw(const ContextWrapper& context, const float aspectRatio) {
     using namespace DirectX;
     XMMATRIX aspectCorrection = XMMatrixScalingFromVector(XMVectorSet(1, aspectRatio, 1, 0));
     aspectCorrection = aspectCorrection * XMMatrixScalingFromVector(XMVectorSet(1, 1 / font_.getFontAspectRatio(), 1, 0));
 
     const float finalSizeScale = getAbsoluteWidth();
 
-    font_.use(context);
-    fontShader_.use(context);
+    font_.use(context.immediateContext_);
+    fontShader_.use(context.immediateContext_);
 
     int column = 0;
     int row = 0;
@@ -76,7 +76,7 @@ void TextBitmap::draw(ID3D11DeviceContext* context, const float aspectRatio) {
         cb.UVWH = font_.getUVWH(i);
         cb.TextColor = textColor_;
 
-        fontShader_.updateConstantBuffer(context, cb);
+        fontShader_.updateConstantBuffer(context.immediateContext_, cb);
 
         quad_.draw(context);
 

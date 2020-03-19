@@ -133,7 +133,7 @@ void AlphaToCoverageExample::render() {
 
     shader_->use(context_.immediateContext_);
     texture_->use(context_.immediateContext_, 0);
-    quad_->draw(context_.immediateContext_);
+    quad_->draw(context_);
     
     text_->draw(context_);
 

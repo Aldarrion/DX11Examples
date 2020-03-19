@@ -24,4 +24,8 @@ public:
     Layouts::VertexLayout_t getVertexLayout() const override {
         return Layouts::POS_LAYOUT;
     }
+
+    const wchar_t* getObjectName() const override {
+        return L"Triangle";
+    }
 };

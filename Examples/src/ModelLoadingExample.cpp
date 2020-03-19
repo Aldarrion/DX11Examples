@@ -52,7 +52,7 @@ void ModelLoadingExample::render() {
     sampler_->use(context_.immediateContext_, 0);
     shader_->updateConstantBuffer(context_.immediateContext_, cb);
     shader_->use(context_.immediateContext_);
-    model_->draw(context_.immediateContext_);
+    model_->draw(context_);
 
     context_.swapChain_->Present(0, 0);
 }
