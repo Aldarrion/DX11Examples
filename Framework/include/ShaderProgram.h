@@ -14,6 +14,52 @@ namespace Shaders {
 
 extern bool isLastCompileOK;
 
+inline HRESULT CompileShaderFromFile(const char* fileName, const char* entryPoint, const char* shaderModel, ID3DBlob** ppBlobOut) {
+    HRESULT hr = S_OK;
+
+    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+    #ifdef _DEBUG
+        // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
+        // Setting this flag improves the shader debugging experience, but still allows 
+        // the shaders to be optimized and to run exactly the way they will run in 
+        // the release configuration of this program.
+        dwShaderFlags |= D3DCOMPILE_DEBUG;
+
+        // Disable optimizations to further improve shader debugging
+        dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+    #else
+        // We have pretty small shaders - O3 should not take too long
+        dwShaderFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+    #endif
+
+    ex::log(ex::LogLevel::Info, "Compiling: %s | %s", fileName, entryPoint);
+        
+    auto fileNameLen = strlen(fileName);
+    std::wstring wFileName(fileNameLen, L'x');
+    auto convertedLen = mbstowcs(&wFileName[0], fileName, fileNameLen);
+    assert(convertedLen >= 0 && "Error while converting string to wstring");
+
+    ID3DBlob* pErrorBlob = nullptr;
+    hr = D3DCompileFromFile(wFileName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entryPoint, shaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+        
+    if (FAILED(hr)) {
+        if (pErrorBlob) {
+            ex::log(ex::LogLevel::Error, "Shader compile: ");
+            ex::log(ex::LogLevel::Error, "%s", reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+            pErrorBlob->Release();
+        }
+        Shaders::isLastCompileOK = false;
+        return hr;
+    }
+    if (pErrorBlob) {
+        pErrorBlob->Release();
+    }
+
+    Shaders::isLastCompileOK = true;
+    ex::log(ex::LogLevel::Info, "Success!");
+    return S_OK;
+}
+
 }
 
 template<typename ... TCBuffers>
@@ -31,8 +77,7 @@ class ShaderProgram : public ResourceHolder {
     struct InitCb {
         static void initCb(ID3D11Device* device, buffer_array_t& arr) {
             // Create constantBuffer
-            D3D11_BUFFER_DESC bufferDesc;
-            ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+            D3D11_BUFFER_DESC bufferDesc{};
             bufferDesc.Usage = D3D11_USAGE_DEFAULT;
             bufferDesc.ByteWidth = sizeof(typename std::tuple_element<N, types>::type);
             bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -68,7 +113,7 @@ public:
         // Compile vertex shader
         ID3DBlob* VSBlob = nullptr;
 
-        auto hr = CompileShaderFromFile(vertexPath, vertexStart, "vs_5_0", &VSBlob);
+        auto hr = Shaders::CompileShaderFromFile(vertexPath, vertexStart, "vs_5_0", &VSBlob);
         if (FAILED(hr)) {
             //MessageBox(nullptr, L"The FX file cannot be compiled (VS). See errors in console.", L"Error", MB_OK);
             return;
@@ -90,7 +135,7 @@ public:
 
         // Compile pixel shader
         ID3DBlob* PSBlob = nullptr;
-        hr = CompileShaderFromFile(pixelPath, pixelStart, "ps_5_0", &PSBlob);
+        hr = Shaders::CompileShaderFromFile(pixelPath, pixelStart, "ps_5_0", &PSBlob);
         if (FAILED(hr)) {
             //MessageBox(nullptr, L"The FX file cannot be compiled (PS). See errors in console.", L"Error", MB_OK);
             return;
@@ -107,7 +152,7 @@ public:
         // Geometry shader
         if (geomPath != nullptr && geomStart != nullptr) {
             ID3DBlob* GSBlob = nullptr;
-            hr = CompileShaderFromFile(geomPath, geomStart, "gs_5_0", &GSBlob);
+            hr = Shaders::CompileShaderFromFile(geomPath, geomStart, "gs_5_0", &GSBlob);
             if (FAILED(hr)) {
                 //MessageBox(nullptr, L"The FX file cannot be compiled (GS). See errors in console.", L"Error", MB_OK);
                 return;
@@ -120,17 +165,6 @@ public:
                 { 2, "TEXCOORD1", 0, 0, 2, 0 },     // output the first 2 texture coordinates
             };
 
-            /*hr = device->CreateGeometryShaderWithStreamOutput(
-            GSBlob->GetBufferPointer(),
-            GSBlob->GetBufferSize(),
-            decl,
-            sizeof(decl),
-            nullptr,
-            0,
-            0,
-            nullptr,
-            &geometryShader_
-            );*/
             hr = device->CreateGeometryShader(
                 GSBlob->GetBufferPointer(),
                 GSBlob->GetBufferSize(),
@@ -222,49 +256,83 @@ public:
         context->UpdateSubresource(buffer, 0, nullptr, &newBuffer, 0, 0);
     }
 
-private:
-    static HRESULT CompileShaderFromFile(const char* fileName, const char* entryPoint, const char* shaderModel, ID3DBlob** ppBlobOut) {
-        HRESULT hr = S_OK;
+};
 
-        DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-        #ifdef _DEBUG
-            // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-            // Setting this flag improves the shader debugging experience, but still allows 
-            // the shaders to be optimized and to run exactly the way they will run in 
-            // the release configuration of this program.
-            dwShaderFlags |= D3DCOMPILE_DEBUG;
+enum class Stage {
+    VS,
+    GS,
+    PS,
+    CS,
+};
 
-            // Disable optimizations to further improve shader debugging
-            dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-        #endif
-
-        ex::log(ex::LogLevel::Info, "Compiling: %s | %s", fileName, entryPoint);
-        
-        auto fileNameLen = strlen(fileName);
-        std::wstring wFileName(fileNameLen, L'x');
-        auto convertedLen = mbstowcs(&wFileName[0], fileName, fileNameLen);
-        assert(convertedLen >= 0 && "Error while converting string to wstring");
-
-        ID3DBlob* pErrorBlob = nullptr;
-        hr = D3DCompileFromFile(wFileName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entryPoint, shaderModel, dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
-        
+template<typename TBuff>
+class ConstBuffer {
+public:
+    ConstBuffer(ID3D11Device* device) {
+        D3D11_BUFFER_DESC bufferDesc{};
+        bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        bufferDesc.ByteWidth = sizeof(TBuff);
+        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bufferDesc.CPUAccessFlags = 0;
+        auto hr = device->CreateBuffer(&bufferDesc, nullptr, &cbuffer_);
         if (FAILED(hr)) {
-            if (pErrorBlob) {
-                ex::log(ex::LogLevel::Error, "Shader compile: ");
-                ex::log(ex::LogLevel::Error, "%s", reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
-                pErrorBlob->Release();
-            }
-            Shaders::isLastCompileOK = false;
-            return hr;
-        }
-        if (pErrorBlob) {
-            pErrorBlob->Release();
+            assert(!"Failed to create constant buffer");
+            return;
         }
 
-        Shaders::isLastCompileOK = true;
-        ex::log(ex::LogLevel::Info, "Success!");
-        return S_OK;
     }
+
+    ~ConstBuffer() {
+        if (cbuffer_)
+            cbuffer_->Release();
+    }
+
+    void update(ID3D11DeviceContext* context, const TBuff& data) {
+        context->UpdateSubresource(cbuffer_, 0, nullptr, &data, 0, 0);
+    }
+
+    template<Stage stage>
+    void use(ID3D11DeviceContext* context, int slot) const {
+        if (stage == Stage::VS) {
+            context->VSSetConstantBuffers(slot, 1, &cbuffer_);
+        } else if (stage == Stage::GS) {
+            context->GSSetConstantBuffers(slot, 1, &cbuffer_);
+        } else if (stage == Stage::PS) {
+            context->PSSetConstantBuffers(slot, 1, &cbuffer_);
+        } else if (stage == Stage::CS) {
+            context->CSSetConstantBuffers(slot, 1, &cbuffer_);
+        }
+    }
+
+private:
+    ID3D11Buffer* cbuffer_{};
+};
+
+class ComputeShader {
+public:
+    ComputeShader(ID3D11Device* device, const char* path, const char* start) {
+        ID3DBlob* result;
+        if (FAILED(Shaders::CompileShaderFromFile(path, start, "cs_5_0", &result))) {
+            return;
+        }
+
+        device->CreateComputeShader(result->GetBufferPointer(), result->GetBufferSize(), nullptr, &shader_);
+        result->Release();
+    }
+
+    ~ComputeShader() {
+        if (shader_)
+            shader_->Release();
+    }
+
+    void use(ID3D11DeviceContext* context) {
+        if (shader_) {
+            context->CSSetShader(shader_, nullptr, 0);
+        }
+    }
+
+private:
+    ID3D11ComputeShader* shader_{};
 };
 
 namespace Shaders {
@@ -298,4 +366,10 @@ namespace Shaders {
     inline bool makeSolidShader(PSolidShader& oldShader, const ContextWrapper& context) {
         return makeShader<SolidShader>(oldShader, context.d3dDevice_, "shaders/Solid.fx", "VS", "shaders/Solid.fx", "PSSolid", Layouts::POS_NORM_COL_LAYOUT);
     }
+
+    struct TexturedQuadCB {
+        DirectX::XMMATRIX World;
+    };
+    using TexturedQuad = ShaderProgram<TexturedQuadCB>;
+    using PTexturedQuad = std::unique_ptr<TexturedQuad>;
 }

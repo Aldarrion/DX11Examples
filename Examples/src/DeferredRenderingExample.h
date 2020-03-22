@@ -45,10 +45,6 @@ struct ForwardCB {
     DirectX::XMFLOAT3 ViewPos;
 };
 
-struct GBufferDisplayCB {
-    DirectX::XMMATRIX World;
-};
-
 class DeferredRenderingExample : public BaseExample {
 protected:
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthBufferDSV_;
@@ -80,10 +76,7 @@ protected:
     PForwardShader forwardShader_;
     Shaders::PSolidShader lightShader_;
 
-    using GBufferDisplayShader = ShaderProgram<GBufferDisplayCB>;
-    using PGBufferDisplayShader = std::unique_ptr<GBufferDisplayShader>;
-
-    PGBufferDisplayShader gBufferDisplayShader_;
+    Shaders::PTexturedQuad gBufferDisplayShader_;
 
     std::unique_ptr<ColorCube> colorCube_;
     std::unique_ptr<Models::Model> model_;

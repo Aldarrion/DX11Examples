@@ -261,7 +261,7 @@ HRESULT SSAO::SSAOExample::setup() {
 bool SSAO::SSAOExample::reloadShadersInternal() {
     return
         Shaders::makeShader<GShader>(gShader_, context_.d3dDevice_, "shaders/SSAO_GBuffer.fx", "VS", "shaders/SSAO_GBuffer.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
-        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, "shaders/GBufferQuadShader.fx", "VS", "shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT)
+        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, "shaders/TexturedQuad.fx", "VS", "shaders/TexturedQuad.fx", "PS", Layouts::POS_UV_LAYOUT)
         && Shaders::makeShader<SSAOShader>(ssaoShader_, context_.d3dDevice_, "shaders/SSAO.fx", "VS", "shaders/SSAO.fx", "PS", Layouts::POS_UV_LAYOUT)
         && Shaders::makeShader<SSAOBlurShader>(ssaoBlurShader_, context_.d3dDevice_, "shaders/SSAO_Blur.fx", "VS", "shaders/SSAO_Blur.fx", "PS", Layouts::POS_UV_LAYOUT)
         && Shaders::makeShader<SSAOLightShader>(ssaoLightShader_, context_.d3dDevice_, "shaders/SSAO_Light.fx", "VS", "shaders/SSAO_Light.fx", "PS", Layouts::POS_UV_LAYOUT);

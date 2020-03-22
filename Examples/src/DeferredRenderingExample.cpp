@@ -204,7 +204,7 @@ bool DeferredRenderingExample::reloadShadersInternal() {
         && Shaders::makeShader<DefferedShader>(defferedLightShader_, context_.d3dDevice_, "shaders/DeferredShader.fx", "VS", "shaders/DeferredShader.fx", "PS", Layouts::POS_UV_LAYOUT)
         && Shaders::makeShader<ForwardShader>(forwardShader_, context_.d3dDevice_, "shaders/ForwardShader.fx", "VS", "shaders/ForwardShader.fx", "PS", Layouts::POS_NORM_UV_LAYOUT)
         && Shaders::makeSolidShader(lightShader_, context_)
-        && Shaders::makeShader<GBufferDisplayShader>(gBufferDisplayShader_, context_.d3dDevice_, "shaders/GBufferQuadShader.fx", "VS", "shaders/GBufferQuadShader.fx", "PS", Layouts::POS_UV_LAYOUT);
+        && Shaders::makeShader<Shaders::TexturedQuad>(gBufferDisplayShader_, context_.d3dDevice_, "shaders/TexturedQuad.fx", "VS", "shaders/TexturedQuad.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 void DeferredRenderingExample::handleInput() {
@@ -268,7 +268,7 @@ void DeferredRenderingExample::drawGBufferDisplays() const {
             XMFLOAT3(0, 0, 0),
             XMFLOAT3(mapDisplaySize, mapDisplaySize, mapDisplaySize)
         );
-        GBufferDisplayCB gbdcb;
+        Shaders::TexturedQuadCB gbdcb;
         gbdcb.World = XMMatrixTranspose(shadowMapDisplayTransform.generateModelMatrix());
 
         gBufferDisplayShader_->use(context_.immediateContext_);
