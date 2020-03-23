@@ -2,6 +2,9 @@
 #include "ShaderProgram.h"
 #include "Quad.h"
 #include "PointWrapSampler.h"
+#include "LinearSampler.h"
+#include "WinKeyMap.h"
+#include "TextSDF.h"
 
 #include <memory>
 #include <wrl/client.h>
@@ -23,8 +26,22 @@ struct HistDisplCB {
 
 class HistogramExample : public BaseExample {
 public:
+    enum HistogramMode {
+        HM_RED = 1,
+        HM_GREEN = 2,
+        HM_BLUE = 4,
+        HM_ALL = (HM_RED | HM_GREEN | HM_BLUE)
+    };
 
 protected:
+    static constexpr int HIST_MODE_COUNT = 4;
+    static constexpr HistogramMode HIST_MODES[HIST_MODE_COUNT] = {
+        HM_ALL,
+        HM_RED,
+        HM_GREEN,
+        HM_BLUE
+    };
+
     using ConstBuffHistData = ConstBuffer<HistDataCB>;
     using ConstBuffHistDispl = ConstBuffer<HistDisplCB>;
 
@@ -42,12 +59,22 @@ protected:
     ComPtr<ID3D11UnorderedAccessView> histDisplUAV_[FRAMES_IN_FLIGHT];
     ComPtr<ID3D11ShaderResourceView> histDisplSRV_[FRAMES_IN_FLIGHT];
 
-    Shaders::PTexturedQuad histDisplayShader_;
+    Shaders::PTexturedQuad texturedQuadShader_;
     std::unique_ptr<ConstBuffHistDispl> histDisplCB_;
 
     std::unique_ptr<Quad> quad_;
     std::unique_ptr<PointWrapSampler> pointSampler_;
+    std::unique_ptr<LinearSampler> linearSampler_;
 
+    int histModeIdx_{ 0 };
+    WinKeyMap::WinKeyMap prevHistMode_ = WinKeyMap::Q;
+    WinKeyMap::WinKeyMap nextHistMode_ = WinKeyMap::E;
+
+    Text::FontSDF font_;
+    std::unique_ptr<Text::TextSDF> infoText_;
+
+    void updateText();
+    DirectX::Mouse::Mode getInitialMouseMode() override;
     HRESULT setup() override;
     bool reloadShadersInternal() override;
     void handleInput() override;

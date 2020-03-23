@@ -31,8 +31,9 @@ void main(uint3 threadID : SV_DispatchThreadID) {
     // UAVs are accessable for reading/writing from multiple threads if the threads
     // write to different places. Here, however, we need to read a value and add one to it
     // but some other thread may do the same thing at the same time -> we must use atomic increment.
-    InterlockedAdd(histogram[pixelQuantized.r].r, 1);
-    InterlockedAdd(histogram[pixelQuantized.g].g, 1);
-    InterlockedAdd(histogram[pixelQuantized.b].b, 1);
-    InterlockedAdd(histogram[pixelQuantized.a].a, 1);
+    [unroll]
+    for (int i = 0; i < 4; ++i) {
+        InterlockedAdd(histogram[pixelQuantized[i]][i], 1);
+        InterlockedMax(histogram[256][i], histogram[pixelQuantized[i]][i]);
+    }
 }

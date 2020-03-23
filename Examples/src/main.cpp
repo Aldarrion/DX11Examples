@@ -18,6 +18,13 @@
 #include "SignedDistanceFieldFontExample.h"
 #include "HistogramExample.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#pragma warning(disable: 4505)
+#include "stb/stb_image.h"
+#pragma warning(pop)
+
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
     std::unique_ptr<Example> example;
 

@@ -1,8 +1,8 @@
 #include "HistogramExample.h"
-
 #include "Transform.h"
-
 #include "DDSTextureLoader.h"
+
+#include "stb/stb_image.h"
 
 #include <directxcolors.h>
 
@@ -10,10 +10,34 @@ using namespace DirectX;
 
 namespace Compute {
 
-constexpr int HISTOGRAM_LEVELS  = 256; // color levels
+constexpr int HISTOGRAM_LEVELS  = 256 + 1; // color levels + 1 to store max values
 
 int HIST_DISPL_WIDTH = 512;
 int HIST_DISPL_HEIGHT = 256;
+
+std::string to_string(const HistogramExample::HistogramMode mode) {
+    switch (mode) {
+        case HistogramExample::HM_RED: return "Red";
+        case HistogramExample::HM_GREEN: return "Green";
+        case HistogramExample::HM_BLUE: return "Blue";
+        case HistogramExample::HM_ALL: return "All";
+        default: return "INVALID_VALUE";
+    }
+}
+
+void HistogramExample::updateText() {
+    using std::to_string;
+    infoText_->setText(
+        "\n " + to_string(prevHistMode_) + ": previous histogram mode"
+        + "\n " + to_string(nextHistMode_) + ": next histogram mode"
+        + "\n " "Current mode: " + to_string(HIST_MODES[histModeIdx_])
+        + "\n The modes are magnified for beter demonstraion (not comparable)"
+    );
+}
+
+DirectX::Mouse::Mode HistogramExample::getInitialMouseMode() {
+    return Mouse::MODE_ABSOLUTE;
+}
 
 HRESULT HistogramExample::setup() {
     auto hr = BaseExample::setup();
@@ -50,13 +74,63 @@ HRESULT HistogramExample::setup() {
     srvDesc.Texture1D.MostDetailedMip   = 0;
     #endif
 
+    Text::makeDefaultSDFFont(context_, font_);
+    infoText_ = std::make_unique<Text::TextSDF>("", &font_);
+    infoText_->setColor(XMFLOAT4(0, 0, 0, 1));
+    updateText();
+
     pointSampler_ = std::make_unique<PointWrapSampler>(context_.d3dDevice_);
+    linearSampler_ = std::make_unique<LinearSampler>(context_.d3dDevice_);
     quad_ = std::make_unique<Quad>(context_.d3dDevice_);
 
-    hr = CreateDDSTextureFromFile(context_.d3dDevice_, L"textures/seafloor.dds", true, reinterpret_cast<ID3D11Resource**>(srcTexture_.GetAddressOf()), srcTextureSRV_.GetAddressOf());
-    if (FAILED(hr))
-        return hr;
+    // Load source texture to compute the histogram of
+    {
+        int x, y, n;
+        unsigned char *data = stbi_load("textures/clouds-daylight-forest-grass-371589.jpg", &x, &y, &n, 4);
 
+        if (!data)
+            return S_FALSE;
+
+        D3D11_SUBRESOURCE_DATA subResourceData{};
+        subResourceData.pSysMem = data;
+        subResourceData.SysMemPitch = x * 4;
+
+        D3D11_TEXTURE2D_DESC texDesc{};
+        texDesc.Width = x;
+        texDesc.Height = y;
+        texDesc.MipLevels = 1;
+        texDesc.ArraySize = 1;
+        texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        texDesc.SampleDesc.Count = 1;
+        texDesc.SampleDesc.Quality = 0;
+        texDesc.Usage = D3D11_USAGE_DEFAULT;
+        texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        texDesc.CPUAccessFlags = 0;
+        texDesc.MiscFlags = 0;
+
+        hr = context_.d3dDevice_->CreateTexture2D(&texDesc, &subResourceData, srcTexture_.GetAddressOf());
+        if (FAILED(hr)) {
+            stbi_image_free(data);
+            return hr;
+        }
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+        srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+
+        hr = context_.d3dDevice_->CreateShaderResourceView(srcTexture_.Get(), &srvDesc, srcTextureSRV_.GetAddressOf());
+        if (FAILED(hr)) {
+            stbi_image_free(data);
+            return hr;
+        }
+
+        stbi_image_free(data);
+    }
+
+
+    // Create the histogram computation resources
     histDataCB_ = std::make_unique<ConstBuffHistData>(context_.d3dDevice_);
     histDisplCB_ = std::make_unique<ConstBuffHistDispl>(context_.d3dDevice_);
 
@@ -64,7 +138,7 @@ HRESULT HistogramExample::setup() {
     {
         constexpr int HISTOGRAM_BPP     = 16; // bytes per pixel
         D3D11_BUFFER_DESC buffDesc{};
-        buffDesc.ByteWidth              = HISTOGRAM_LEVELS * HISTOGRAM_BPP; // For 256 color levels
+        buffDesc.ByteWidth              = HISTOGRAM_LEVELS * HISTOGRAM_BPP; // For color levels
         buffDesc.Usage                  = D3D11_USAGE_DEFAULT; // Access will be only from shaders, read and write
         buffDesc.BindFlags              = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
         buffDesc.CPUAccessFlags         = 0;
@@ -159,18 +233,26 @@ bool HistogramExample::reloadShadersInternal() {
         histDisplCS_ = std::move(shader);
     }
 
-    return Shaders::makeShader<Shaders::TexturedQuad>(histDisplayShader_, context_.d3dDevice_, "shaders/TexturedQuad.fx", "VS", "shaders/TexturedQuad.fx", "PS", Layouts::POS_UV_LAYOUT);
+    return Shaders::makeShader<Shaders::TexturedQuad>(texturedQuadShader_, context_.d3dDevice_, "shaders/TexturedQuad.fx", "VS", "shaders/TexturedQuad.fx", "PS", Layouts::POS_UV_LAYOUT);
 }
 
 void HistogramExample::handleInput() {
     BaseExample::handleInput();
+
+    if (GetAsyncKeyState(prevHistMode_) & 1) {
+        histModeIdx_ = histModeIdx_ == 0 ? HIST_MODE_COUNT - 1 : histModeIdx_ - 1;
+        updateText();
+    }
+    if (GetAsyncKeyState(nextHistMode_) & 1) {
+        histModeIdx_ = histModeIdx_ == (HIST_MODE_COUNT - 1) ? 0 : histModeIdx_ + 1;
+        updateText();
+    }
 }
 
 void HistogramExample::render() {
     BaseExample::render();
 
     int frameIdx = frameCount_ % FRAMES_IN_FLIGHT;
-
     clearViews();
     // Render scene
 
@@ -215,7 +297,7 @@ void HistogramExample::render() {
 
     // Render histogram display to texture
     HistDisplCB constBuffDispl{};
-    constBuffDispl.HistIdx_NumPix.x = 0;
+    constBuffDispl.HistIdx_NumPix.x = HIST_MODES[histModeIdx_];
     constBuffDispl.HistIdx_NumPix.y = totalPixels;
     histDisplCB_->update(context_.immediateContext_, constBuffDispl);
     histDisplCB_->use<Stage::CS>(context_.immediateContext_, 0);
@@ -228,27 +310,44 @@ void HistogramExample::render() {
     context_.immediateContext_->CSSetShaderResources(0, 1, &nullSRV);
     context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
 
+    
+    // Render the source texture to screen
+    {
+        Transform shadowMapDisplayTransform(XMFLOAT3(0, 0, 0));
+        Shaders::TexturedQuadCB texQuadCB;
+        texQuadCB.World = XMMatrixTranspose(shadowMapDisplayTransform.generateModelMatrix());
+
+        texturedQuadShader_->use(context_.immediateContext_);
+        texturedQuadShader_->updateConstantBuffer(context_.immediateContext_, texQuadCB);
+        context_.immediateContext_->PSSetShaderResources(0, 1, srcTextureSRV_.GetAddressOf());
+        linearSampler_->use(context_.immediateContext_, 0);
+        quad_->draw(context_);
+    }
+
 
     // Render histogram texture to screen
-    const float scale = 0.4f;
-    Transform shadowMapDisplayTransform(
-        XMFLOAT3(0, 0, 0),
-        XMFLOAT3(0, 0, 0),
-        XMFLOAT3(scale, scale, scale)
-    );
-    Shaders::TexturedQuadCB texQuadCB;
-    texQuadCB.World = XMMatrixTranspose(shadowMapDisplayTransform.generateModelMatrix());
+    {
+        const float scale = 0.4f;
+        Transform shadowMapDisplayTransform(
+            XMFLOAT3(1 - scale, 1 - scale, 0),
+            XMFLOAT3(0, 0, 0),
+            XMFLOAT3(scale, scale, scale)
+        );
+        Shaders::TexturedQuadCB texQuadCB;
+        texQuadCB.World = XMMatrixTranspose(shadowMapDisplayTransform.generateModelMatrix());
 
-    histDisplayShader_->use(context_.immediateContext_);
-    histDisplayShader_->updateConstantBuffer(context_.immediateContext_, texQuadCB);
-    context_.immediateContext_->PSSetShaderResources(0, 1, histDisplSRV_[frameIdx].GetAddressOf());
-    pointSampler_->use(context_.immediateContext_, 0);
-    quad_->draw(context_);
+        texturedQuadShader_->use(context_.immediateContext_);
+        texturedQuadShader_->updateConstantBuffer(context_.immediateContext_, texQuadCB);
+        context_.immediateContext_->PSSetShaderResources(0, 1, histDisplSRV_[frameIdx].GetAddressOf());
+        pointSampler_->use(context_.immediateContext_, 0);
+        quad_->draw(context_);
+    }
 
     context_.immediateContext_->PSSetShaderResources(0, 1, &nullSRV);
 
-    context_.swapChain_->Present(1, 0);
+    infoText_->draw(context_);
 
+    context_.swapChain_->Present(1, 0);
 }
 
 }

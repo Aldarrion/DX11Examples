@@ -1,12 +1,6 @@
 #include "FontSDF.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_ONLY_PNG
-#pragma warning(push)
-#pragma warning(disable: 4100)
-#pragma warning(disable: 4505)
 #include "stb/stb_image.h"
-#pragma warning(pop)
 
 #include <fstream>
 
