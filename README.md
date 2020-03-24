@@ -16,9 +16,9 @@ The rest of the libraries are included in the repository.
 
 ## Examples
 
-The first two examples are taken directly from MSDN and show how a window is created and how do we output a basic triangle to the window with all the calls necessary. These are in projects `Tutorial01` and `Tutorial02`. The rest of the examples are in project `Examples`. To run different examples simply go to the `main.cpp` and set the variable `example` to whichever one you want. Some of the examples are adapted from [learnopengl.com](https://learnopengl.com/) by Joey de Vries, which is by the way a great resource if you want to learn OpenGL or some other graphics techniques.
+The first two examples are adapted from MSDN and show how a window is created and how do we output a basic triangle to the window with all the calls necessary. These are in projects `Tutorial01` and `Tutorial02`. The rest of the examples are in project `Examples`. And use common tools from the project `Framework`. To run different examples simply go to the `main.cpp` and set the variable `example` to whichever one you want. Some of the examples are adapted from [learnopengl.com](https://learnopengl.com/) by Joey de Vries, which is by the way a great resource if you want to learn OpenGL or some other graphics techniques.
 
-**Controls**
+#### Controls
 
 In most of the examples you can move around the scene as in FPS game. Use mouse to look around and *WASD* to move, *Ctrl* to go down, *Space* to go up. To detach the mouse from the window press *M*, to attach it again (enable camera) press the *M* again. Most examples also support reloading shaders at runtime by pressing *F5* to improve iteration times and encourage experimentation.
 
@@ -26,11 +26,11 @@ To change parameters of the shading simply follow the on screen instructions (if
 
 ### Tutorial 1: Empty window
 
-Taken from [MSDN tutorials](https://code.msdn.microsoft.com/windowsdesktop/Direct3D-Tutorial-Win32-829979ef). Explains how to open a window, create a DirectX 11 context (device, swap chain, etc.), and draw a solid blue background.
+Adapted from [MSDN tutorials](https://code.msdn.microsoft.com/windowsdesktop/Direct3D-Tutorial-Win32-829979ef). Explains how to open a window, create a DirectX 11 context (device, swap chain, etc.), and draw a solid blue background.
 
 ### Tutorial 2: Yellow triangle
 
-Taken from [MSDN tutorials](https://code.msdn.microsoft.com/windowsdesktop/Direct3D-Tutorial-Win32-829979ef). Building on the previous tutorial, explains how to compile HLSL shaders and use them in the program. Using a simple vertex buffer draws a triangle on screen.
+Adapted from [MSDN tutorials](https://code.msdn.microsoft.com/windowsdesktop/Direct3D-Tutorial-Win32-829979ef). Building on the previous tutorial, explains how to compile HLSL shaders and use them in the program. Using a simple vertex buffer draws a triangle on screen.
 
 ### Basic triangle
 
@@ -98,6 +98,8 @@ Using compute shaders is different from the standard graphics pipeline in severa
 
 The *thread* count per *group* is hardcoded in the shader via a `numthreads[x, y, z]` attribute where `x`, `y`, and `z` are thread counts in each dimension. The number of *groups* is specified when running the shader from C++ by calling `Dispatch(grpX, grpY, grpZ)`. This gives us a total of `N = x * grpX * y * grpY * z * grpZ` threads which means `N` invocations of the shader. Since we control the number of threads we also control what will the threads do - what will they access, where will they write. In the shader we have access to various indices such as global `(x, y, z)` indices of current thread. This way we can design the shader that each thread writes to a single pixel in a texture but it is totally up to us.
 
+For more information see the [MSDN documentation](https://docs.microsoft.com/en-us/windows/win32/direct3d11/direct3d-11-advanced-stages-compute-shader).
+
 #### Pros and cons
 
 Compute shaders have several advantages compared to the graphics pipeline. The obvious one is the generality where we can easily write to output textures/buffers without having to "hack" it via drawing in a pixel shader. This "hacking" is usually also slower since in a graphics pipeline we need a mesh (quad, triangle) to render to which needs to go through all the steps such as rasterization etc. Groups of threads also share cache and have shared memory at their disposal which can increase performance if utilized well. In CS we can also read from anywhere and write anywhere in the bound resources (if their types allow it). This brings us to a disadvantage of the CS - since the GPU cannot know which parts of the resources will be written into, it must wait for all the threads to finish before it can use the resource anywhere else. Also, UAV resources need to be created as such and only in some formats this may lead to slower performance in some other usages.
@@ -105,10 +107,6 @@ Compute shaders have several advantages compared to the graphics pipeline. The o
 #### Why histogram?
 
 It is a simple yet practical example. A histogram of a scene is usually calculated to determine how the exposition should be adjusted for the HDR effect. Using a compute shader for this is ideal since all the information is on the GPU and should stay there (in contrast to computing the histogram on a CPU where we would have to copy textures to and from CPU accessable memory).
-
-#### More info
-
-[MSDN documentation](https://docs.microsoft.com/en-us/windows/win32/direct3d11/direct3d-11-advanced-stages-compute-shader)
 
 ### Shader Change Performance
 
