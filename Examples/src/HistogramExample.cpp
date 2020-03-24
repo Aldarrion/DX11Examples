@@ -10,7 +10,7 @@ using namespace DirectX;
 
 namespace Compute {
 
-constexpr int HISTOGRAM_LEVELS  = 256 + 1; // color levels + 1 to store max values
+constexpr int HISTOGRAM_LEVELS  = 256; // color levels + 1 to store max values
 
 int HIST_DISPL_WIDTH = 512;
 int HIST_DISPL_HEIGHT = 256;
@@ -279,16 +279,21 @@ void HistogramExample::render() {
     context_.immediateContext_->ClearUnorderedAccessViewUint(histDataUAV_[frameIdx].Get(), clr);
 
     // This must match with the values in the shader
-    static constexpr int THREAD_PER_GROUP_X = 8;
-    static constexpr int THREAD_PER_GROUP_Y = 8;
+    static constexpr int THREAD_PER_GROUP_X = 16;
+    static constexpr int THREAD_PER_GROUP_Y = 16;
     static constexpr int THREAD_PER_GROUP_Z = 1;
     const int threadGroupCountX = static_cast<int>(std::ceilf(1.0f * texWidth / THREAD_PER_GROUP_X));
     const int threadGroupCountY = static_cast<int>(std::ceilf(1.0f * texHeight / THREAD_PER_GROUP_Y));
 
     context_.immediateContext_->CSSetShaderResources(0, 1, srcTextureSRV_.GetAddressOf());
     context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, histDataUAV_[frameIdx].GetAddressOf(), nullptr);
+
+    // Dispatch is an execution command for compute shaders, which spawns a number of compute groups given in its arguments
+    // The number of threads in these groups is controlled from the compute shader (see numthreads[x, y, z])
     context_.immediateContext_->Dispatch(threadGroupCountX, threadGroupCountY, 1);
 
+    // Bind nulls as a good practice to prevent bugs, UAV needs to be unbound before it is used on input, otherwise it is forced to null
+    // 
     static ID3D11ShaderResourceView* nullSRV = { nullptr };
     static ID3D11UnorderedAccessView* nullUAV = { nullptr };
     context_.immediateContext_->CSSetShaderResources(0, 1, &nullSRV);
@@ -303,14 +308,14 @@ void HistogramExample::render() {
     histDisplCB_->use<Stage::CS>(context_.immediateContext_, 0);
     histDisplCS_->use(context_.immediateContext_);
 
-    context_.immediateContext_->CSSetShaderResources(0, 1, histDataSRV_[frameIdx].GetAddressOf());
+    context_.immediateContext_->CSSetShaderResources(0, 1, histDataSRV_.GetAddressOf());
     context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, histDisplUAV_[frameIdx].GetAddressOf(), nullptr);
     context_.immediateContext_->Dispatch(HISTOGRAM_LEVELS, 1, 1);
 
-    context_.immediateContext_->CSSetShaderResources(0, 1, &nullSRV);
+    //context_.immediateContext_->CSSetShaderResources(0, 1, &nullSRV);
     context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
 
-    
+
     // Render the source texture to screen
     {
         Transform shadowMapDisplayTransform(XMFLOAT3(0, 0, 0));
