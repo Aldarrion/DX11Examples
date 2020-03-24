@@ -21,7 +21,7 @@ struct HistDataCB {
 };
 
 struct HistDisplCB {
-    DirectX::XMUINT4 HistIdx_NumPix;
+    DirectX::XMUINT4 HistIdx;
 };
 
 class HistogramExample : public BaseExample {
@@ -48,16 +48,15 @@ protected:
     ComPtr<ID3D11Texture2D> srcTexture_;
     ComPtr<ID3D11ShaderResourceView> srcTextureSRV_;
 
-    static constexpr int FRAMES_IN_FLIGHT = 4;
-    ComPtr<ID3D11UnorderedAccessView> histDataUAV_[FRAMES_IN_FLIGHT];
-    ComPtr<ID3D11ShaderResourceView> histDataSRV_[FRAMES_IN_FLIGHT];
+    ComPtr<ID3D11UnorderedAccessView> histDataUAV_;
+    ComPtr<ID3D11ShaderResourceView> histDataSRV_;
 
     std::unique_ptr<ComputeShader> histDataCS_;
     std::unique_ptr<ComputeShader> histDisplCS_;
     std::unique_ptr<ConstBuffHistData> histDataCB_;
 
-    ComPtr<ID3D11UnorderedAccessView> histDisplUAV_[FRAMES_IN_FLIGHT];
-    ComPtr<ID3D11ShaderResourceView> histDisplSRV_[FRAMES_IN_FLIGHT];
+    ComPtr<ID3D11UnorderedAccessView> histDisplUAV_;
+    ComPtr<ID3D11ShaderResourceView> histDisplSRV_;
 
     Shaders::PTexturedQuad texturedQuadShader_;
     std::unique_ptr<ConstBuffHistDispl> histDisplCB_;

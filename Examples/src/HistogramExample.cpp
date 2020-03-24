@@ -83,7 +83,10 @@ HRESULT HistogramExample::setup() {
     linearSampler_ = std::make_unique<LinearSampler>(context_.d3dDevice_);
     quad_ = std::make_unique<Quad>(context_.d3dDevice_);
 
+
+    // ===============================================
     // Load source texture to compute the histogram of
+    // ===============================================
     {
         int x, y, n;
         unsigned char *data = stbi_load("textures/clouds-daylight-forest-grass-371589.jpg", &x, &y, &n, 4);
@@ -130,11 +133,12 @@ HRESULT HistogramExample::setup() {
     }
 
 
+    // ==========================================
     // Create the histogram computation resources
+    // ==========================================
     histDataCB_ = std::make_unique<ConstBuffHistData>(context_.d3dDevice_);
     histDisplCB_ = std::make_unique<ConstBuffHistDispl>(context_.d3dDevice_);
 
-    for (int i = 0; i < FRAMES_IN_FLIGHT; ++i)
     {
         constexpr int HISTOGRAM_BPP     = 16; // bytes per pixel
         D3D11_BUFFER_DESC buffDesc{};
@@ -157,7 +161,7 @@ HRESULT HistogramExample::setup() {
         uavDesc.Buffer.NumElements  = HISTOGRAM_LEVELS;
         uavDesc.Buffer.Flags        = 0;
 
-        hr = context_.d3dDevice_->CreateUnorderedAccessView(histogramBuff.Get(), &uavDesc, histDataUAV_[i].GetAddressOf());
+        hr = context_.d3dDevice_->CreateUnorderedAccessView(histogramBuff.Get(), &uavDesc, histDataUAV_.GetAddressOf());
         if (FAILED(hr))
             return hr;
 
@@ -167,12 +171,11 @@ HRESULT HistogramExample::setup() {
         srvDesc.Buffer.FirstElement         = 0;
         srvDesc.Buffer.NumElements          = HISTOGRAM_LEVELS;
 
-        hr = context_.d3dDevice_->CreateShaderResourceView(histogramBuff.Get(), &srvDesc, histDataSRV_[i].GetAddressOf());
+        hr = context_.d3dDevice_->CreateShaderResourceView(histogramBuff.Get(), &srvDesc, histDataSRV_.GetAddressOf());
         if (FAILED(hr))
             return hr;
     }
 
-    for (int i = 0; i < FRAMES_IN_FLIGHT; ++i)
     {
         D3D11_TEXTURE2D_DESC histTexDesc{};
         histTexDesc.Width          = 512;
@@ -196,7 +199,7 @@ HRESULT HistogramExample::setup() {
         uavDesc.ViewDimension       = D3D11_UAV_DIMENSION_TEXTURE2D;
         uavDesc.Texture2D.MipSlice  = 0;
 
-        hr = context_.d3dDevice_->CreateUnorderedAccessView(histogramTexture.Get(), &uavDesc, histDisplUAV_[i].GetAddressOf());
+        hr = context_.d3dDevice_->CreateUnorderedAccessView(histogramTexture.Get(), &uavDesc, histDisplUAV_.GetAddressOf());
         if (FAILED(hr))
             return hr;
 
@@ -206,7 +209,7 @@ HRESULT HistogramExample::setup() {
         srvDesc.Texture2D.MipLevels         = 1;
         srvDesc.Texture2D.MostDetailedMip   = 0;
 
-        hr = context_.d3dDevice_->CreateShaderResourceView(histogramTexture.Get(), &srvDesc, histDisplSRV_[i].GetAddressOf());
+        hr = context_.d3dDevice_->CreateShaderResourceView(histogramTexture.Get(), &srvDesc, histDisplSRV_.GetAddressOf());
     }
 
     hr = reloadShaders();
@@ -252,31 +255,26 @@ void HistogramExample::handleInput() {
 void HistogramExample::render() {
     BaseExample::render();
 
-    int frameIdx = frameCount_ % FRAMES_IN_FLIGHT;
     clearViews();
-    // Render scene
-
+    
+    // Get the current texture data
     D3D11_TEXTURE2D_DESC srcTexDesc;
     srcTexture_->GetDesc(&srcTexDesc);
     const int texWidth = srcTexDesc.Width;
     const int texHeight = srcTexDesc.Height;
 
-    const int totalPixels = texWidth * texHeight;
-    const float histPerPixel = 1.0f / totalPixels;
-
-    
     // Compute the histogram of given image (scene)
     HistDataCB constBuff{};
     constBuff.Dimensions.x = texWidth;
     constBuff.Dimensions.y = texHeight;
     constBuff.Dimensions.z = HISTOGRAM_LEVELS;
-    constBuff.HistPerPix.x = histPerPixel;
     histDataCB_->update(context_.immediateContext_, constBuff);
     histDataCB_->use<Stage::CS>(context_.immediateContext_, 0);
     histDataCS_->use(context_.immediateContext_);
 
+    // Clear the UAV buffer used to accumulate the histogram data
     UINT clr[4] = { 0, 0, 0, 0 };
-    context_.immediateContext_->ClearUnorderedAccessViewUint(histDataUAV_[frameIdx].Get(), clr);
+    context_.immediateContext_->ClearUnorderedAccessViewUint(histDataUAV_.Get(), clr);
 
     // This must match with the values in the shader
     static constexpr int THREAD_PER_GROUP_X = 16;
@@ -286,33 +284,28 @@ void HistogramExample::render() {
     const int threadGroupCountY = static_cast<int>(std::ceilf(1.0f * texHeight / THREAD_PER_GROUP_Y));
 
     context_.immediateContext_->CSSetShaderResources(0, 1, srcTextureSRV_.GetAddressOf());
-    context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, histDataUAV_[frameIdx].GetAddressOf(), nullptr);
+    context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, histDataUAV_.GetAddressOf(), nullptr);
 
     // Dispatch is an execution command for compute shaders, which spawns a number of compute groups given in its arguments
     // The number of threads in these groups is controlled from the compute shader (see numthreads[x, y, z])
     context_.immediateContext_->Dispatch(threadGroupCountX, threadGroupCountY, 1);
 
-    // Bind nulls as a good practice to prevent bugs, UAV needs to be unbound before it is used on input, otherwise it is forced to null
-    // 
-    static ID3D11ShaderResourceView* nullSRV = { nullptr };
+    // UAV needs to be unbound before it is used on input, otherwise it is forced to null by the driver
     static ID3D11UnorderedAccessView* nullUAV = { nullptr };
-    context_.immediateContext_->CSSetShaderResources(0, 1, &nullSRV);
     context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
 
 
     // Render histogram display to texture
     HistDisplCB constBuffDispl{};
-    constBuffDispl.HistIdx_NumPix.x = HIST_MODES[histModeIdx_];
-    constBuffDispl.HistIdx_NumPix.y = totalPixels;
+    constBuffDispl.HistIdx.x = HIST_MODES[histModeIdx_];
     histDisplCB_->update(context_.immediateContext_, constBuffDispl);
     histDisplCB_->use<Stage::CS>(context_.immediateContext_, 0);
     histDisplCS_->use(context_.immediateContext_);
 
     context_.immediateContext_->CSSetShaderResources(0, 1, histDataSRV_.GetAddressOf());
-    context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, histDisplUAV_[frameIdx].GetAddressOf(), nullptr);
+    context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, histDisplUAV_.GetAddressOf(), nullptr);
     context_.immediateContext_->Dispatch(HISTOGRAM_LEVELS, 1, 1);
 
-    //context_.immediateContext_->CSSetShaderResources(0, 1, &nullSRV);
     context_.immediateContext_->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
 
 
@@ -343,12 +336,12 @@ void HistogramExample::render() {
 
         texturedQuadShader_->use(context_.immediateContext_);
         texturedQuadShader_->updateConstantBuffer(context_.immediateContext_, texQuadCB);
-        context_.immediateContext_->PSSetShaderResources(0, 1, histDisplSRV_[frameIdx].GetAddressOf());
+        context_.immediateContext_->PSSetShaderResources(0, 1, histDisplSRV_.GetAddressOf());
         pointSampler_->use(context_.immediateContext_, 0);
         quad_->draw(context_);
     }
 
-    context_.immediateContext_->PSSetShaderResources(0, 1, &nullSRV);
+    //context_.immediateContext_->PSSetShaderResources(0, 1, &nullSRV);
 
     infoText_->draw(context_);
 

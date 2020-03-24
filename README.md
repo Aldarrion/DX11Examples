@@ -52,6 +52,10 @@ Shadow mapping for a single directional light with simple soft shadows. Shows ho
 
 Useful application of geometry shader which renders geometry normals in second pass after the geometry is rendered.
 
+### Alpha to Coverage
+
+This is a showcase of the *Alpha to Coverage* (AtC) antialiasing technique. Full supersampling works by rendering the image in higher resolution (for example double = 4 times the number of pixels) and then taking an average of these pixels which is then written to the resulting buffer. This approach is way too slow and can be optimized by skipping pixels which belong to the same polygon and only multisample pixels on triangle edges which is a technique called *Multisampling antialiasing* (MSAA). This works well for opaque fragments but not so much for semi-transparent ones. AtC handles the case where we would like to perform multisampling even inside the triangle because we have some semi-transparent pixels. If we used alpha blending we would be forced to sort the triangles from back to front and render them in order. AtC takes a different approach where the alpha value of a pixel determines how many samples in multisampling it covers. If the alpha is zero, the pixel is discarded. If the alpha is 1 no additional multisampling is done (the pixel is fully opaque). For alpha between 0 and 1, we determine how many MSAA samples are covered and then write these to the appropriate MSAA buffer. Since multisampling itself takes care of the potential blending of several overlapping pixels, there is no need to sort the geometry.
+
 ### Billboard
 
 Uses geometry shader to expand a single point to three billboards on which we then render a semi transparent grass texture. To do this we need to enable alpha blending. Since the transparent objects are intersecting each other, we cannot order them from back to front and disable the depth test. Instead, we test whether a fragment is "transparent enough" in the pixel shader and if it is we do not output it. Behavior without discarding can be seen by experimenting with the section around `discard` in the shader.
@@ -84,13 +88,31 @@ This example shows screen space ambient occlusion technique. We utilize concepts
 
 Note that the SSAO only influences the ambient component of the shading and this way simulates global illumination. The effect of SSAO on directly illuminated geometry is relatively small (although this can be tweaked). Also note that for performance reasons, this technique is performed in screen space and therefore is not perfectly visually accurate, i.e., depth (and occlusion) is dependant on the position of the viewer (see fingers on the model's hand). For more information see [John Chapman](http://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html) and [Joey de Vries](https://learnopengl.com/Advanced-Lighting/SSAO) tutorials which served as a base for this example.
 
+### Compute shader histogram
+
+Example of how to use a compute shader (CS) to calculate a histogram of an image and to create a texture with the histogram data visualization.
+
+#### Compute shader basics
+
+Using compute shaders is different from the standard graphics pipeline in several aspects. CS do not have standard input/output as vertex or pixel shaders. We can bind resources such as buffers and textures to the shader and to be able to output data compute shaders have one special type of resource called Unordered Access View (UAV) which can be simultaneously read and written into from multiple compute threads. CS are organized to *groups* of *threads* which can be visualized as a grid of threads. Each thread runs the given compute shader independently, such as a pixel shader for fragments or vertex shader for vertices. However, the number of threads we spawn is totally up to us and does not depend on any input or output - compare this to a pixel shader which runs once per sample of the currently bound render target.
+
+The *thread* count per *group* is hardcoded in the shader via a `numthreads[x, y, z]` attribute where `x`, `y`, and `z` are thread counts in each dimension. The number of *groups* is specified when running the shader from C++ by calling `Dispatch(grpX, grpY, grpZ)`. This gives us a total of `N = x * grpX * y * grpY * z * grpZ` threads which means `N` invocations of the shader. Since we control the number of threads we also control what will the threads do - what will they access, where will they write. In the shader we have access to various indices such as global `(x, y, z)` indices of current thread. This way we can design the shader that each thread writes to a single pixel in a texture but it is totally up to us.
+
+#### Pros and cons
+
+Compute shaders have several advantages compared to the graphics pipeline. The obvious one is the generality where we can easily write to output textures/buffers without having to "hack" it via drawing in a pixel shader. This "hacking" is usually also slower since in a graphics pipeline we need a mesh (quad, triangle) to render to which needs to go through all the steps such as rasterization etc. Groups of threads also share cache and have shared memory at their disposal which can increase performance if utilized well. In CS we can also read from anywhere and write anywhere in the bound resources (if their types allow it). This brings us to a disadvantage of the CS - since the GPU cannot know which parts of the resources will be written into, it must wait for all the threads to finish before it can use the resource anywhere else. Also, UAV resources need to be created as such and only in some formats this may lead to slower performance in some other usages.
+
+#### Why histogram?
+
+It is a simple yet practical example. A histogram of a scene is usually calculated to determine how the exposition should be adjusted for the HDR effect. Using a compute shader for this is ideal since all the information is on the GPU and should stay there (in contrast to computing the histogram on a CPU where we would have to copy textures to and from CPU accessable memory).
+
+#### More info
+
+[MSDN documentation](https://docs.microsoft.com/en-us/windows/win32/direct3d11/direct3d-11-advanced-stages-compute-shader)
+
 ### Shader Change Performance
 
 This example explores how much does it cost to render using one shader versus render each odd triangle with another shader and switch back and forth. Both shaders are trivial to see only the swapping cost. Takeaway from this is that whenever possible we should batch the meshes using the same shader so we do not have to switch them. E.g. in our example it would be much better to draw all the even triangles first and then all the odd ones. (It would of course be even better to instantiate this to save draw calls). In my case the rendering with a single shader was on average 37% faster then swapping the 2 shaders when drawing 512 triangles.
-
-### Alpha to Coverage
-
-This is a showcase of the *Alpha to Coverage* (AtC) antialiasing technique. Full supersampling works by rendering the image in higher resolution (for example double = 4 times the number of pixels) and then taking an average of these pixels which is then written to the resulting buffer. This approach is way too slow and can be optimized by skipping pixels which belong to the same polygon and only multisample pixels on triangle edges which is a technique called *Multisampling antialiasing* (MSAA). This works well for opaque fragments but not so much for semi-transparent ones. AtC handles the case where we would like to perform multisampling even inside the triangle because we have some semi-transparent pixels. If we used alpha blending we would be forced to sort the triangles from back to front and render them in order. AtC takes a different approach where the alpha value of a pixel determines how many samples in multisampling it covers. If the alpha is zero, the pixel is discarded. If the alpha is 1 no additional multisampling is done (the pixel is fully opaque). For alpha between 0 and 1, we determine how many MSAA samples are covered and then write these to the appropriate MSAA buffer. Since multisampling itself takes care of the potential blending of several overlapping pixels, there is no need to sort the geometry.
 
 ### Gamma Correction
 
